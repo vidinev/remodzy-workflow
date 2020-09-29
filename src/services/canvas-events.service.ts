@@ -1,5 +1,6 @@
-import { Canvas, Group, IEvent, Object } from 'fabric/fabric-impl';
+import { Canvas, IEvent, Object } from 'fabric/fabric-impl';
 import { leftAngleOffset, stateItemSize, topAngleOffset } from '../configs/size.config';
+import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area';
 
 interface DragDropCallbacks {
   dragStartCallback: (event: IEvent) => void;
@@ -19,12 +20,12 @@ export class CanvasEventsService {
     this.currentDragTop = 0;
   }
 
-  setupDropAreaEvents(dropAreas: Group[]) {
+  setupDropAreaEvents(dropAreas: WorkflowDropAreaGroup[]) {
     this.canvas.on('object:moving', (event: IEvent) => {
-      dropAreas.forEach((dropArea: Group) => {
+      dropAreas.forEach((dropArea: WorkflowDropAreaGroup) => {
         event.target?.setCoords();
-        const opacity = event.target?.intersectsWithObject(dropArea) ? 0.5 : 1;
-        dropArea.set('opacity', opacity);
+        const hasIntersect = Boolean(event.target?.intersectsWithObject(dropArea));
+        dropArea.toggleActive(hasIntersect);
       });
     });
   }

@@ -1,4 +1,4 @@
-import { Canvas, Group, ICanvasOptions, IEvent } from 'fabric/fabric-impl';
+import { Canvas, ICanvasOptions, IEvent } from 'fabric/fabric-impl';
 import { RemodzyWFSettings } from '../interfaces/workflow-settings.interface';
 import {
   canvasConfig,
@@ -13,10 +13,12 @@ import { DrawOffsetService } from './draw-offset.service';
 import { data } from '../configs/data.config';
 import { dropAreaSize, stateItemSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
+import { WorkflowDropArea } from 'src/models/drop-area.model';
+import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area'
 
 /*
- * Add interfaces, remove any
- * Highlight drop area when drag over it correctly
+ * Drag drop sorting
+ * Hide last drop area
  * Drop basic bounding lines
  * Use main state object to keep info about all canvas objects
  * Test lib basic functionality
@@ -30,7 +32,7 @@ export class RemodzyWorkflowBuilder {
   private canvasEvents: CanvasEventsService;
   private animate: AnimateService;
   private drawOffset: DrawOffsetService;
-  private dropAreas: Group[] = [];
+  private dropAreas: WorkflowDropAreaGroup[] = [];
 
   constructor(settings: RemodzyWFSettings) {
     this.canvas = new fabric.Canvas(settings.elementId, this.canvasConfig);
@@ -63,6 +65,9 @@ export class RemodzyWorkflowBuilder {
       },
       dragEndCallback: (event: IEvent) => {
         this.animate.animateDragDrop(event, 0);
+        this.dropAreas.forEach((dropArea: WorkflowDropAreaGroup) => {
+          dropArea.toggleActive(false);
+        });
       },
     });
   }
@@ -94,7 +99,7 @@ export class RemodzyWorkflowBuilder {
 
     const dropAreaText = new fabric.Textbox('Drop here', dropAreaTextConfig);
 
-    const dropAreaGroup = new fabric.Group([dropArea, dropAreaText], {
+    const dropAreaGroup = new WorkflowDropArea([dropArea, dropAreaText], {
       left: Math.round(this.canvas.width! / 2 - dropAreaSize.width / 2),
       top: centeredOffset,
       selectable: false,
