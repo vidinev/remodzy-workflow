@@ -3,5 +3,5 @@ export const remodzyColors = {
   rectBgColor: '#fff',
   rectTextColor: '#202B3D',
   dropAreaStrokeColor: 'rgba(44, 73, 122, 0.1)',
-  dropAreaTextColor: '#929CAD'
+  dropAreaTextColor: '#929CAD',
 };

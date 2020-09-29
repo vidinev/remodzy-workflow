@@ -3,6 +3,5 @@ import { data } from './configs/data.config';
 
 const a = new RemodzyWorkflowBuilder({
   elementId: 'main-canvas',
-  data
+  data,
 });
-console.log(a);

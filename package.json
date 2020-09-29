@@ -33,7 +33,8 @@
     "semantic-release": "semantic-release",
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
     "precommit": "lint-staged",
-    "travis-deploy-once": "travis-deploy-once"
+    "travis-deploy-once": "travis-deploy-once",
+    "pretty": "prettier \"src/**/*\" --write --ignore-unknown"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
@@ -74,8 +75,11 @@
     ]
   },
   "prettier": {
-    "semi": false,
-    "singleQuote": true
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": true,
+    "arrowParens": "always"
   },
   "commitlint": {
     "extends": [

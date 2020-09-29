@@ -10,7 +10,7 @@ export class AnimateService {
 
   animateDragDrop(event: IEvent, dir: number) {
     const duration = 80;
-    const opacityDelta = .5;
+    const opacityDelta = 0.5;
     const angleDelta = dir ? stateItemSize.dragDropAngle : -stateItemSize.dragDropAngle;
     if (event.target) {
       const angle = event.target.get('angle') || 0;
@@ -24,7 +24,7 @@ export class AnimateService {
             this.canvas.renderAll();
           }
         },
-        easing: fabric.util.ease.easeOutSine
+        easing: fabric.util.ease.easeOutSine,
       } as IUtilAnimationOptions);
       const opacity = event.target.get('opacity') || 0;
       fabric.util.animate({
@@ -36,7 +36,7 @@ export class AnimateService {
             event.target.setOptions({ opacity: value });
             this.canvas.renderAll();
           }
-        }
+        },
       } as IUtilAnimationOptions);
     }
   }

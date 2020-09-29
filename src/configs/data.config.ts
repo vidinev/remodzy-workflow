@@ -1,4 +1,6 @@
-export const data: any = {
+import { WorkflowStateData } from '../interfaces/state-language.interface';
+
+export const data: WorkflowStateData = {
   StartAt: 'StartEvent',
   States: {
     StartEvent: {
@@ -7,7 +9,7 @@ export const data: any = {
       Parameters: {
         taskType: 'start',
         taskIcon: 'start-icon',
-        current: 'StartEvent'
+        stateKey: 'StartEvent',
       },
       Comment: 'Start Event',
     },
@@ -17,7 +19,7 @@ export const data: any = {
       Parameters: {
         taskType: 'sendEmail',
         taskIcon: 'email-icon',
-        current: 'SendEmail10'
+        stateKey: 'SendEmail10',
       },
       Comment: 'Send some Email',
     },
@@ -27,12 +29,13 @@ export const data: any = {
       Parameters: {
         taskType: 'assignTask',
         taskIcon: 'assign-task-icon',
-        current: 'AssignATask2'
-      }
+        stateKey: 'AssignATask2',
+      },
+      Comment: 'Assign this task',
     },
     Complete: {
       Type: 'Pass',
-      End: true
-    }
-  }
+      End: true,
+    },
+  },
 };

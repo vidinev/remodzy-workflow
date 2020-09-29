@@ -5,7 +5,7 @@ import { dropAreaSize, stateItemSize } from './size.config';
 export const canvasConfig = {
   width: 1200,
   height: 800,
-  backgroundColor: remodzyColors.canvasBg
+  backgroundColor: remodzyColors.canvasBg,
 };
 
 export const stateRectConfig: IRectOptions = {
@@ -18,8 +18,8 @@ export const stateRectConfig: IRectOptions = {
   shadow: {
     color: 'rgba(0, 0, 0, .005)',
     blur: 10,
-    offsetY: 4
-  } as Shadow
+    offsetY: 4,
+  } as Shadow,
 };
 
 export const stateTextConfig: ITextboxOptions = {
@@ -30,7 +30,7 @@ export const stateTextConfig: ITextboxOptions = {
   fontFamily: 'Manrope',
   fontWeight: 400,
   textAlign: 'center',
-  fill: remodzyColors.rectTextColor
+  fill: remodzyColors.rectTextColor,
 };
 
 export const dropAreaConfig: IRectOptions = {
@@ -43,7 +43,7 @@ export const dropAreaConfig: IRectOptions = {
   stroke: remodzyColors.dropAreaStrokeColor,
   strokeDashArray: [4, 4],
   strokeWidth: 1.5,
-  selectable: false
+  selectable: false,
 };
 
 export const dropAreaTextConfig = {
@@ -55,5 +55,5 @@ export const dropAreaTextConfig = {
   fontFamily: 'Manrope',
   fontWeight: 400,
   textAlign: 'center',
-  fill: remodzyColors.dropAreaTextColor
+  fill: remodzyColors.dropAreaTextColor,
 };
