@@ -65,9 +65,7 @@ export class RemodzyWorkflowBuilder {
       },
       dragEndCallback: (event: IEvent) => {
         this.animate.animateDragDrop(event, 0);
-        this.dropAreas.forEach((dropArea: WorkflowDropAreaGroup) => {
-          dropArea.toggleActive(false);
-        });
+        this.checkDropItemInArea();
       },
     });
   }
@@ -110,5 +108,13 @@ export class RemodzyWorkflowBuilder {
     });
     this.dropAreas.push(dropAreaGroup);
     this.canvas.add(dropAreaGroup);
+  }
+
+  private checkDropItemInArea() {
+    this.dropAreas.forEach((dropArea: WorkflowDropAreaGroup) => {
+      if (dropArea.isActive()) {
+        dropArea.toggleActive(false);
+      }
+    });
   }
 }

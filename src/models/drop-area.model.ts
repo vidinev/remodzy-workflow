@@ -3,6 +3,7 @@ import { remodzyColors } from '../configs/colors.config';
 
 export const WorkflowDropArea = fabric.util.createClass(fabric.Group, {
   type: 'workflowDropArea',
+  _active: false,
 
   initialize: function(objects: ActiveSelection, options: IObjectOptions) {
     options || ( options = { });
@@ -16,12 +17,17 @@ export const WorkflowDropArea = fabric.util.createClass(fabric.Group, {
     const textColor = toggle
       ? remodzyColors.dropAreaActiveColor
       : remodzyColors.dropAreaTextColor;
+    this.active = toggle;
     this.item(0).setOptions({
       stroke: borderColor
     });
     this.item(1).setOptions({
       fill: textColor
     });
+  },
+
+  isActive() {
+    return this.active;
   },
 
   _render: function(ctx: CanvasRenderingContext2D) {
