@@ -19,7 +19,6 @@ import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area'
 /*
  * Fix drop (without changes, element disappears)
  * Drop basic bounding lines
- * Use main state object to keep info about all canvas objects
  * Test lib basic functionality
  * Merge all js files into one
  */
@@ -70,6 +69,10 @@ export class RemodzyWorkflowBuilder {
           const stateBeforeDropArea = data.States[dropArea.data.stateId];
           const stateAfterDropArea = data.States[stateBeforeDropArea.Next!];
           const stateDropped = data.States[event.target.data.id];
+
+          if (event.target.data.id === dropArea.data.stateId || event.target.data.id === stateBeforeDropArea.Next) {
+            return;
+          }
 
           const stateKeyAfterDroppedState = stateDropped.Next;
 
