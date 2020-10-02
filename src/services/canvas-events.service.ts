@@ -4,12 +4,13 @@ import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area';
 
 interface DragDropCallbacks {
   dragStartCallback: (event: IEvent) => void;
-  dragEndCallback: (event: IEvent) => void;
+  dropCallback: (event: IEvent, dropArea: WorkflowDropAreaGroup) => void;
 }
 
 export class CanvasEventsService {
   private currentDragTop: number;
   private canvas: Canvas;
+  private activeDropArea: WorkflowDropAreaGroup|null = null;
 
   static isDragEventAllowed(target?: Object) {
     return target && target.selectable;
@@ -22,10 +23,14 @@ export class CanvasEventsService {
 
   setupDropAreaEvents(dropAreas: WorkflowDropAreaGroup[]) {
     this.canvas.on('object:moving', (event: IEvent) => {
+      this.activeDropArea = null;
       dropAreas.forEach((dropArea: WorkflowDropAreaGroup) => {
         event.target?.setCoords();
         const hasIntersect = Boolean(event.target?.intersectsWithObject(dropArea));
         dropArea.toggleActive(hasIntersect);
+        if (hasIntersect) {
+          this.activeDropArea = dropArea;
+        }
       });
     });
   }
@@ -39,17 +44,14 @@ export class CanvasEventsService {
         }
       }
     });
-    this.canvas.on('mouse:up', (event: IEvent) => {
-      if (CanvasEventsService.isDragEventAllowed(event.target)) {
-        if (event?.target?.data.id) {
-          this.currentDragTop = 0;
-          this.canvas.remove(this.canvas.getActiveObject());
-          callbacks.dragEndCallback(event);
-        }
-      }
-    });
-    this.canvas.on('object:moved', () => {
+    this.canvas.on('object:moved', (event: IEvent) => {
+      this.currentDragTop = 0;
       this.canvas.remove(this.canvas.getActiveObject());
+      if (this.activeDropArea) {
+        callbacks.dropCallback(event, this.activeDropArea);
+        this.activeDropArea.toggleActive(false);
+        this.activeDropArea = null;
+      }
     });
     this.setupDragOverflowEvents();
   }

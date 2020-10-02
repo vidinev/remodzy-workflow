@@ -8,7 +8,7 @@ export interface WorkflowStateData {
 export interface WorkflowState {
   Type: string;
   Next?: string;
-  Parameters?: WorkflowStateParams;
+  Parameters: WorkflowStateParams;
   Comment?: string;
   End?: boolean;
 }
