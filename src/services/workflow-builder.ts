@@ -6,12 +6,13 @@ import {
   dropAreaTextConfig,
   stateRectConfig,
   stateTextConfig,
-} from '../configs/canvas.config';
+  tiePointConfig
+} from '../configs/canvas.config'
 import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawOffsetService } from './draw-offset.service';
 import { data } from '../configs/data.config';
-import { dropAreaSize, stateItemSize } from '../configs/size.config';
+import { dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config'
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { WorkflowDropArea } from 'src/models/drop-area.model';
 import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area';
@@ -19,7 +20,10 @@ import { ObjectTypes } from '../configs/object-types.enum';
 
 /*
  * Fix mutable data
+ * Draw all tie points
+ * Fix tie point z-index
  * Drop basic bounding lines
+ * Create separate draw service
  * Test lib basic functionality
  * Merge all js files into one
  */
@@ -51,6 +55,7 @@ export class RemodzyWorkflowBuilder {
   public render() {
     this.drawStates();
     this.drawDropAreas();
+    this.drawTiePoints();
   }
 
   private setupCanvasEvents() {
@@ -106,6 +111,15 @@ export class RemodzyWorkflowBuilder {
     this.canvas.add(dropAreaGroup);
   }
 
+  private drawTiePoint(top: number) {
+    const tiePoint = new fabric.Circle({
+      ...tiePointConfig,
+      left: Math.round(this.canvas.width! / 2 - tiePointSize.radius),
+      top
+    });
+    this.canvas.add(tiePoint);
+  }
+
   private drawStates() {
     let currentState = data.States[data.StartAt];
     this.drawOffset.setTopOffset(stateItemSize.margin);
@@ -125,6 +139,16 @@ export class RemodzyWorkflowBuilder {
         const endOfStateTop = (canvasObject.top || 0) + (canvasObject.height || 0);
         const dropAreaTop = endOfStateTop + (stateItemSize.margin - dropAreaSize.height) / 2;
         this.drawDropArea(canvasObject.data.id, dropAreaTop);
+      }
+    });
+  }
+
+  private drawTiePoints() {
+    this.canvas.forEachObject((canvasObject: CanvasObject) => {
+      if (canvasObject.data.type === ObjectTypes.state) {
+        const endOfStateTop = (canvasObject.top || 0) + (canvasObject.height || 0);
+        const tiePointTop = endOfStateTop - tiePointSize.radius;
+        this.drawTiePoint(tiePointTop);
       }
     });
   }

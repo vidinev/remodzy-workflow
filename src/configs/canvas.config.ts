@@ -1,6 +1,7 @@
-import { IRectOptions, ITextboxOptions, Shadow } from 'fabric/fabric-impl';
+import { ICircleOptions, IRectOptions, ITextboxOptions, Shadow } from 'fabric/fabric-impl';
 import { remodzyColors } from './colors.config';
-import { dropAreaSize, stateItemSize } from './size.config';
+import { dropAreaSize, stateItemSize, tiePointSize } from './size.config';
+import { ObjectTypes } from './object-types.enum'
 
 export const canvasConfig = {
   width: 1200,
@@ -46,7 +47,7 @@ export const dropAreaConfig: IRectOptions = {
   selectable: false,
 };
 
-export const dropAreaTextConfig = {
+export const dropAreaTextConfig: ITextboxOptions = {
   width: dropAreaSize.width,
   fontSize: dropAreaSize.fontSize,
   top: Math.round(dropAreaSize.height / 2 - dropAreaSize.fontSize / 2),
@@ -56,4 +57,16 @@ export const dropAreaTextConfig = {
   fontWeight: 400,
   textAlign: 'center',
   fill: remodzyColors.dropAreaTextColor,
+};
+
+export const tiePointConfig: ICircleOptions = {
+  radius: tiePointSize.radius,
+  fill: remodzyColors.canvasBg,
+  stroke: remodzyColors.tiePointStrokeColor,
+  strokeWidth: 1.5,
+  selectable: false,
+  hoverCursor: 'default',
+  data: {
+    type: ObjectTypes.tiePoint
+  }
 };

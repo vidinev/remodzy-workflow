@@ -1,4 +1,5 @@
 export enum ObjectTypes {
   state = 'state',
-  dropArea = 'dropArea'
+  dropArea = 'dropArea',
+  tiePoint = 'tiePoint'
 }
