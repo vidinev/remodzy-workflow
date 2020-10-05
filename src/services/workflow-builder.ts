@@ -17,9 +17,9 @@ import { WorkflowState } from '../interfaces/state-language.interface';
 import { WorkflowDropArea } from 'src/models/drop-area.model';
 import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area';
 import { ObjectTypes } from '../configs/object-types.enum';
+import { WorkflowData } from './workflow-data.service';
 
 /*
- * Fix mutable data
  * Drop basic bounding lines
  * Create separate draw service
  * Test lib basic functionality
@@ -33,10 +33,12 @@ export class RemodzyWorkflowBuilder {
   private canvasEvents: CanvasEventsService;
   private animate: AnimateService;
   private drawOffset: DrawOffsetService;
+  private workflowData: WorkflowData;
 
   constructor(settings: RemodzyWFSettings) {
     this.canvas = new fabric.Canvas(settings.elementId, this.canvasConfig);
     this.canvasEvents = new CanvasEventsService(this.canvas);
+    this.workflowData = new WorkflowData(data);
     this.setupCanvasEvents();
     this.animate = new AnimateService(this.canvas);
     this.drawOffset = new DrawOffsetService();
@@ -59,7 +61,7 @@ export class RemodzyWorkflowBuilder {
   private setupCanvasEvents() {
     this.canvasEvents.setupDragDropEvents({
       dragStartCallback: (event: IEvent) => {
-        this.drawState(data.States[event?.target?.data.id], event?.target?.top || 0);
+        this.drawState(this.workflowData.getStateById(event?.target?.data.id), event?.target?.top || 0);
         this.animate.animateDragDrop(event, 1);
       },
       dropCallback: (event: IEvent, dropArea: WorkflowDropAreaGroup) => {
@@ -75,7 +77,7 @@ export class RemodzyWorkflowBuilder {
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
     const stateTextObject = new fabric.Textbox(stateText, stateTextConfig);
 
-    const isStartEnd = stateData.End || stateData.Parameters?.stateKey === data.StartAt;
+    const isStartEnd = stateData.End || stateData.Parameters?.stateKey === this.workflowData.getStartStateId();
 
     const stateGroup = new fabric.Group([stateContainerObject, stateTextObject], {
       left: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
@@ -85,6 +87,7 @@ export class RemodzyWorkflowBuilder {
       hoverCursor: isStartEnd ? 'default' : 'pointer',
       selectable: !isStartEnd,
       data: {
+        end: stateData.End || false,
         type: ObjectTypes.state,
         id: (stateData.Parameters && stateData.Parameters.stateKey) || '',
       },
@@ -120,11 +123,11 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawStates() {
-    let currentState = data.States[data.StartAt];
+    let currentState = this.workflowData.getStartState();
     this.drawOffset.setTopOffset(stateItemSize.margin);
     while (!currentState.End) {
       this.drawState(currentState);
-      currentState = data.States[currentState.Next!];
+      currentState = this.workflowData.getStateById(currentState.Next!);
       this.drawOffset.addTopOffset(stateItemSize.margin + stateItemSize.height);
     }
     if (currentState.End) {
@@ -134,7 +137,7 @@ export class RemodzyWorkflowBuilder {
 
   private drawDropAreas() {
     this.canvas.forEachObject((canvasObject: CanvasObject) => {
-      if (canvasObject.data.type === ObjectTypes.state && !data.States[canvasObject.data.id].End) {
+      if (canvasObject.data.type === ObjectTypes.state && !canvasObject.data.end) {
         const endOfStateTop = (canvasObject.top || 0) + (canvasObject.height || 0);
         const dropAreaTop = endOfStateTop + (stateItemSize.margin - dropAreaSize.height) / 2;
         this.drawDropArea(canvasObject.data.id, dropAreaTop);
@@ -148,10 +151,10 @@ export class RemodzyWorkflowBuilder {
         const stateTop = (canvasObject.top || 0);
         const tiePointTop = stateTop - tiePointSize.radius;
         const tiePointBottom = tiePointTop + (canvasObject.height || 0);
-        if (canvasObject.data.id !== data.StartAt) {
+        if (canvasObject.data.id !== this.workflowData.getStartStateId()) {
           this.drawTiePoint(tiePointTop);
         }
-        if (!data.States[canvasObject.data.id].End) {
+        if (!canvasObject.data.end) {
           this.drawTiePoint(tiePointBottom);
         }
       }
@@ -159,26 +162,8 @@ export class RemodzyWorkflowBuilder {
   }
 
   private sortObjectsAfterDragAndDrop(dropArea: WorkflowDropAreaGroup, id: string) {
-    const stateBeforeDropArea = data.States[dropArea.data.stateId];
-    const stateAfterDropArea = data.States[stateBeforeDropArea.Next!];
-    const stateDropped = data.States[id];
-
-    if (id === dropArea.data.stateId || id === stateBeforeDropArea.Next) {
-      return;
-    }
-
-    const stateKeyAfterDroppedState = stateDropped.Next;
-    const stateKeyBeforeDropped = Object.keys(data.States).find((key: string) => {
-      return data.States[key].Next === stateDropped.Parameters.stateKey;
-    });
-
-    if (stateKeyBeforeDropped) {
-      const stateBeforeDropped = data.States[stateKeyBeforeDropped];
-      stateBeforeDropArea.Next = stateDropped.Parameters.stateKey;
-      stateDropped.Next = stateAfterDropArea.Parameters.stateKey;
-      stateBeforeDropped.Next = stateKeyAfterDroppedState;
-      this.canvas.clear();
-      this.canvas.setBackgroundColor(canvasConfig.backgroundColor, () => this.render())
-    }
+    this.workflowData.sortStates(id, dropArea.data.stateId);
+    this.canvas.clear();
+    this.canvas.setBackgroundColor(canvasConfig.backgroundColor, () => this.render());
   }
 }
