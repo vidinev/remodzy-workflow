@@ -20,8 +20,6 @@ import { ObjectTypes } from '../configs/object-types.enum';
 
 /*
  * Fix mutable data
- * Draw all tie points
- * Fix tie point z-index
  * Drop basic bounding lines
  * Create separate draw service
  * Test lib basic functionality
@@ -93,6 +91,7 @@ export class RemodzyWorkflowBuilder {
     });
 
     this.canvas.add(stateGroup);
+    stateGroup.sendToBack();
   }
 
   private drawDropArea(stateId: number, top: number) {
@@ -146,9 +145,15 @@ export class RemodzyWorkflowBuilder {
   private drawTiePoints() {
     this.canvas.forEachObject((canvasObject: CanvasObject) => {
       if (canvasObject.data.type === ObjectTypes.state) {
-        const endOfStateTop = (canvasObject.top || 0) + (canvasObject.height || 0);
-        const tiePointTop = endOfStateTop - tiePointSize.radius;
-        this.drawTiePoint(tiePointTop);
+        const stateTop = (canvasObject.top || 0);
+        const tiePointTop = stateTop - tiePointSize.radius;
+        const tiePointBottom = tiePointTop + (canvasObject.height || 0);
+        if (canvasObject.data.id !== data.StartAt) {
+          this.drawTiePoint(tiePointTop);
+        }
+        if (!data.States[canvasObject.data.id].End) {
+          this.drawTiePoint(tiePointBottom);
+        }
       }
     });
   }
