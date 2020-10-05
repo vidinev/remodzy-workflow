@@ -1,6 +1,6 @@
 import { Canvas, IEvent, Object } from 'fabric/fabric-impl';
 import { leftAngleOffset, stateItemSize, topAngleOffset } from '../configs/size.config';
-import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area';
+import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
 
 interface DragDropCallbacks {
@@ -14,7 +14,7 @@ export class CanvasEventsService {
   private activeDropArea: WorkflowDropAreaGroup|null = null;
 
   static isDragEventAllowed(target?: Object) {
-    return target && target.selectable;
+    return target && target.data.type === ObjectTypes.state && target.selectable;
   }
 
   constructor(canvas: Canvas) {

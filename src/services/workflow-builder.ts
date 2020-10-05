@@ -15,15 +15,17 @@ import { data } from '../configs/data.config';
 import { dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config'
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { WorkflowDropArea } from 'src/models/drop-area.model';
-import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area';
+import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowData } from './workflow-data.service';
+import { TieLinesService } from './tie-lines.service';
 
 /*
  * Drop basic bounding lines
  * Create separate draw service
  * Test lib basic functionality
  * Merge all js files into one
+ * StateKey, stateId, id => stateId
  */
 
 export class RemodzyWorkflowBuilder {
@@ -33,15 +35,17 @@ export class RemodzyWorkflowBuilder {
   private canvasEvents: CanvasEventsService;
   private animate: AnimateService;
   private drawOffset: DrawOffsetService;
+  private tieLines: TieLinesService;
   private workflowData: WorkflowData;
 
   constructor(settings: RemodzyWFSettings) {
     this.canvas = new fabric.Canvas(settings.elementId, this.canvasConfig);
     this.canvasEvents = new CanvasEventsService(this.canvas);
     this.workflowData = new WorkflowData(data);
-    this.setupCanvasEvents();
     this.animate = new AnimateService(this.canvas);
+    this.tieLines = new TieLinesService(this.canvas);
     this.drawOffset = new DrawOffsetService();
+    this.setupCanvasEvents();
     this.initialize().then(() => {
       this.canvasEvents.setupDropAreaEvents();
     });
@@ -56,6 +60,7 @@ export class RemodzyWorkflowBuilder {
     this.drawStates();
     this.drawDropAreas();
     this.drawTiePoints();
+    // this.drawTieLines();
   }
 
   private setupCanvasEvents() {
@@ -113,14 +118,41 @@ export class RemodzyWorkflowBuilder {
     this.canvas.add(dropAreaGroup);
   }
 
-  private drawTiePoint(top: number) {
+  private drawTiePoint(stateId: number, top: number) {
     const tiePoint = new fabric.Circle({
       ...tiePointConfig,
       left: Math.round(this.canvas.width! / 2 - tiePointSize.radius),
-      top
+      top,
+      data: {
+        stateId,
+        type: ObjectTypes.tiePoint
+      }
     });
     this.canvas.add(tiePoint);
   }
+
+  // private drawTieLines() {
+  //   const tieLinesStructure = this.tieLines.getTieLinesStructure();
+  //   console.log(tieLinesStructure);
+  //   Object.keys(tieLinesStructure).forEach((stateId: string) => {
+  //     const fromX = tieLinesStructure[stateId].tieStart.left || 0;
+  //     const fromY = tieLinesStructure[stateId].tieStart.top || 0;
+  //     const toX = tieLinesStructure[stateId].dropArea.left || 0;
+  //     const toY = tieLinesStructure[stateId].dropArea.top || 0;
+  //     this.drawTieLine(fromX, fromY, toX, toY);
+  //   });
+  // }
+
+  // private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
+  //   const fabricLine = new fabric.Line([fromX, fromY, toX, toY], {
+  //     fill: remodzyColors.tieLineColor,
+  //     stroke:  remodzyColors.tieLineColor,
+  //     strokeWidth: 1,
+  //     selectable: false,
+  //     evented: false,
+  //   });
+  //   this.canvas.add(fabricLine);
+  // }
 
   private drawStates() {
     let currentState = this.workflowData.getStartState();
@@ -152,10 +184,10 @@ export class RemodzyWorkflowBuilder {
         const tiePointTop = stateTop - tiePointSize.radius;
         const tiePointBottom = tiePointTop + (canvasObject.height || 0);
         if (canvasObject.data.id !== this.workflowData.getStartStateId()) {
-          this.drawTiePoint(tiePointTop);
+          this.drawTiePoint(canvasObject.data.id, tiePointTop);
         }
         if (!canvasObject.data.end) {
-          this.drawTiePoint(tiePointBottom);
+          this.drawTiePoint(canvasObject.data.id, tiePointBottom);
         }
       }
     });

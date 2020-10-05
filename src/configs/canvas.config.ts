@@ -65,8 +65,6 @@ export const tiePointConfig: ICircleOptions = {
   stroke: remodzyColors.tiePointStrokeColor,
   strokeWidth: 1.5,
   selectable: false,
-  hoverCursor: 'default',
-  data: {
-    type: ObjectTypes.tiePoint
-  }
+  evented: false,
+  hoverCursor: 'default'
 };
