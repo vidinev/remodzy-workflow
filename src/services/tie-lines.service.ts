@@ -4,6 +4,8 @@ import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { MathService } from './math.service';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { ITiePointCircle } from '../models/interfaces/tie-point.interface';
+import { UtilsService } from './utils.service';
+import { IStateGroup } from '../models/interfaces/state.interface';
 
 export class TieLinesService {
   canvas: Canvas;
@@ -14,12 +16,12 @@ export class TieLinesService {
 
   getTieLinesStructure(): TieLineStructure[] {
     const tieLinesStructure: TieLineStructure[] = [];
-    this.canvas.forEachObject((canvasObject: CanvasObject) => {
-      if (canvasObject.data.type === ObjectTypes.state && !canvasObject.data.end) {
-        const currentStatePoints = this.getStateRelatedPoints(canvasObject.data.id);
-        const nextStatePoints = this.getStateRelatedPoints(canvasObject.data.next);
+    UtilsService.forEachState(this.canvas, (canvasObject: IStateGroup) => {
+      if (!canvasObject.data.End) {
+        const currentStatePoints = this.getStateRelatedPoints(canvasObject.data.stateId);
+        const nextStatePoints = this.getStateRelatedPoints(canvasObject.data.Next!);
 
-        const currentStateBottom = (canvasObject.top || 0) + (canvasObject.height || 0);
+        const { y: currentStateBottom } = canvasObject.getCenterBottomCoords();
 
         const tieStart = MathService
           .findClosestObjectToTop(
@@ -33,7 +35,7 @@ export class TieLinesService {
             currentStateBottom
           ) as ITiePointCircle;
 
-        const dropArea = this.getDropArea(canvasObject.data.id);
+        const dropArea = this.getDropArea(canvasObject.data.stateId);
 
         if (tieStart && tieEnd && dropArea) {
           tieLinesStructure.push({ tieStart, tieEnd, dropArea });

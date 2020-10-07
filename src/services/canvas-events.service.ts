@@ -14,7 +14,7 @@ export class CanvasEventsService {
   private activeDropArea: IDropAreaGroup|null = null;
 
   static isDragEventAllowed(target?: Object) {
-    return target && target.data.type === ObjectTypes.state && target.selectable;
+    return target && target.type === ObjectTypes.state && target.selectable;
   }
 
   constructor(canvas: Canvas) {
@@ -42,8 +42,8 @@ export class CanvasEventsService {
   setupDragDropEvents(callbacks: DragDropCallbacks) {
     this.canvas.on('mouse:down', (event: IEvent) => {
       if (CanvasEventsService.isDragEventAllowed(event.target)) {
-        if (event?.target?.data.id) {
-          this.currentDragTop = event?.target?.get('top') || 0;
+        if (event?.target?.data.stateId) {
+          this.currentDragTop = event?.target?.top || 0;
           callbacks.dragStartCallback(event);
         }
       }

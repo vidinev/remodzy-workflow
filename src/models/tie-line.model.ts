@@ -1,14 +1,6 @@
-import { ILineOptions, IObjectOptions } from 'fabric/fabric-impl';
+import { IObjectOptions } from 'fabric/fabric-impl';
 import { ObjectTypes } from '../configs/object-types.enum';
-import { remodzyColors } from '../configs/colors.config';
-
-export const tieLineConfig: ILineOptions = {
-  strokeWidth: 1.5,
-  fill: remodzyColors.tieLineColor,
-  stroke:  remodzyColors.tieLineColor,
-  selectable: false,
-  evented: false,
-};
+import { tieLineConfig } from './configs/tie-line-config';
 
 export const TieLine = fabric.util.createClass(fabric.Line, {
   type: ObjectTypes.tieLine,

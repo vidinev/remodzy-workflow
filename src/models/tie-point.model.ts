@@ -1,18 +1,7 @@
-import { ICircleOptions, IObjectOptions } from 'fabric/fabric-impl';
+import { IObjectOptions } from 'fabric/fabric-impl';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
-import { tiePointSize } from '../configs/size.config';
-import { remodzyColors } from '../configs/colors.config';
-
-export const tiePointConfig: ICircleOptions = {
-  radius: tiePointSize.radius,
-  fill: remodzyColors.canvasBg,
-  stroke: remodzyColors.tiePointStrokeColor,
-  strokeWidth: 1.5,
-  selectable: false,
-  evented: false,
-  hoverCursor: 'default'
-};
+import { tiePointConfig } from './configs/tie-point-config';
 
 export const TiePointCircle = fabric.util.createClass(fabric.Circle, {
   type: ObjectTypes.tiePoint,
