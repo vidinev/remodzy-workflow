@@ -14,10 +14,10 @@ import { data } from '../configs/data.config';
 import { dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
-import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
-import { WorkflowDropArea } from 'src/models/drop-area.model'
-import { WorkflowTiePoint } from '../models/tie-point.model';
-import { WorkflowTieLine } from '../models/tie-line.model';
+import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
+import { DropAreaGroup } from 'src/models/drop-area.model';
+import { TiePointCircle } from '../models/tie-point.model';
+import { TieLine } from '../models/tie-line.model';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowData } from './workflow-data.service';
 import { TieLinesService } from './tie-lines.service';
@@ -31,6 +31,7 @@ import { TieLinesService } from './tie-lines.service';
  * StateKey, stateId, id => stateId
  * Create models folder in interfaces
  * Create separate draw service
+ * Remove canvas config file
  * Test lib basic functionality
  * Merge all js files into one
  */
@@ -76,7 +77,7 @@ export class RemodzyWorkflowBuilder {
         this.drawState(this.workflowData.getStateById(event?.target?.data.id), event?.target?.top || 0);
         this.animate.animateDragDrop(event, 1);
       },
-      dropCallback: (event: IEvent, dropArea: WorkflowDropAreaGroup) => {
+      dropCallback: (event: IEvent, dropArea: IDropAreaGroup) => {
         if (event.target?.data.id) {
           this.sortObjectsAfterDragAndDrop(dropArea, event.target.data.id);
         }
@@ -113,7 +114,7 @@ export class RemodzyWorkflowBuilder {
   private drawDropArea(stateId: number, top: number) {
     const dropArea = new fabric.Rect(dropAreaConfig);
     const dropAreaText = new fabric.Textbox('Drop here', dropAreaTextConfig);
-    const dropAreaGroup = new WorkflowDropArea([dropArea, dropAreaText], {
+    const dropAreaGroup = new DropAreaGroup([dropArea, dropAreaText], {
       left: Math.round(this.canvas.width! / 2 - dropAreaSize.width / 2),
       top,
       selectable: false,
@@ -127,7 +128,7 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawTiePoint(stateId: number, top: number) {
-    this.canvas.add(new WorkflowTiePoint({
+    this.canvas.add(new TiePointCircle({
       top,
       left: Math.round((this.canvas.width || 0) / 2 - tiePointSize.radius),
       data: {
@@ -149,7 +150,7 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
-    this.canvas.add(new WorkflowTieLine([fromX, fromY, toX, toY]));
+    this.canvas.add(new TieLine([fromX, fromY, toX, toY]));
   }
 
   private drawStates() {
@@ -191,7 +192,7 @@ export class RemodzyWorkflowBuilder {
     });
   }
 
-  private sortObjectsAfterDragAndDrop(dropArea: WorkflowDropAreaGroup, id: string) {
+  private sortObjectsAfterDragAndDrop(dropArea: IDropAreaGroup, id: string) {
     this.workflowData.sortStates(id, dropArea.data.stateId);
     this.canvas.clear();
     this.canvas.setBackgroundColor(canvasConfig.backgroundColor, () => this.render());

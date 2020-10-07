@@ -1,7 +1,7 @@
 import { Group } from 'fabric/fabric-impl';
-import { PointCoords } from './point-coords.interface'
+import { PointCoords } from '../../interfaces/point-coords.interface';
 
-export interface WorkflowDropAreaGroup extends Group {
+export interface IDropAreaGroup extends Group {
   isActive: () => boolean;
   toggleActive: (toggle: boolean) => void;
   getCenterTopCoords: () => PointCoords;

@@ -1,17 +1,17 @@
 import { Canvas, IEvent, Object } from 'fabric/fabric-impl';
 import { leftAngleOffset, stateItemSize, topAngleOffset } from '../configs/size.config';
-import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
+import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
 
 interface DragDropCallbacks {
   dragStartCallback: (event: IEvent) => void;
-  dropCallback: (event: IEvent, dropArea: WorkflowDropAreaGroup) => void;
+  dropCallback: (event: IEvent, dropArea: IDropAreaGroup) => void;
 }
 
 export class CanvasEventsService {
   private currentDragTop: number;
   private canvas: Canvas;
-  private activeDropArea: WorkflowDropAreaGroup|null = null;
+  private activeDropArea: IDropAreaGroup|null = null;
 
   static isDragEventAllowed(target?: Object) {
     return target && target.data.type === ObjectTypes.state && target.selectable;
@@ -27,7 +27,7 @@ export class CanvasEventsService {
       this.activeDropArea = null;
       this.canvas.forEachObject((canvasObject: Object) => {
         if (canvasObject.data && canvasObject.data.type === ObjectTypes.dropArea) {
-          const dropArea = canvasObject as WorkflowDropAreaGroup;
+          const dropArea = canvasObject as IDropAreaGroup;
           event.target?.setCoords();
           const hasIntersect = Boolean(event.target?.intersectsWithObject(dropArea));
           dropArea.toggleActive(hasIntersect)

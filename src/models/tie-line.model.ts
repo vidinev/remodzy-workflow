@@ -10,7 +10,7 @@ export const tieLineConfig: ILineOptions = {
   evented: false,
 };
 
-export const WorkflowTieLine = fabric.util.createClass(fabric.Line, {
+export const TieLine = fabric.util.createClass(fabric.Line, {
   type: ObjectTypes.tieLine,
   _active: false,
 

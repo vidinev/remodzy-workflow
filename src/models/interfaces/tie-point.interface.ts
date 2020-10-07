@@ -1,7 +1,7 @@
 import { Circle } from 'fabric/fabric-impl';
-import { PointCoords } from './point-coords.interface';
+import { PointCoords } from '../../interfaces/point-coords.interface';
 
-export interface WorkflowTiePointCircle extends Circle {
+export interface ITiePointCircle extends Circle {
   getCenterTopCoords: () => PointCoords;
   getCenterBottomCoords: () => PointCoords;
 }

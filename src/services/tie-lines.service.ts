@@ -1,9 +1,9 @@
 import { Canvas, Object as CanvasObject } from 'fabric/fabric-impl';
 import { ObjectTypes } from '../configs/object-types.enum';
-import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
+import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { MathService } from './math.service';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
-import { WorkflowTiePointCircle } from '../interfaces/workflow-tie-point.interface';
+import { ITiePointCircle } from '../models/interfaces/tie-point.interface';
 
 export class TieLinesService {
   canvas: Canvas;
@@ -25,13 +25,13 @@ export class TieLinesService {
           .findClosestObjectToTop(
             currentStatePoints,
             currentStateBottom
-          ) as WorkflowTiePointCircle;
+          ) as ITiePointCircle;
 
         const tieEnd = MathService
           .findClosestObjectToTop(
             nextStatePoints,
             currentStateBottom
-          ) as WorkflowTiePointCircle;
+          ) as ITiePointCircle;
 
         const dropArea = this.getDropArea(canvasObject.data.id);
 
@@ -54,12 +54,12 @@ export class TieLinesService {
     return tiePoints;
   }
 
-  private getDropArea(stateId: string): WorkflowDropAreaGroup|null {
-    let dropArea: WorkflowDropAreaGroup|null = null;
+  private getDropArea(stateId: string): IDropAreaGroup|null {
+    let dropArea: IDropAreaGroup|null = null;
     this.canvas.forEachObject((canvasObject: CanvasObject) => {
       if (canvasObject.data.type === ObjectTypes.dropArea
         && canvasObject.data.stateId === stateId) {
-        dropArea = canvasObject as WorkflowDropAreaGroup;
+        dropArea = canvasObject as IDropAreaGroup;
       }
     });
     return dropArea;

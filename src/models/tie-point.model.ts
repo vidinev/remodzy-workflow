@@ -14,7 +14,7 @@ export const tiePointConfig: ICircleOptions = {
   hoverCursor: 'default'
 };
 
-export const WorkflowTiePoint = fabric.util.createClass(fabric.Circle, {
+export const TiePointCircle = fabric.util.createClass(fabric.Circle, {
   type: ObjectTypes.tiePoint,
   _active: false,
 
