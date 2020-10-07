@@ -11,23 +11,22 @@ import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawOffsetService } from './draw-offset.service';
 import { data } from '../configs/data.config';
-import { dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config'
+import { dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
+import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
+import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
 import { WorkflowDropArea } from 'src/models/drop-area.model'
 import { WorkflowTiePoint } from '../models/tie-point.model';
-import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
+import { WorkflowTieLine } from '../models/tie-line.model';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowData } from './workflow-data.service';
 import { TieLinesService } from './tie-lines.service';
-import { remodzyColors } from '../configs/colors.config';
-import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 
 /*
- * Create model for (tie line, state)
+ * Create model for state
  * Refactor drop area move logic to constructor
  * Replace drop area data.type to just type
  * Replace state to just type
- * Tie lines should have same length
  * Tie line padding should be configured in model
  * StateKey, stateId, id => stateId
  * Create models folder in interfaces
@@ -150,14 +149,7 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
-    const fabricLine = new fabric.Line([fromX, fromY + 3, toX, toY - 3], {
-      fill: remodzyColors.tieLineColor,
-      stroke:  remodzyColors.tieLineColor,
-      strokeWidth: 1.5,
-      selectable: false,
-      evented: false,
-    });
-    this.canvas.add(fabricLine);
+    this.canvas.add(new WorkflowTieLine([fromX, fromY, toX, toY]));
   }
 
   private drawStates() {
@@ -176,7 +168,7 @@ export class RemodzyWorkflowBuilder {
   private drawDropAreas() {
     this.canvas.forEachObject((canvasObject: CanvasObject) => {
       if (canvasObject.data.type === ObjectTypes.state && !canvasObject.data.end) {
-        const endOfStateTop = (canvasObject.top || 0) + (canvasObject.height || 0);
+        const endOfStateTop = canvasObject.top! + canvasObject.height! - 1;
         const dropAreaTop = endOfStateTop + (stateItemSize.margin - dropAreaSize.height) / 2;
         this.drawDropArea(canvasObject.data.id, dropAreaTop);
       }
@@ -188,7 +180,7 @@ export class RemodzyWorkflowBuilder {
       if (canvasObject.data.type === ObjectTypes.state) {
         const stateTop = (canvasObject.top || 0);
         const tiePointTop = stateTop - tiePointSize.radius;
-        const tiePointBottom = tiePointTop + (canvasObject.height || 0);
+        const tiePointBottom = tiePointTop + canvasObject.height!;
         if (canvasObject.data.id !== this.workflowData.getStartStateId()) {
           this.drawTiePoint(canvasObject.data.id, tiePointTop);
         }
