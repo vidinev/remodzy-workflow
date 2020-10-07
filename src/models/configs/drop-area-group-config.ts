@@ -1,13 +1,6 @@
 import { IRectOptions, ITextboxOptions } from 'fabric/fabric-impl';
-import { remodzyColors } from './colors.config';
-import { dropAreaSize } from './size.config';
-
-export const canvasConfig = {
-  width: 1200,
-  height: 800,
-  backgroundColor: remodzyColors.canvasBg,
-};
-
+import { dropAreaSize } from '../../configs/size.config';
+import { remodzyColors } from '../../configs/colors.config';
 export const dropAreaConfig: IRectOptions = {
   fill: 'transparent',
   width: dropAreaSize.width,

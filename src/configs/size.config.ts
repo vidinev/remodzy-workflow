@@ -1,5 +1,10 @@
 import { MathService } from '../services/math.service';
 
+export const canvasSize = {
+  width: 1200,
+  height: 800
+};
+
 export const stateItemSize = {
   width: 280,
   height: 64,

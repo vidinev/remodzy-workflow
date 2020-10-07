@@ -1,15 +1,10 @@
 import { Canvas, ICanvasOptions, IEvent } from 'fabric/fabric-impl';
 import { RemodzyWFSettings } from '../interfaces/workflow-settings.interface';
-import {
-  canvasConfig,
-  dropAreaConfig,
-  dropAreaTextConfig,
-} from '../configs/canvas.config';
 import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawOffsetService } from './draw-offset.service';
 import { data } from '../configs/data.config';
-import { dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config';
+import { canvasSize, dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
@@ -17,20 +12,15 @@ import { DropAreaGroup } from 'src/models/drop-area.model';
 import { TiePointCircle } from '../models/tie-point.model';
 import { StateGroup } from '../models/state.model';
 import { TieLine } from '../models/tie-line.model';
-import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowData } from './workflow-data.service';
 import { TieLinesService } from './tie-lines.service';
 import { IStateGroup } from '../models/interfaces/state.interface';
 import { UtilsService } from './utils.service';
+import { remodzyColors } from '../configs/colors.config';
 
 /*
- * Create model for state
- * Refactor drop area move logic to constructor
- * Replace drop area data.type to just type
- * Replace state to just type
  * Tie line padding should be configured in model
  * StateKey, stateId, id => stateId
- * Create models folder in interfaces
  * Create separate draw service
  * Remove canvas config file
  * Test lib basic functionality
@@ -39,7 +29,10 @@ import { UtilsService } from './utils.service';
 
 export class RemodzyWorkflowBuilder {
   private readonly canvas: Canvas;
-  private readonly canvasConfig: ICanvasOptions = canvasConfig;
+  private readonly canvasConfig: ICanvasOptions = {
+    ...canvasSize,
+    backgroundColor: remodzyColors.canvasBg
+  };
   private readonly manropeFont: FontFaceObserver = new FontFaceObserver('Manrope');
   private canvasEvents: CanvasEventsService;
   private animate: AnimateService;
@@ -101,17 +94,12 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawDropArea(stateId: string, top: number) {
-    const dropArea = new fabric.Rect(dropAreaConfig);
-    const dropAreaText = new fabric.Textbox('Drop here', dropAreaTextConfig);
-    const dropAreaGroup = new DropAreaGroup([dropArea, dropAreaText], {
+    const dropAreaGroup = new DropAreaGroup({
       left: Math.round(this.canvas.width! / 2 - dropAreaSize.width / 2),
       top,
-      selectable: false,
-      hoverCursor: 'default',
       data: {
-        type: ObjectTypes.dropArea,
         stateId,
-      },
+      }
     });
     this.canvas.add(dropAreaGroup);
   }
@@ -182,6 +170,6 @@ export class RemodzyWorkflowBuilder {
   private sortObjectsAfterDragAndDrop(dropArea: IDropAreaGroup, id: string) {
     this.workflowData.sortStates(id, dropArea.data.stateId);
     this.canvas.clear();
-    this.canvas.setBackgroundColor(canvasConfig.backgroundColor, () => this.render());
+    this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => this.render());
   }
 }

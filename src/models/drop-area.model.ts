@@ -1,14 +1,21 @@
-import { ActiveSelection, IObjectOptions } from 'fabric/fabric-impl';
+import { IObjectOptions } from 'fabric/fabric-impl';
 import { remodzyColors } from '../configs/colors.config';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
+import { dropAreaConfig, dropAreaTextConfig } from './configs/drop-area-group-config';
 
 export const DropAreaGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.dropArea,
   _active: false,
 
-  initialize: function(objects: ActiveSelection, options: IObjectOptions = { }) {
-    this.callSuper('initialize', objects, options);
+  initialize: function(options: IObjectOptions = { }) {
+    const dropArea = new fabric.Rect(dropAreaConfig);
+    const dropAreaText = new fabric.Textbox('Drop here', dropAreaTextConfig);
+    this.callSuper('initialize', [dropArea, dropAreaText], {
+      ...options,
+      selectable: false,
+      hoverCursor: 'default',
+    });
   },
 
   getCenterTopCoords(): PointCoords {

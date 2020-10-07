@@ -59,7 +59,7 @@ export class TieLinesService {
   private getDropArea(stateId: string): IDropAreaGroup|null {
     let dropArea: IDropAreaGroup|null = null;
     this.canvas.forEachObject((canvasObject: CanvasObject) => {
-      if (canvasObject.data.type === ObjectTypes.dropArea
+      if (canvasObject.type === ObjectTypes.dropArea
         && canvasObject.data.stateId === stateId) {
         dropArea = canvasObject as IDropAreaGroup;
       }
