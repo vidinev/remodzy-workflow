@@ -25,7 +25,7 @@ export class WorkflowData {
       if (data.States.hasOwnProperty(key)) {
         data.States[key].Parameters = {
           ...data.States[key].Parameters,
-          stateKey: key
+          stateId: key
         };
       }
     }
@@ -65,7 +65,7 @@ export class WorkflowData {
 
     const stateAfterMoved = movedState.Next;
     stateBeforeNewPosition.Next = movedStateId;
-    movedState.Next = stateAfterNewPosition.Parameters.stateKey;
+    movedState.Next = stateAfterNewPosition.Parameters.stateId;
     stateBeforeMoved.Next = stateAfterMoved;
 
     this.data = {

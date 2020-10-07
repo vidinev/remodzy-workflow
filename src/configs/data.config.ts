@@ -8,8 +8,7 @@ export const data: WorkflowStateData = {
       Next: 'SendEmail10',
       Parameters: {
         taskType: 'calendar',
-        taskIcon: 'calendar-icon',
-        stateKey: 'StartEvent',
+        taskIcon: 'calendar-icon'
       },
       Comment: 'Calendar',
     },
@@ -18,8 +17,7 @@ export const data: WorkflowStateData = {
       Next: 'SendEmail11',
       Parameters: {
         taskType: 'sendEmail',
-        taskIcon: 'email-icon',
-        stateKey: 'SendEmail10',
+        taskIcon: 'email-icon'
       },
       Comment: 'Send some Email',
     },
@@ -28,8 +26,7 @@ export const data: WorkflowStateData = {
       Next: 'AssignATask2',
       Parameters: {
         taskType: 'sendDirectMessage',
-        taskIcon: 'slack-icon',
-        stateKey: 'SendEmail11',
+        taskIcon: 'slack-icon'
       },
       Comment: 'Send direct Message',
     },
@@ -38,8 +35,7 @@ export const data: WorkflowStateData = {
       Next: 'Complete',
       Parameters: {
         taskType: 'assignTask',
-        taskIcon: 'assign-task-icon',
-        stateKey: 'AssignATask2',
+        taskIcon: 'assign-task-icon'
       },
       Comment: 'Assign Approval task to Manager',
     },
@@ -48,8 +44,7 @@ export const data: WorkflowStateData = {
       End: true,
       Parameters: {
         taskType: 'assignTask',
-        taskIcon: 'assign-task-icon',
-        stateKey: 'Complete',
+        taskIcon: 'assign-task-icon'
       },
       Comment: 'Assign a Task to HR team',
     },

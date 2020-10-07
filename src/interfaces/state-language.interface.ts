@@ -8,7 +8,7 @@ export interface WorkflowStateData {
 export interface WorkflowState {
   Type: string;
   Next?: string;
-  Parameters: WorkflowStateParams;
+  Parameters: Partial<WorkflowStateParams>;
   Comment?: string;
   End?: boolean;
 }
@@ -16,5 +16,5 @@ export interface WorkflowState {
 export interface WorkflowStateParams {
   taskType: string;
   taskIcon: string;
-  stateKey: string;
+  stateId: string;
 }

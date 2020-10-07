@@ -20,9 +20,8 @@ import { remodzyColors } from '../configs/colors.config';
 
 /*
  * Tie line padding should be configured in model
- * StateKey, stateId, id => stateId
+ * Disable group selection
  * Create separate draw service
- * Remove canvas config file
  * Test lib basic functionality
  * Merge all js files into one
  */
@@ -80,7 +79,7 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawState(stateData: WorkflowState, topOffset?: number) {
-    const isStartEnd = stateData.End || stateData.Parameters?.stateKey === this.workflowData.getStartStateId();
+    const isStartEnd = stateData.End || stateData.Parameters?.stateId === this.workflowData.getStartStateId();
 
     const stateGroup = new StateGroup(stateData, {
       left: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),

@@ -19,7 +19,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
       ...options,
       data: {
         ...stateData,
-        stateId: (stateData.Parameters && stateData.Parameters.stateKey) || '',
+        stateId: (stateData.Parameters && stateData.Parameters.stateId) || '',
       },
     });
   },
