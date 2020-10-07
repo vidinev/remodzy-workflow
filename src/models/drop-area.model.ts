@@ -1,5 +1,6 @@
 import { ActiveSelection, IObjectOptions } from 'fabric/fabric-impl';
 import { remodzyColors } from '../configs/colors.config';
+import { PointCoords } from '../interfaces/point-coords.interface';
 
 export const WorkflowDropArea = fabric.util.createClass(fabric.Group, {
   type: 'workflowDropArea',
@@ -8,6 +9,20 @@ export const WorkflowDropArea = fabric.util.createClass(fabric.Group, {
   initialize: function(objects: ActiveSelection, options: IObjectOptions) {
     options || ( options = { });
     this.callSuper('initialize', objects, options);
+  },
+
+  getCenterTopCoords(): PointCoords {
+    return {
+     x: (this.left || 0) + this.width / 2,
+     y: this.top
+    };
+  },
+
+  getCenterBottomCoords(): PointCoords {
+    return {
+      x: (this.left || 0) + this.width / 2,
+      y: this.top + this.height
+    };
   },
 
   toggleActive: function(toggle: boolean) {

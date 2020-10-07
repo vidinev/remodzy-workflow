@@ -1,7 +1,6 @@
 import { ICircleOptions, IRectOptions, ITextboxOptions, Shadow } from 'fabric/fabric-impl';
 import { remodzyColors } from './colors.config';
 import { dropAreaSize, stateItemSize, tiePointSize } from './size.config';
-import { ObjectTypes } from './object-types.enum'
 
 export const canvasConfig = {
   width: 1200,

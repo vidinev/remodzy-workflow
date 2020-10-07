@@ -26,7 +26,7 @@ export class CanvasEventsService {
     this.canvas.on('object:moving', (event: IEvent) => {
       this.activeDropArea = null;
       this.canvas.forEachObject((canvasObject: Object) => {
-        if (canvasObject.data.type === ObjectTypes.dropArea) {
+        if (canvasObject.data && canvasObject.data.type === ObjectTypes.dropArea) {
           const dropArea = canvasObject as WorkflowDropAreaGroup;
           event.target?.setCoords();
           const hasIntersect = Boolean(event.target?.intersectsWithObject(dropArea));

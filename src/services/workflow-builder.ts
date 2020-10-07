@@ -19,13 +19,18 @@ import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interfac
 import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowData } from './workflow-data.service';
 import { TieLinesService } from './tie-lines.service';
+import { remodzyColors } from '../configs/colors.config';
+import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 
 /*
- * Drop basic bounding lines
+ * Refactor tiePoint to model,
+ * Create methods - get top center, get bottom center coords
+ * Correct lines drawing, add padding and config for them
+ * Refactor drop area move logic to constructor
+ * StateKey, stateId, id => stateId
  * Create separate draw service
  * Test lib basic functionality
  * Merge all js files into one
- * StateKey, stateId, id => stateId
  */
 
 export class RemodzyWorkflowBuilder {
@@ -60,7 +65,7 @@ export class RemodzyWorkflowBuilder {
     this.drawStates();
     this.drawDropAreas();
     this.drawTiePoints();
-    // this.drawTieLines();
+    this.drawTieLines();
   }
 
   private setupCanvasEvents() {
@@ -92,6 +97,7 @@ export class RemodzyWorkflowBuilder {
       hoverCursor: isStartEnd ? 'default' : 'pointer',
       selectable: !isStartEnd,
       data: {
+        next: stateData.Next,
         end: stateData.End || false,
         type: ObjectTypes.state,
         id: (stateData.Parameters && stateData.Parameters.stateKey) || '',
@@ -131,28 +137,30 @@ export class RemodzyWorkflowBuilder {
     this.canvas.add(tiePoint);
   }
 
-  // private drawTieLines() {
-  //   const tieLinesStructure = this.tieLines.getTieLinesStructure();
-  //   console.log(tieLinesStructure);
-  //   Object.keys(tieLinesStructure).forEach((stateId: string) => {
-  //     const fromX = tieLinesStructure[stateId].tieStart.left || 0;
-  //     const fromY = tieLinesStructure[stateId].tieStart.top || 0;
-  //     const toX = tieLinesStructure[stateId].dropArea.left || 0;
-  //     const toY = tieLinesStructure[stateId].dropArea.top || 0;
-  //     this.drawTieLine(fromX, fromY, toX, toY);
-  //   });
-  // }
+  private drawTieLines() {
+    const tieLinesStructure = this.tieLines.getTieLinesStructure();
+    tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
+      const fromX = tieLineStructure.tieStart.left || 0;
+      const fromY = tieLineStructure.tieStart.top || 0;
+      const toX = tieLineStructure.tieEnd.left || 0;
+      const toY = tieLineStructure.tieEnd.top || 0;
+      const dropAreaTopCoords = tieLineStructure.dropArea.getCenterTopCoords();
+      const dropAreaBottomCoords = tieLineStructure.dropArea.getCenterBottomCoords();
+      this.drawTieLine(fromX, fromY, dropAreaTopCoords.x,  dropAreaTopCoords.y);
+      this.drawTieLine(dropAreaBottomCoords.x, dropAreaBottomCoords.y, toX, toY);
+    })
+  }
 
-  // private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
-  //   const fabricLine = new fabric.Line([fromX, fromY, toX, toY], {
-  //     fill: remodzyColors.tieLineColor,
-  //     stroke:  remodzyColors.tieLineColor,
-  //     strokeWidth: 1,
-  //     selectable: false,
-  //     evented: false,
-  //   });
-  //   this.canvas.add(fabricLine);
-  // }
+  private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
+    const fabricLine = new fabric.Line([fromX, fromY, toX, toY], {
+      fill: remodzyColors.tieLineColor,
+      stroke:  remodzyColors.tieLineColor,
+      strokeWidth: 1,
+      selectable: false,
+      evented: false,
+    });
+    this.canvas.add(fabricLine);
+  }
 
   private drawStates() {
     let currentState = this.workflowData.getStartState();
