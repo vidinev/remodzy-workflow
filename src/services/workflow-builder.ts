@@ -20,8 +20,6 @@ import { remodzyColors } from '../configs/colors.config';
 
 /*
  * Tie line padding should be configured in model
- * Disable group selection
- * Create separate draw service
  * Test lib basic functionality
  * Merge all js files into one
  */
@@ -30,6 +28,7 @@ export class RemodzyWorkflowBuilder {
   private readonly canvas: Canvas;
   private readonly canvasConfig: ICanvasOptions = {
     ...canvasSize,
+    selection: false,
     backgroundColor: remodzyColors.canvasBg
   };
   private readonly manropeFont: FontFaceObserver = new FontFaceObserver('Manrope');

@@ -23,5 +23,9 @@ export const tiePointSize = {
   radius: 6
 };
 
+export const tieLineSize = {
+  margin: 3
+}
+
 export const topAngleOffset = (stateItemSize.width * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;
 export const leftAngleOffset = (stateItemSize.height * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;
