@@ -1,8 +1,8 @@
-import { Object as CanvasObject } from 'fabric/fabric-impl';
 import { WorkflowDropAreaGroup } from './workflow-drop-area.interface';
+import { WorkflowTiePointCircle } from './workflow-tie-point.interface';
 
 export interface TieLineStructure {
-  tieStart: CanvasObject;
-  tieEnd: CanvasObject;
+  tieStart: WorkflowTiePointCircle;
+  tieEnd: WorkflowTiePointCircle;
   dropArea: WorkflowDropAreaGroup;
 }

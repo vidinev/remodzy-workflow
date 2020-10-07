@@ -3,6 +3,7 @@ import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
 import { MathService } from './math.service';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
+import { WorkflowTiePointCircle } from '../interfaces/workflow-tie-point.interface';
 
 export class TieLinesService {
   canvas: Canvas;
@@ -24,13 +25,13 @@ export class TieLinesService {
           .findClosestObjectToTop(
             currentStatePoints,
             currentStateBottom
-          );
+          ) as WorkflowTiePointCircle;
 
         const tieEnd = MathService
           .findClosestObjectToTop(
             nextStatePoints,
             currentStateBottom
-          );
+          ) as WorkflowTiePointCircle;
 
         const dropArea = this.getDropArea(canvasObject.data.id);
 
@@ -45,7 +46,7 @@ export class TieLinesService {
   private getStateRelatedPoints(stateId: string): CanvasObject[] {
     let tiePoints: CanvasObject[] = [];
     this.canvas.forEachObject((canvasObject: CanvasObject) => {
-      if (canvasObject.data.type === ObjectTypes.tiePoint
+      if (canvasObject.type === ObjectTypes.tiePoint
         && canvasObject.data.stateId === stateId) {
          tiePoints.push(canvasObject);
       }

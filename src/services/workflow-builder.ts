@@ -6,15 +6,15 @@ import {
   dropAreaTextConfig,
   stateRectConfig,
   stateTextConfig,
-  tiePointConfig
-} from '../configs/canvas.config'
+} from '../configs/canvas.config';
 import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawOffsetService } from './draw-offset.service';
 import { data } from '../configs/data.config';
 import { dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config'
 import { WorkflowState } from '../interfaces/state-language.interface';
-import { WorkflowDropArea } from 'src/models/drop-area.model';
+import { WorkflowDropArea } from 'src/models/drop-area.model'
+import { WorkflowTiePoint } from '../models/tie-point.model';
 import { WorkflowDropAreaGroup } from '../interfaces/workflow-drop-area.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowData } from './workflow-data.service';
@@ -23,11 +23,14 @@ import { remodzyColors } from '../configs/colors.config';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 
 /*
- * Refactor tiePoint to model,
- * Create methods - get top center, get bottom center coords
- * Correct lines drawing, add padding and config for them
+ * Create model for (tie line, state)
  * Refactor drop area move logic to constructor
+ * Replace drop area data.type to just type
+ * Replace state to just type
+ * Tie lines should have same length
+ * Tie line padding should be configured in model
  * StateKey, stateId, id => stateId
+ * Create models folder in interfaces
  * Create separate draw service
  * Test lib basic functionality
  * Merge all js files into one
@@ -125,37 +128,32 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawTiePoint(stateId: number, top: number) {
-    const tiePoint = new fabric.Circle({
-      ...tiePointConfig,
-      left: Math.round(this.canvas.width! / 2 - tiePointSize.radius),
+    this.canvas.add(new WorkflowTiePoint({
       top,
+      left: Math.round((this.canvas.width || 0) / 2 - tiePointSize.radius),
       data: {
-        stateId,
-        type: ObjectTypes.tiePoint
+        stateId
       }
-    });
-    this.canvas.add(tiePoint);
+    }));
   }
 
   private drawTieLines() {
     const tieLinesStructure = this.tieLines.getTieLinesStructure();
     tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
-      const fromX = tieLineStructure.tieStart.left || 0;
-      const fromY = tieLineStructure.tieStart.top || 0;
-      const toX = tieLineStructure.tieEnd.left || 0;
-      const toY = tieLineStructure.tieEnd.top || 0;
-      const dropAreaTopCoords = tieLineStructure.dropArea.getCenterTopCoords();
-      const dropAreaBottomCoords = tieLineStructure.dropArea.getCenterBottomCoords();
-      this.drawTieLine(fromX, fromY, dropAreaTopCoords.x,  dropAreaTopCoords.y);
-      this.drawTieLine(dropAreaBottomCoords.x, dropAreaBottomCoords.y, toX, toY);
+      const { x, y: fromTieY } = tieLineStructure.tieStart.getCenterBottomCoords();
+      const { y: toTieY } = tieLineStructure.tieEnd.getCenterTopCoords();
+      const { y: toDropY } = tieLineStructure.dropArea.getCenterTopCoords();
+      const { y: fromDropY } = tieLineStructure.dropArea.getCenterBottomCoords();
+      this.drawTieLine(x, fromTieY, x, toDropY);
+      this.drawTieLine(x, fromDropY, x, toTieY);
     })
   }
 
   private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
-    const fabricLine = new fabric.Line([fromX, fromY, toX, toY], {
+    const fabricLine = new fabric.Line([fromX, fromY + 3, toX, toY - 3], {
       fill: remodzyColors.tieLineColor,
       stroke:  remodzyColors.tieLineColor,
-      strokeWidth: 1,
+      strokeWidth: 1.5,
       selectable: false,
       evented: false,
     });

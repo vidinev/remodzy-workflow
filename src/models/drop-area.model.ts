@@ -1,13 +1,13 @@
 import { ActiveSelection, IObjectOptions } from 'fabric/fabric-impl';
 import { remodzyColors } from '../configs/colors.config';
 import { PointCoords } from '../interfaces/point-coords.interface';
+import { ObjectTypes } from '../configs/object-types.enum'
 
 export const WorkflowDropArea = fabric.util.createClass(fabric.Group, {
-  type: 'workflowDropArea',
+  type: ObjectTypes.dropArea,
   _active: false,
 
-  initialize: function(objects: ActiveSelection, options: IObjectOptions) {
-    options || ( options = { });
+  initialize: function(objects: ActiveSelection, options: IObjectOptions = { }) {
     this.callSuper('initialize', objects, options);
   },
 
