@@ -2,9 +2,9 @@ import { Canvas, ICanvasOptions, IEvent } from 'fabric/fabric-impl';
 import { RemodzyWFSettings } from '../interfaces/workflow-settings.interface';
 import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
-import { DrawOffsetService } from './draw-offset.service';
+import { DrawPositionService } from './draw-position.service';
 import { data } from '../configs/data.config';
-import { canvasSize, dropAreaSize, stateItemSize, tiePointSize } from '../configs/size.config';
+import { canvasSize, stateItemSize, tiePointSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
@@ -15,11 +15,13 @@ import { TieLine } from '../models/tie-line.model';
 import { WorkflowData } from './workflow-data.service';
 import { TieLinesService } from './tie-lines.service';
 import { IStateGroup } from '../models/interfaces/state.interface';
-import { UtilsService } from './utils.service';
 import { remodzyColors } from '../configs/colors.config';
+import { PointCoords } from '../interfaces/point-coords.interface';
 
 /*
- * Tie line padding should be configured in model
+ * Draw branch service
+ * Refactor tie lines structure (attach drop area to state OOP style, attach tie lint to state instance)
+ * this.workflowData.getStateById -> get data directly from object
  * Test lib basic functionality
  * Merge all js files into one
  */
@@ -34,7 +36,6 @@ export class RemodzyWorkflowBuilder {
   private readonly manropeFont: FontFaceObserver = new FontFaceObserver('Manrope');
   private canvasEvents: CanvasEventsService;
   private animate: AnimateService;
-  private drawOffset: DrawOffsetService;
   private tieLines: TieLinesService;
   private workflowData: WorkflowData;
 
@@ -44,7 +45,6 @@ export class RemodzyWorkflowBuilder {
     this.workflowData = new WorkflowData(data);
     this.animate = new AnimateService(this.canvas);
     this.tieLines = new TieLinesService(this.canvas);
-    this.drawOffset = new DrawOffsetService();
     this.setupCanvasEvents();
     this.initialize().then(() => {
       this.canvasEvents.setupDropAreaEvents();
@@ -57,17 +57,27 @@ export class RemodzyWorkflowBuilder {
   }
 
   public render() {
-    this.drawStates();
-    this.drawDropAreas();
-    this.drawTiePoints();
-    this.drawTieLines();
+    const initialBranchPosition = {
+      x: Math.round(this.canvas.width! / 2),
+      y: stateItemSize.verticalMargin
+    };
+    this.drawBranch(initialBranchPosition);
+  }
+
+  private drawBranch(startPosition: PointCoords) {
+    const states = this.drawStates(startPosition);
+    this.drawDropAreas(states);
+    this.drawTiePoints(states);
+    this.drawTieLines(states);
   }
 
   private setupCanvasEvents() {
     this.canvasEvents.setupDragDropEvents({
       dragStartCallback: (event: IEvent) => {
-        this.drawState(this.workflowData.getStateById(event?.target?.data.stateId), event?.target?.top || 0);
-        this.animate.animateDragDrop(event, 1);
+        if (event.target) {
+          this.drawStateCloneUnderMovingObject(event.target as IStateGroup);
+          this.animate.animateDragDrop(event, 1);
+        }
       },
       dropCallback: (event: IEvent, dropArea: IDropAreaGroup) => {
         if (event.target?.data.stateId) {
@@ -77,29 +87,41 @@ export class RemodzyWorkflowBuilder {
     });
   }
 
-  private drawState(stateData: WorkflowState, topOffset?: number) {
+  private drawState(stateData: WorkflowState, position: PointCoords, isClone?: boolean): IStateGroup {
     const isStartEnd = stateData.End || stateData.Parameters?.stateId === this.workflowData.getStartStateId();
 
+    if (stateData.Branches && stateData.Branches.length) {
+      const widthForBranches = stateData.Branches.length
+        * (stateItemSize.width + stateItemSize.horizontalMargin) - stateItemSize.horizontalMargin;
+    }
+
     const stateGroup = new StateGroup(stateData, {
-      left: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
-      top: topOffset || this.drawOffset.getTopOffset(),
+      left: position.x,
+      top: position.y,
       hoverCursor: isStartEnd ? 'default' : 'pointer',
       selectable: !isStartEnd,
     });
 
     this.canvas.add(stateGroup);
-    stateGroup.sendToBack();
+    if (!isClone) {
+      stateGroup.set('left', Math.round(stateGroup.left - stateGroup.width / 2));
+    }
+    return stateGroup;
   }
 
-  private drawDropArea(stateId: string, top: number) {
+  private drawDropArea(stateId: string, position: PointCoords) {
     const dropAreaGroup = new DropAreaGroup({
-      left: Math.round(this.canvas.width! / 2 - dropAreaSize.width / 2),
-      top,
+      left: position.x,
+      top: position.y,
       data: {
         stateId,
       }
     });
     this.canvas.add(dropAreaGroup);
+    dropAreaGroup.set({
+      left: Math.round(dropAreaGroup.left - dropAreaGroup.width / 2),
+      top: Math.round(dropAreaGroup.top - dropAreaGroup.height / 2)
+    });
   }
 
   private drawTiePoint(stateId: string, top: number) {
@@ -112,8 +134,8 @@ export class RemodzyWorkflowBuilder {
     }));
   }
 
-  private drawTieLines() {
-    const tieLinesStructure = this.tieLines.getTieLinesStructure();
+  private drawTieLines(states: IStateGroup[]) {
+    const tieLinesStructure = this.tieLines.getTieLinesStructure(states);
     tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
       const { x, y: fromTieY } = tieLineStructure.tieStart.getCenterBottomCoords();
       const { y: toTieY } = tieLineStructure.tieEnd.getCenterTopCoords();
@@ -121,48 +143,63 @@ export class RemodzyWorkflowBuilder {
       const { y: fromDropY } = tieLineStructure.dropArea.getCenterBottomCoords();
       this.drawTieLine(x, fromTieY, x, toDropY);
       this.drawTieLine(x, fromDropY, x, toTieY);
-    })
+    });
   }
 
   private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
     this.canvas.add(new TieLine([fromX, fromY, toX, toY]));
   }
 
-  private drawStates() {
+  private drawStates(startPosition: PointCoords): IStateGroup[] {
+    const states: IStateGroup[] = [];
     let currentState = this.workflowData.getStartState();
-    this.drawOffset.setTopOffset(stateItemSize.margin);
+    const drawPosition = new DrawPositionService(startPosition);
     while (!currentState.End) {
-      this.drawState(currentState);
+      const stateGroup = this.drawState(currentState, drawPosition.getCurrentPosition());
       currentState = this.workflowData.getStateById(currentState.Next!);
-      this.drawOffset.addTopOffset(stateItemSize.margin + stateItemSize.height);
+      drawPosition.moveBottom(stateItemSize.verticalMargin + stateGroup.height);
+      states.push(stateGroup);
     }
     if (currentState.End) {
-      this.drawState(currentState);
+      const endStateGroup = this.drawState(currentState, drawPosition.getCurrentPosition());
+      states.push(endStateGroup);
     }
+    return states;
   }
 
-  private drawDropAreas() {
-    UtilsService.forEachState(this.canvas, (canvasObject: IStateGroup) => {
-      if (!canvasObject.data.End) {
-        const { y: stateBottom } = canvasObject.getCenterBottomCoords();
-        const dropAreaTop = stateBottom + (stateItemSize.margin - dropAreaSize.height) / 2;
-        this.drawDropArea(canvasObject.data.stateId, dropAreaTop);
+  private drawDropAreas(states: IStateGroup[]) {
+    states.forEach((stateGroup: IStateGroup) => {
+      if (!stateGroup.data.End) {
+        const { x: stateLeft,  y: stateBottom } = stateGroup.getCenterBottomCoords();
+        const dropAreaTop = stateBottom + stateItemSize.verticalMargin / 2;
+        this.drawDropArea(stateGroup.data.stateId, {
+          x: stateLeft,
+          y: dropAreaTop
+        });
       }
-    })
+    });
   }
 
-  private drawTiePoints() {
-    UtilsService.forEachState(this.canvas, (canvasObject: IStateGroup) => {
-      const stateTop = (canvasObject.top || 0);
+  private drawTiePoints(states: IStateGroup[]) {
+    states.forEach((stateGroup: IStateGroup) => {
+      const stateTop = (stateGroup.top || 0);
       const tiePointTop = stateTop - tiePointSize.radius;
-      const tiePointBottom = tiePointTop + canvasObject.height!;
-      if (canvasObject.data.stateId !== this.workflowData.getStartStateId()) {
-        this.drawTiePoint(canvasObject.data.stateId, tiePointTop);
+      const tiePointBottom = tiePointTop + stateGroup.height;
+      if (stateGroup.data.stateId !== this.workflowData.getStartStateId()) {
+        this.drawTiePoint(stateGroup.data.stateId, tiePointTop);
       }
-      if (!canvasObject.data.End) {
-        this.drawTiePoint(canvasObject.data.stateId, tiePointBottom);
+      if (!stateGroup.data.End) {
+        this.drawTiePoint(stateGroup.data.stateId, tiePointBottom);
       }
-    })
+    });
+  }
+
+  private drawStateCloneUnderMovingObject(movingState: IStateGroup) {
+    const stateGroup = this.drawState(this.workflowData.getStateById(movingState.data.stateId), {
+      y: movingState.top,
+      x: movingState.left
+    }, true);
+    stateGroup.sendToBack();
   }
 
   private sortObjectsAfterDragAndDrop(dropArea: IDropAreaGroup, id: string) {

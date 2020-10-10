@@ -11,10 +11,11 @@ export interface WorkflowState {
   Parameters: Partial<WorkflowStateParams>;
   Comment?: string;
   End?: boolean;
+  Branches?: WorkflowStateData[];
 }
 
 export interface WorkflowStateParams {
   taskType: string;
-  taskIcon: string;
+  taskIcon?: string;
   stateId: string;
 }

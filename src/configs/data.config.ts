@@ -14,39 +14,57 @@ export const data: WorkflowStateData = {
     },
     SendEmail10: {
       Type: 'Task',
-      Next: 'SendEmail11',
+      Next: 'BranchByCondition',
       Parameters: {
         taskType: 'sendEmail',
         taskIcon: 'email-icon'
       },
       Comment: 'Send some Email',
     },
+    BranchByCondition: {
+      Type: 'Parallel',
+      Comment: 'Branch By Condition',
+      Next: 'SendEmail11',
+      Parameters: {
+        taskType: 'byCondition',
+        taskIcon: 'by-condition-icon'
+      },
+      Branches: [
+        {
+          StartAt: 'Reject',
+          States: {
+            Reject: {
+              End: true,
+              Type: 'Pass',
+              Comment: 'Reject',
+              Parameters: {
+                taskType: 'pass'
+              },
+            }
+          }
+        },
+        {
+          StartAt: 'Approve',
+          States: {
+            Approve: {
+              Type: 'Pass',
+              Comment: 'Approve',
+              Parameters: {
+                taskType: 'pass'
+              },
+            }
+          }
+        }
+      ]
+    },
     SendEmail11: {
       Type: 'Task',
-      Next: 'AssignATask2',
+      End: true,
       Parameters: {
         taskType: 'sendDirectMessage',
         taskIcon: 'slack-icon'
       },
       Comment: 'Send direct Message',
-    },
-    AssignATask2: {
-      Type: 'Task',
-      Next: 'Complete',
-      Parameters: {
-        taskType: 'assignTask',
-        taskIcon: 'assign-task-icon'
-      },
-      Comment: 'Assign Approval task to Manager',
-    },
-    Complete: {
-      Type: 'Task',
-      End: true,
-      Parameters: {
-        taskType: 'assignTask',
-        taskIcon: 'assign-task-icon'
-      },
-      Comment: 'Assign a Task to HR team',
     },
   },
 };
