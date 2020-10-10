@@ -59,12 +59,21 @@ export const data: WorkflowStateData = {
     },
     SendEmail11: {
       Type: 'Task',
-      End: true,
+      Next: 'Complete',
       Parameters: {
         taskType: 'sendDirectMessage',
         taskIcon: 'slack-icon'
       },
       Comment: 'Send direct Message',
     },
-  },
+    Complete: {
+      Type: 'Task',
+      End: true,
+      Parameters: {
+        taskType: 'assignTask',
+        taskIcon: 'assign-task-icon',
+      },
+      Comment: 'Assign a Task to HR team',
+    },
+  }
 };
