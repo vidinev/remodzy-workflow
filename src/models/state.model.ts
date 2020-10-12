@@ -3,9 +3,14 @@ import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { stateRectConfig, stateTextConfig } from './configs/state-group-config';
 import { PointCoords } from '../interfaces/point-coords.interface';
+import { IDropAreaGroup } from './interfaces/drop-area.interface';
+import { ITiePointCircle } from './interfaces/tie-point.interface';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
+  _dropArea: null,
+  _topTiePoint: null,
+  _bottomTiePoint: null,
   _active: false,
 
   initialize: function(stateData: WorkflowState, options: IObjectOptions = { }) {
@@ -29,6 +34,35 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
       x: Math.ceil((this.left || 0) + this.width / 2),
       y: this.top + this.height - 1
     };
+  },
+
+  getStateData(): WorkflowState {
+    const { stateId, ...stateData } = this.data;
+    return stateData;
+  },
+
+  getDropArea(): IDropAreaGroup {
+    return this._dropArea;
+  },
+
+  setDropArea(dropArea: IDropAreaGroup) {
+    this._dropArea = dropArea;
+  },
+
+  setTopTiePoint(tiePoint: ITiePointCircle) {
+    this._topTiePoint = tiePoint;
+  },
+
+  getTopTiePoint(): ITiePointCircle {
+    return this._topTiePoint;
+  },
+
+  setBottomTiePoint(tiePoint: ITiePointCircle) {
+    this._bottomTiePoint = tiePoint;
+  },
+
+  getBottomTiePoint(): ITiePointCircle {
+    return this._bottomTiePoint;
   },
 
   _render: function(ctx: CanvasRenderingContext2D) {
