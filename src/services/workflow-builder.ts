@@ -4,7 +4,7 @@ import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawPositionService } from './draw-position.service';
 import { data } from '../configs/data.config';
-import { canvasSize, stateItemSize, tiePointSize } from '../configs/size.config';
+import { canvasSize, marginSize, stateItemSize, tiePointSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
@@ -58,8 +58,8 @@ export class RemodzyWorkflowBuilder {
 
   public render() {
     const initialBranchPosition = {
-      x: Math.round(this.canvas.width! / 2),
-      y: stateItemSize.verticalMargin
+      x: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
+      y: marginSize.verticalMargin
     };
     this.drawBranch(this.workflowData, initialBranchPosition);
   }
@@ -94,7 +94,7 @@ export class RemodzyWorkflowBuilder {
     let branchesItemsGroup;
     const rootState = this.drawStateRoot(stateData, position, workflowData);
     if (stateData.BranchesData?.length) {
-      branchesItemsGroup = this.drawOneLevelBranches(stateData.BranchesData, position);
+      branchesItemsGroup = this.drawBranches(stateData.BranchesData, position);
     }
     return { branchesItemsGroup, rootState };
   }
@@ -109,23 +109,20 @@ export class RemodzyWorkflowBuilder {
     }, isStart);
 
     this.canvas.add(stateGroup);
-    if (workflowData) {
-      stateGroup.set('left', Math.round(stateGroup.left - stateGroup.width / 2));
-    }
     return stateGroup;
   }
 
-  private drawOneLevelBranches(branches: WorkflowData[], position: PointCoords): Group {
+  private drawBranches(branches: WorkflowData[], position: PointCoords): Group {
     const widthForBranches = branches.length
-      * (stateItemSize.width + stateItemSize.horizontalMargin) - stateItemSize.horizontalMargin;
+      * (stateItemSize.width + marginSize.horizontalMargin) - marginSize.horizontalMargin;
     const startX = position.x - widthForBranches / 2 + stateItemSize.width / 2;
 
     let branchSubItems: CanvasObject[] = [];
     for (let i = 0; i < branches.length; i++) {
       const branchWorkflowData = branches[i];
       const states = this.drawBranch(branchWorkflowData, {
-        y: position.y + stateItemSize.verticalMargin,
-        x: startX + (stateItemSize.width + stateItemSize.horizontalMargin) * i
+        y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
+        x: startX + (stateItemSize.width + marginSize.horizontalMargin) * i
       });
       branchSubItems = [...branchSubItems, ...states];
     }
@@ -187,7 +184,7 @@ export class RemodzyWorkflowBuilder {
         drawPosition.getCurrentPosition(),
         workflowData
       );
-      drawPosition.moveBottom(stateItemSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
+      drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
       currentStateData = workflowData.getStateById(currentStateData.Next!);
       states.push(rootState);
     }
@@ -206,7 +203,7 @@ export class RemodzyWorkflowBuilder {
     states.forEach((stateGroup: IStateGroup) => {
       if (!stateGroup.data.End && !stateGroup.isBranchRoot()) {
         const { x: stateLeft,  y: stateBottom } = stateGroup.getCenterBottomCoords();
-        const dropAreaTop = stateBottom + stateItemSize.verticalMargin / 2;
+        const dropAreaTop = stateBottom + marginSize.verticalMargin / 2;
         const dropAreaGroup = this.drawDropArea(stateGroup.data.stateId, {
           x: stateLeft,
           y: dropAreaTop

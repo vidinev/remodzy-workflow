@@ -10,9 +10,13 @@ export const stateItemSize = {
   height: 64,
   dragDropAngle: 4,
   fontSize: 14,
-  verticalMargin: 76,
-  horizontalMargin: 40
 };
+
+export const marginSize = {
+  verticalMargin: 76,
+  horizontalMargin: 40,
+  stateToBranchMargin: 45
+}
 
 export const dropAreaSize = {
   width: 248,
