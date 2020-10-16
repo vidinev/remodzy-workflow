@@ -48,6 +48,12 @@ export class CanvasEventsService {
         }
       }
     });
+    this.canvas.on('mouse:up', (event: IEvent) => {
+      const activeObject =  this.canvas.getActiveObject();
+      if (CanvasEventsService.isDragEventAllowed(event.target) && activeObject) {
+        this.canvas.remove(activeObject);
+      }
+    });
     this.canvas.on('object:moved', (event: IEvent) => {
       this.currentDragTop = 0;
       this.canvas.remove(this.canvas.getActiveObject());
