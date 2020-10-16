@@ -1,3 +1,5 @@
+import { WorkflowData } from '../services/workflow-data.service';
+
 export interface WorkflowStateData {
   StartAt: string;
   States: {
@@ -12,6 +14,7 @@ export interface WorkflowState {
   Comment?: string;
   End?: boolean;
   Branches?: WorkflowStateData[];
+  BranchesData?: WorkflowData[];
 }
 
 export interface WorkflowStateParams {

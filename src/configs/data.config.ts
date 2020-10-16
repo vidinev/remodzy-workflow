@@ -48,6 +48,7 @@ export const data: WorkflowStateData = {
           States: {
             Approve: {
               Type: 'Pass',
+              End: true,
               Comment: 'Approve',
               Parameters: {
                 taskType: 'pass'

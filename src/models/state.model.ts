@@ -13,7 +13,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   _bottomTiePoint: null,
   _active: false,
 
-  initialize: function(stateData: WorkflowState, options: IObjectOptions = { }) {
+  initialize: function(stateData: WorkflowState, options: IObjectOptions = { }, isStart: boolean) {
     const stateContainerObject = new fabric.Rect(stateRectConfig);
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
     const stateTextObject = new fabric.Textbox(stateText, stateTextConfig);
@@ -24,6 +24,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
       ...options,
       data: {
         ...stateData,
+        Start: isStart,
         stateId: (stateData.Parameters && stateData.Parameters.stateId) || '',
       },
     });
@@ -37,8 +38,12 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   },
 
   getStateData(): WorkflowState {
-    const { stateId, ...stateData } = this.data;
+    const { stateId, Start, ...stateData } = this.data;
     return stateData;
+  },
+
+  isBranchRoot(): boolean {
+    return !!this.data?.Branches?.length;
   },
 
   getDropArea(): IDropAreaGroup {

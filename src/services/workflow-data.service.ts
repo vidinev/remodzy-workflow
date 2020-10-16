@@ -27,6 +27,10 @@ export class WorkflowData {
           ...data.States[key].Parameters,
           stateId: key
         };
+        if (data.States[key].Branches) {
+          data.States[key].BranchesData = (data.States[key].Branches || [])
+            .map((branch: WorkflowStateData) => new WorkflowData(branch));
+        }
       }
     }
     return data;

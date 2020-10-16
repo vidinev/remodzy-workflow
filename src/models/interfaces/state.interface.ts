@@ -5,10 +5,11 @@ import { IDropAreaGroup } from './drop-area.interface';
 import { ITiePointCircle } from './tie-point.interface';
 
 export interface IStateGroup extends Group {
-  data: WorkflowState & { stateId: string };
+  data: WorkflowState & { stateId: string, Start: boolean };
   top: number;
   left: number;
   height: number;
+  isBranchRoot: () => boolean;
   getCenterBottomCoords: () => PointCoords;
   getStateData: () => WorkflowState;
   setDropArea: (dropArea: IDropAreaGroup) => void;
