@@ -2,6 +2,7 @@ import { WorkflowState, WorkflowStateData } from '../interfaces/state-language.i
 
 export class WorkflowData {
   private data: WorkflowStateData;
+  private readonly endStateId: string;
 
   private static getStatesDraft(States: { [key: string]: WorkflowState }) {
     const statesDraft = { ...States };
@@ -38,14 +39,20 @@ export class WorkflowData {
 
   constructor(workflowStateData: WorkflowStateData) {
     this.data = WorkflowData.prepareWorkFlowData(workflowStateData);
+    this.endStateId = Object.keys(this.data.States)
+      .find((key: string) => this.data.States[key].End) || '';
   }
 
   getStateById(stateId: string) {
     return this.data.States[stateId];
   }
 
-  getStartStateId() {
+  getStartStateId(): string {
     return this.data.StartAt;
+  }
+
+  getEndStateId(): string|null {
+    return this.endStateId;
   }
 
   getStartState() {

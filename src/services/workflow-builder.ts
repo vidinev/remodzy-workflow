@@ -124,7 +124,8 @@ export class RemodzyWorkflowBuilder {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
         x: startX + (stateItemSize.width + marginSize.horizontalMargin) * i
       });
-      branchSubItems = [...branchSubItems, ...states];
+      const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
+      branchSubItems = [...branchSubItems, ...states, ...dropAreas];
     }
     return new fabric.Group(branchSubItems);
   }
@@ -187,6 +188,7 @@ export class RemodzyWorkflowBuilder {
       drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
       currentStateData = workflowData.getStateById(currentStateData.Next!);
       states.push(rootState);
+      branchesItemsGroup?.destroy();
     }
     if (currentStateData.End) {
       const { rootState: endStateGroup } = this.drawState(
@@ -201,7 +203,8 @@ export class RemodzyWorkflowBuilder {
 
   private drawDropAreas(states: IStateGroup[]) {
     states.forEach((stateGroup: IStateGroup) => {
-      if (!stateGroup.data.End && !stateGroup.isBranchRoot()) {
+      const isMainBranchEnd = stateGroup.data.stateId ===  this.workflowData.getEndStateId();
+      if (!isMainBranchEnd && !stateGroup.isBranchRoot()) {
         const { x: stateLeft,  y: stateBottom } = stateGroup.getCenterBottomCoords();
         const dropAreaTop = stateBottom + marginSize.verticalMargin / 2;
         const dropAreaGroup = this.drawDropArea(stateGroup.data.stateId, {
