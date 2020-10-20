@@ -2,5 +2,6 @@ export enum ObjectTypes {
   state = 'state',
   dropArea = 'dropArea',
   tiePoint = 'tiePoint',
-  tieLine = 'tieLine'
+  tieLine = 'tieLine',
+  curveTieLine = 'curveTieLine'
 }

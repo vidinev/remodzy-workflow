@@ -6,5 +6,5 @@ export const remodzyColors = {
   dropAreaTextColor: '#929CAD',
   dropAreaActiveColor: '#4865EB',
   tiePointStrokeColor: '#cfd6e1',
-  tieLineColor: '#a0aabd'
+  tieLineColor: '#CFD6E0'
 };

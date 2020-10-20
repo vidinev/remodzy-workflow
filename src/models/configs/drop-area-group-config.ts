@@ -1,6 +1,7 @@
 import { IRectOptions, ITextboxOptions } from 'fabric/fabric-impl';
 import { dropAreaSize } from '../../configs/size.config';
 import { remodzyColors } from '../../configs/colors.config';
+
 export const dropAreaConfig: IRectOptions = {
   fill: 'transparent',
   width: dropAreaSize.width,

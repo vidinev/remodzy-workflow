@@ -18,6 +18,8 @@ import { IStateGroup } from '../models/interfaces/state.interface';
 import { remodzyColors } from '../configs/colors.config';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { ITiePointCircle } from '../models/interfaces/tie-point.interface';
+import { CurveTieLine } from '../models/curve-tie-line.model';
+import { curvesPath } from '../models/configs/curve-tie-line-config';
 
 /*
  * Draw all branch element (drop areas, lines)
@@ -69,6 +71,7 @@ export class RemodzyWorkflowBuilder {
     this.drawDropAreas(states);
     this.drawTiePoints(states);
     this.drawTieLines(states);
+    this.drawCurveTieLines(states);
     return states;
   }
 
@@ -168,6 +171,24 @@ export class RemodzyWorkflowBuilder {
       const { y: fromDropY } = tieLineStructure.dropArea.getCenterBottomCoords();
       this.drawTieLine(x, fromTieY, x, toDropY);
       this.drawTieLine(x, fromDropY, x, toTieY);
+    });
+  }
+
+  private drawCurveTieLines(states: IStateGroup[]) {
+    states.forEach((state: IStateGroup) => {
+      if (state.data.Branches && state.data.Branches.length) {
+        const tieEnd = state.getBottomTiePoint();
+        const coords = tieEnd.getCenterBottomCoords();
+        const curve1 = new CurveTieLine(curvesPath.topToLeft, {
+          left: coords.x - 15,
+          top: coords.y
+        });
+        const curve2 = new CurveTieLine(curvesPath.topToRight, {
+          left: coords.x,
+          top: coords.y
+        });
+        this.canvas.add(curve1, curve2);
+      }
     });
   }
 

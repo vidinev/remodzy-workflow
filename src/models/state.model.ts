@@ -24,6 +24,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
       ...options,
       data: {
         ...stateData,
+        Branches: stateData.Branches || null,
         Start: isStart,
         stateId: (stateData.Parameters && stateData.Parameters.stateId) || '',
       },
