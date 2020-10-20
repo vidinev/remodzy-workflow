@@ -33,7 +33,7 @@ export class RemodzyWorkflowBuilder {
   private readonly canvasConfig: ICanvasOptions = {
     ...canvasSize,
     selection: false,
-    backgroundColor: remodzyColors.canvasBg
+    backgroundColor: remodzyColors.canvasBg,
   };
   private canvasEvents: CanvasEventsService;
   private animate: AnimateService;
@@ -61,7 +61,7 @@ export class RemodzyWorkflowBuilder {
   public render() {
     const initialBranchPosition = {
       x: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
-      y: marginSize.verticalMargin
+      y: marginSize.verticalMargin,
     };
     this.drawBranch(this.workflowData, initialBranchPosition);
   }
@@ -91,9 +91,11 @@ export class RemodzyWorkflowBuilder {
     });
   }
 
-  private drawState(stateData: WorkflowState,
-                    position: PointCoords,
-                    workflowData: WorkflowData): { rootState: IStateGroup; branchesItemsGroup?: Group } {
+  private drawState(
+    stateData: WorkflowState,
+    position: PointCoords,
+    workflowData: WorkflowData,
+  ): { rootState: IStateGroup; branchesItemsGroup?: Group } {
     let branchesItemsGroup;
     const rootState = this.drawStateRoot(stateData, position, workflowData);
     if (stateData.BranchesData?.length) {
@@ -104,20 +106,24 @@ export class RemodzyWorkflowBuilder {
 
   private drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {
     const isStart = stateData.Parameters?.stateId === workflowData?.getStartStateId();
-    const stateGroup = new StateGroup(stateData, {
-      left: position.x,
-      top: position.y,
-      hoverCursor: (isStart || stateData.End) ? 'default' : 'pointer',
-      selectable: !(isStart || stateData.End),
-    }, isStart);
+    const stateGroup = new StateGroup(
+      stateData,
+      {
+        left: position.x,
+        top: position.y,
+        hoverCursor: isStart || stateData.End ? 'default' : 'pointer',
+        selectable: !(isStart || stateData.End),
+      },
+      isStart,
+    );
 
     this.canvas.add(stateGroup);
     return stateGroup;
   }
 
   private drawBranches(branches: WorkflowData[], position: PointCoords): Group {
-    const widthForBranches = branches.length
-      * (stateItemSize.width + marginSize.horizontalMargin) - marginSize.horizontalMargin;
+    const widthForBranches =
+      branches.length * (stateItemSize.width + marginSize.horizontalMargin) - marginSize.horizontalMargin;
     const startX = position.x - widthForBranches / 2 + stateItemSize.width / 2;
 
     let branchSubItems: CanvasObject[] = [];
@@ -125,7 +131,7 @@ export class RemodzyWorkflowBuilder {
       const branchWorkflowData = branches[i];
       const states = this.drawBranch(branchWorkflowData, {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
-        x: startX + (stateItemSize.width + marginSize.horizontalMargin) * i
+        x: startX + (stateItemSize.width + marginSize.horizontalMargin) * i,
       });
       const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
       branchSubItems = [...branchSubItems, ...states, ...dropAreas];
@@ -133,19 +139,18 @@ export class RemodzyWorkflowBuilder {
     return new fabric.Group(branchSubItems);
   }
 
-
   private drawDropArea(stateId: string, position: PointCoords): IDropAreaGroup {
     const dropAreaGroup = new DropAreaGroup({
       left: position.x,
       top: position.y,
       data: {
         stateId,
-      }
+      },
     });
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.set({
       left: Math.round(dropAreaGroup.left - dropAreaGroup.width / 2),
-      top: Math.round(dropAreaGroup.top - dropAreaGroup.height / 2)
+      top: Math.round(dropAreaGroup.top - dropAreaGroup.height / 2),
     });
     return dropAreaGroup;
   }
@@ -155,8 +160,8 @@ export class RemodzyWorkflowBuilder {
       top,
       left: Math.round((this.canvas.width || 0) / 2 - tiePointSize.radius),
       data: {
-        stateId
-      }
+        stateId,
+      },
     });
     this.canvas.add(tiePoint);
     return tiePoint;
@@ -175,17 +180,18 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawCurveTieLines(states: IStateGroup[]) {
+    const curveTieLines = this.tieLines.getCurveTieLinesStructure(states);
     states.forEach((state: IStateGroup) => {
-      if (state.data.Branches && state.data.Branches.length) {
+      if (state.data.BranchesData && state.data.BranchesData.length) {
         const tieEnd = state.getBottomTiePoint();
         const coords = tieEnd.getCenterBottomCoords();
         const curve1 = new CurveTieLine(curvesPath.topToLeft, {
           left: coords.x - 15,
-          top: coords.y
+          top: coords.y,
         });
         const curve2 = new CurveTieLine(curvesPath.topToRight, {
           left: coords.x,
-          top: coords.y
+          top: coords.y,
         });
         this.canvas.add(curve1, curve2);
       }
@@ -204,7 +210,7 @@ export class RemodzyWorkflowBuilder {
       const { rootState, branchesItemsGroup } = this.drawState(
         currentStateData,
         drawPosition.getCurrentPosition(),
-        workflowData
+        workflowData,
       );
       drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
       currentStateData = workflowData.getStateById(currentStateData.Next!);
@@ -215,7 +221,7 @@ export class RemodzyWorkflowBuilder {
       const { rootState: endStateGroup } = this.drawState(
         currentStateData,
         drawPosition.getCurrentPosition(),
-        workflowData
+        workflowData,
       );
       states.push(endStateGroup);
     }
@@ -224,13 +230,13 @@ export class RemodzyWorkflowBuilder {
 
   private drawDropAreas(states: IStateGroup[]) {
     states.forEach((stateGroup: IStateGroup) => {
-      const isMainBranchEnd = stateGroup.data.stateId ===  this.workflowData.getEndStateId();
+      const isMainBranchEnd = stateGroup.data.stateId === this.workflowData.getEndStateId();
       if (!isMainBranchEnd && !stateGroup.isBranchRoot()) {
-        const { x: stateLeft,  y: stateBottom } = stateGroup.getCenterBottomCoords();
+        const { x: stateLeft, y: stateBottom } = stateGroup.getCenterBottomCoords();
         const dropAreaTop = stateBottom + marginSize.verticalMargin / 2;
         const dropAreaGroup = this.drawDropArea(stateGroup.data.stateId, {
           x: stateLeft,
-          y: dropAreaTop
+          y: dropAreaTop,
         });
         stateGroup.setDropArea(dropAreaGroup);
       }
@@ -239,7 +245,7 @@ export class RemodzyWorkflowBuilder {
 
   private drawTiePoints(states: IStateGroup[]) {
     states.forEach((stateGroup: IStateGroup) => {
-      const stateTop = (stateGroup.top || 0);
+      const stateTop = stateGroup.top || 0;
       const tiePointTopPosition = stateTop - tiePointSize.radius;
       const tiePointBottomPosition = tiePointTopPosition + stateGroup.height;
       if (!stateGroup.data.Start) {
@@ -256,7 +262,7 @@ export class RemodzyWorkflowBuilder {
   private drawStateCloneUnderMovingObject(movingState: IStateGroup) {
     const stateGroup = this.drawStateRoot(movingState.getStateData(), {
       y: movingState.top,
-      x: movingState.left
+      x: movingState.left,
     });
     stateGroup.sendToBack();
   }

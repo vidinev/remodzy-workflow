@@ -1,6 +1,7 @@
 import { Canvas } from 'fabric/fabric-impl';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IStateGroup } from '../models/interfaces/state.interface';
+import { WorkflowData } from './workflow-data.service';
 
 export class TieLinesService {
   canvas: Canvas;
@@ -25,6 +26,30 @@ export class TieLinesService {
       }
     });
     return tieLinesStructure;
+  }
+
+  getCurveTieLinesStructure(states: IStateGroup[]): TieLineStructure[] {
+    states.forEach((canvasObject: IStateGroup) => {
+      if (canvasObject.data.BranchesData && canvasObject.data.BranchesData.length) {
+        const tieStart = canvasObject.getBottomTiePoint();
+        const isEvenBranches = canvasObject.data.BranchesData.length % 2 === 0;
+        const middleBranchIndex = Math.ceil(canvasObject.data.BranchesData.length / 2);
+        const tieEndLeft = [];
+        canvasObject.data.BranchesData.forEach((branchData: WorkflowData, i: number) => {
+          const indexNumber = i + 1;
+          if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
+            console.log('tie end left', branchData);
+          }
+          if (!isEvenBranches && indexNumber === middleBranchIndex) {
+            console.log('tie middle', branchData);
+          }
+          if (indexNumber > middleBranchIndex) {
+            console.log('tie end right', branchData);
+          }
+        });
+      }
+    });
+    return [];
   }
 
   private getStateGroupById(states: IStateGroup[], stateId: string) {
