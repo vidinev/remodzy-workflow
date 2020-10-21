@@ -20,8 +20,10 @@ import { PointCoords } from '../interfaces/point-coords.interface';
 import { ITiePointCircle } from '../models/interfaces/tie-point.interface';
 import { CurveTieLine } from '../models/curve-tie-line.model';
 import { curvesPath } from '../models/configs/curve-tie-line-config';
+import { BranchItems } from '../models/branch-items.model';
 
 /*
+ * Finalize curve tie lines
  * Draw all branch element (drop areas, lines)
  * Draw branch service
  * Test lib basic functionality
@@ -96,10 +98,16 @@ export class RemodzyWorkflowBuilder {
     position: PointCoords,
     workflowData: WorkflowData,
   ): { rootState: IStateGroup; branchesItemsGroup?: Group } {
+    let branchesItems: CanvasObject[] = [];
     let branchesItemsGroup;
     const rootState = this.drawStateRoot(stateData, position, workflowData);
     if (stateData.BranchesData?.length) {
-      branchesItemsGroup = this.drawBranches(stateData.BranchesData, position);
+      this.drawBranches(stateData.BranchesData, position)
+        .forEach((branchItems) => {
+          branchesItems = [...branchesItems, ...branchItems.getAllItems()];
+          rootState.addChildState(branchItems.getFirstChild());
+        });
+      branchesItemsGroup = new fabric.Group(branchesItems);
     }
     return { branchesItemsGroup, rootState };
   }
@@ -121,12 +129,12 @@ export class RemodzyWorkflowBuilder {
     return stateGroup;
   }
 
-  private drawBranches(branches: WorkflowData[], position: PointCoords): Group {
+  private drawBranches(branches: WorkflowData[], position: PointCoords): BranchItems[] {
     const widthForBranches =
       branches.length * (stateItemSize.width + marginSize.horizontalMargin) - marginSize.horizontalMargin;
     const startX = position.x - widthForBranches / 2 + stateItemSize.width / 2;
 
-    let branchSubItems: CanvasObject[] = [];
+    let branchSubItems: BranchItems[] = [];
     for (let i = 0; i < branches.length; i++) {
       const branchWorkflowData = branches[i];
       const states = this.drawBranch(branchWorkflowData, {
@@ -134,9 +142,9 @@ export class RemodzyWorkflowBuilder {
         x: startX + (stateItemSize.width + marginSize.horizontalMargin) * i,
       });
       const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
-      branchSubItems = [...branchSubItems, ...states, ...dropAreas];
+      branchSubItems.push(new BranchItems(states, dropAreas));
     }
-    return new fabric.Group(branchSubItems);
+    return branchSubItems;
   }
 
   private drawDropArea(stateId: string, position: PointCoords): IDropAreaGroup {

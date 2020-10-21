@@ -5,9 +5,11 @@ import { stateRectConfig, stateTextConfig } from './configs/state-group-config';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { IDropAreaGroup } from './interfaces/drop-area.interface';
 import { ITiePointCircle } from './interfaces/tie-point.interface';
+import { IStateGroup } from './interfaces/state.interface';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
+  _childrenStates: [],
   _dropArea: null,
   _topTiePoint: null,
   _bottomTiePoint: null,
@@ -69,6 +71,16 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getBottomTiePoint(): ITiePointCircle {
     return this._bottomTiePoint;
+  },
+
+  addChildState(state: IStateGroup): void {
+    if (state && state.type === ObjectTypes.state) {
+      this._childrenStates.push(state);
+    }
+  },
+
+  getChildrenStates(): IStateGroup[] {
+    return this._childrenStates;
   },
 
   _render: function(ctx: CanvasRenderingContext2D) {

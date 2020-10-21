@@ -2,6 +2,7 @@ import { Canvas } from 'fabric/fabric-impl';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IStateGroup } from '../models/interfaces/state.interface';
 import { WorkflowData } from './workflow-data.service';
+import { StateItemsBySide } from '../interfaces/state-items-by-side.interface';
 
 export class TieLinesService {
   canvas: Canvas;
@@ -28,28 +29,45 @@ export class TieLinesService {
     return tieLinesStructure;
   }
 
-  getCurveTieLinesStructure(states: IStateGroup[]): TieLineStructure[] {
+  getCurveTieLinesStructure(states: IStateGroup[]): any[] {
+    const curveTieLinesStructure: any[] = [];
     states.forEach((canvasObject: IStateGroup) => {
       if (canvasObject.data.BranchesData && canvasObject.data.BranchesData.length) {
         const tieStart = canvasObject.getBottomTiePoint();
-        const isEvenBranches = canvasObject.data.BranchesData.length % 2 === 0;
-        const middleBranchIndex = Math.ceil(canvasObject.data.BranchesData.length / 2);
-        const tieEndLeft = [];
-        canvasObject.data.BranchesData.forEach((branchData: WorkflowData, i: number) => {
-          const indexNumber = i + 1;
-          if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
-            console.log('tie end left', branchData);
-          }
-          if (!isEvenBranches && indexNumber === middleBranchIndex) {
-            console.log('tie middle', branchData);
-          }
-          if (indexNumber > middleBranchIndex) {
-            console.log('tie end right', branchData);
-          }
-        });
+        console.log();
+        curveTieLinesStructure.push({
+          tieStart,
+          ...this.getGroupedItemsBySide(canvasObject)
+        })
       }
     });
-    return [];
+    return curveTieLinesStructure;
+  }
+
+  private getGroupedItemsBySide(canvasObject: IStateGroup): StateItemsBySide {
+    const branchesLength = canvasObject.data.BranchesData?.length || 0;
+    const isEvenBranches = branchesLength % 2 === 0;
+    const middleBranchIndex = Math.ceil(branchesLength / 2);
+    const childrenStates = canvasObject.getChildrenStates();
+    const leftSide: IStateGroup[] = [];
+    const rightSide: IStateGroup[] = [];
+    const middleItems: IStateGroup[] = [];
+    canvasObject.data.BranchesData?.forEach((branchData: WorkflowData, i: number) => {
+      const indexNumber = i + 1;
+      const state = this.getStateGroupById(childrenStates, branchData.getStartStateId());
+      if (state) {
+        if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
+          leftSide.push(state);
+        }
+        if (!isEvenBranches && indexNumber === middleBranchIndex) {
+          middleItems.push(state);
+        }
+        if (indexNumber > middleBranchIndex) {
+          rightSide.push(state);
+        }
+      }
+    });
+    return { leftSide, middleItems, rightSide };
   }
 
   private getStateGroupById(states: IStateGroup[], stateId: string) {
