@@ -1,8 +1,8 @@
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
-import { ITiePointCircle } from '../models/interfaces/tie-point.interface';
+import { PointCoords } from './point-coords.interface';
 
 export interface TieLineStructure {
-  tieStart: ITiePointCircle;
-  tieEnd: ITiePointCircle;
+  startCoords: PointCoords;
+  endCoords: PointCoords;
   dropArea: IDropAreaGroup;
 }

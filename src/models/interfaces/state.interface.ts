@@ -12,6 +12,7 @@ export interface IStateGroup extends Group {
   isBranchRoot: () => boolean;
   addChildState: (state: IStateGroup) => void;
   getChildrenStates: () => IStateGroup[];
+  getCenterTopCoords: () => PointCoords;
   getCenterBottomCoords: () => PointCoords;
   getStateData: () => WorkflowState;
   setDropArea: (dropArea: IDropAreaGroup) => void;

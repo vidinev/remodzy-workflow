@@ -40,6 +40,13 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     };
   },
 
+  getCenterTopCoords(): PointCoords {
+    return {
+      x: (this.left || 0) + this.width / 2,
+      y: this.top
+    };
+  },
+
   getStateData(): WorkflowState {
     const { stateId, Start, ...stateData } = this.data;
     return stateData;

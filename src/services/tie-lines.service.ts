@@ -3,6 +3,7 @@ import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IStateGroup } from '../models/interfaces/state.interface';
 import { WorkflowData } from './workflow-data.service';
 import { StateItemsBySide } from '../interfaces/state-items-by-side.interface';
+import { CurveTieLinesStructure } from '../interfaces/curve-tie-lines-structure.interface';
 
 export class TieLinesService {
   canvas: Canvas;
@@ -21,7 +22,11 @@ export class TieLinesService {
           const tieEnd = nextState.getTopTiePoint();
           const dropArea = canvasObject.getDropArea();
           if (tieStart && tieEnd && dropArea) {
-            tieLinesStructure.push({ tieStart, tieEnd, dropArea });
+            tieLinesStructure.push({
+              startCoords: tieStart.getCenterBottomCoords(),
+              endCoords: tieEnd.getCenterTopCoords(),
+              dropArea
+            });
           }
         }
       }
@@ -29,12 +34,11 @@ export class TieLinesService {
     return tieLinesStructure;
   }
 
-  getCurveTieLinesStructure(states: IStateGroup[]): any[] {
-    const curveTieLinesStructure: any[] = [];
+  getCurveTieLinesStructure(states: IStateGroup[]): CurveTieLinesStructure[] {
+    const curveTieLinesStructure: CurveTieLinesStructure[] = [];
     states.forEach((canvasObject: IStateGroup) => {
       if (canvasObject.data.BranchesData && canvasObject.data.BranchesData.length) {
         const tieStart = canvasObject.getBottomTiePoint();
-        console.log();
         curveTieLinesStructure.push({
           tieStart,
           ...this.getGroupedItemsBySide(canvasObject)
