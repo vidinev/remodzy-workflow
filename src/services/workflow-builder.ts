@@ -18,13 +18,12 @@ import { IStateGroup } from '../models/interfaces/state.interface';
 import { remodzyColors } from '../configs/colors.config';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { ITiePointCircle } from '../models/interfaces/tie-point.interface';
-import { CurveTieLine } from '../models/curve-tie-line.model';
-import { curvesPath, curveTieLineConfig } from '../models/configs/curve-tie-line-config';
+import { CurveTieLineDirection } from '../models/configs/curve-tie-line-config';
 import { BranchItems } from '../models/branch-items.model';
 import { CurveTieLinesStructure } from '../interfaces/curve-tie-lines-structure.interface';
+import { CurveTieLine } from 'src/models/curve-tie-line.model';
 
 /*
- * Move cords for curves calculating to tie line service
  * Add padding for curves as on mockup
  * Add line at the top of curves and at the bottom of curves to support all margin value
  * Draw curves for 3 states
@@ -200,45 +199,15 @@ export class RemodzyWorkflowBuilder {
     const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(states);
     curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
       const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
-      const curveStartToLeft = new CurveTieLine(curvesPath.topToLeft, {
-        left: rootCoords.x,
-        top: rootCoords.y,
-      });
-      curveStartToLeft.set({ left: curveStartToLeft.left - curveStartToLeft.width });
-      const curveStartToRight = new CurveTieLine(curvesPath.topToRight, {
-        left: rootCoords.x,
-        top: rootCoords.y,
-      });
-      this.canvas.add(curveStartToLeft, curveStartToRight);
       curveLineStructure.leftSide.forEach((state: IStateGroup) => {
         const sideStateCoords = state.getCenterTopCoords();
-        const curveLeftToTop = new CurveTieLine(curvesPath.leftToTop, {
-          left: sideStateCoords.x,
-          top: rootCoords.y,
-        });
-        curveLeftToTop.set({ top: curveLeftToTop.top + curveLeftToTop.height });
-        this.canvas.add(curveLeftToTop);
-        this.canvas.add(new TieLine([
-          sideStateCoords.x + curveLeftToTop.width,
-          curveLeftToTop.top - curveTieLineConfig.strokeWidth! * 2,
-          curveStartToLeft.left + curveTieLineConfig.strokeWidth!,
-          rootCoords.y + curveStartToLeft.height + curveTieLineConfig.strokeWidth! * 2
-        ]));
+        const leftCurve = new CurveTieLine(CurveTieLineDirection.topToLeft, rootCoords, sideStateCoords);
+        this.canvas.add(leftCurve);
       });
       curveLineStructure.rightSide.forEach((state: IStateGroup) => {
         const sideStateCoords = state.getCenterTopCoords();
-        const curveRightToTop = new CurveTieLine(curvesPath.rightToTop, {
-          left: sideStateCoords.x,
-          top: rootCoords.y,
-        });
-        curveRightToTop.set({ top: curveRightToTop.top + curveRightToTop.height });
-        this.canvas.add(curveRightToTop)
-        this.canvas.add(new TieLine([
-          curveStartToRight.left + curveStartToLeft.width,
-          curveStartToRight.top + curveStartToRight.height -  curveTieLineConfig.strokeWidth! * 2,
-          curveRightToTop.left + curveTieLineConfig.strokeWidth!,
-          curveRightToTop.top + curveTieLineConfig.strokeWidth! * 2
-        ]));
+        const rightCurve = new CurveTieLine(CurveTieLineDirection.topToRight, rootCoords, sideStateCoords);
+        this.canvas.add(rightCurve);
       });
     });
   }
