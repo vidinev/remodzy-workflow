@@ -24,7 +24,6 @@ import { CurveTieLinesStructure } from '../interfaces/curve-tie-lines-structure.
 import { CurveTieLine } from 'src/models/curve-tie-line.model';
 
 /*
- * Add padding for curves as on mockup
  * Add line at the top of curves and at the bottom of curves to support all margin value
  * Draw curves for 3 states
  * Test curves for mote than 3 states
@@ -110,11 +109,10 @@ export class RemodzyWorkflowBuilder {
     let branchesItemsGroup;
     const rootState = this.drawStateRoot(stateData, position, workflowData);
     if (stateData.BranchesData?.length) {
-      this.drawBranches(stateData.BranchesData, position)
-        .forEach((branchItems) => {
-          branchesItems = [...branchesItems, ...branchItems.getAllItems()];
-          rootState.addChildState(branchItems.getFirstChild());
-        });
+      this.drawBranches(stateData.BranchesData, position).forEach((branchItems) => {
+        branchesItems = [...branchesItems, ...branchItems.getAllItems()];
+        rootState.addChildState(branchItems.getFirstChild());
+      });
       branchesItemsGroup = new fabric.Group(branchesItems);
     }
     return { branchesItemsGroup, rootState };

@@ -1,14 +1,10 @@
 import { ObjectTypes } from '../configs/object-types.enum';
-import {
-  curveRoundPartSize,
-  curvesPath,
-  curveTieLineConfig,
-  CurveTieLineDirection,
-} from './configs/curve-tie-line-config';
+import { curvesPath, curveTieLineConfig, CurveTieLineDirection } from './configs/curve-tie-line-config';
 import { CurveTieLineCorner } from './curve-tie-line-corner.model';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { TieLine } from './tie-line.model';
 import { Group } from 'fabric/fabric-impl';
+import { curveRoundPartSize, tieLineSize } from '../configs/size.config';
 
 export const CurveTieLine = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.curveTieLine,
@@ -27,7 +23,7 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
     this.callSuper('initialize', group, {
       selectable: false,
       evented: false,
-      ...topCoords
+      ...topCoords,
     });
   },
 
@@ -45,12 +41,13 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
   createTopToLeftGroup(): Group[] {
     const group: Group[] = [];
     const topCornerLeft = this.topCoords.x - curveRoundPartSize;
+    const top = this.topCoords.y + this.getCurveLineTopMargin();
     const topCorner = new CurveTieLineCorner(curvesPath.topToLeft, {
       left: topCornerLeft,
-      top: this.topCoords.y,
+      top,
     });
     group.push(topCorner);
-    const bottomCornerTop = this.topCoords.y + curveRoundPartSize;
+    const bottomCornerTop = top + curveRoundPartSize;
     const bottomCorner = new CurveTieLineCorner(curvesPath.leftToTop, {
       left: this.bottomCoords.x,
       top: bottomCornerTop,
@@ -60,7 +57,7 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
       this.bottomCoords.x + curveRoundPartSize,
       bottomCornerTop - curveTieLineConfig.strokeWidth! * 2,
       topCornerLeft + curveTieLineConfig.strokeWidth!,
-      this.topCoords.y + curveRoundPartSize + curveTieLineConfig.strokeWidth! * 2
+      top + curveRoundPartSize + curveTieLineConfig.strokeWidth! * 2,
     ]);
     group.push(straightLine);
     return group;
@@ -68,12 +65,13 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
 
   createTopToRightGroup(): Group[] {
     const group: Group[] = [];
+    const top = this.topCoords.y + this.getCurveLineTopMargin();
     const topCorner = new CurveTieLineCorner(curvesPath.topToRight, {
       left: this.topCoords.x,
-      top: this.topCoords.y,
+      top: top,
     });
     group.push(topCorner);
-    const bottomCornerTop = this.topCoords.y + curveRoundPartSize;
+    const bottomCornerTop = this.topCoords.y + curveRoundPartSize + this.getCurveLineTopMargin();
     const bottomCorner = new CurveTieLineCorner(curvesPath.rightToTop, {
       left: this.bottomCoords.x,
       top: bottomCornerTop,
@@ -82,11 +80,15 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
     group.push(bottomCorner);
     const straightLine = new TieLine([
       this.topCoords.x + curveRoundPartSize,
-      this.topCoords.y + curveRoundPartSize - curveTieLineConfig.strokeWidth! * 2,
+      top + curveRoundPartSize - curveTieLineConfig.strokeWidth! * 2,
       this.bottomCoords.x + curveTieLineConfig.strokeWidth!,
-      this.topCoords.y + curveRoundPartSize + curveTieLineConfig.strokeWidth! * 2,
+      top + curveRoundPartSize + curveTieLineConfig.strokeWidth! * 2,
     ]);
     group.push(straightLine);
     return group;
-  }
+  },
+
+  getCurveLineTopMargin() {
+    return tieLineSize.margin + 1;
+  },
 });
