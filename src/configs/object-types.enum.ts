@@ -3,6 +3,7 @@ export enum ObjectTypes {
   dropArea = 'dropArea',
   tiePoint = 'tiePoint',
   tieLine = 'tieLine',
+  middleTieLine = 'middleTieLine',
   curveTieLine = 'curveTieLine',
   curveTieLineCorner = 'curveTieLineCorner'
 }

@@ -4,7 +4,12 @@ import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawPositionService } from './draw-position.service';
 import { data } from '../configs/data.config';
-import { canvasSize, marginSize, stateItemSize, tiePointSize } from '../configs/size.config';
+import {
+  canvasSize,
+  marginSize,
+  stateItemSize,
+  tiePointSize,
+} from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
@@ -22,17 +27,16 @@ import { CurveTieLineDirection } from '../models/configs/curve-tie-line-config';
 import { BranchItems } from '../models/branch-items.model';
 import { CurveTieLinesStructure } from '../interfaces/curve-tie-lines-structure.interface';
 import { CurveTieLine } from 'src/models/curve-tie-line.model';
+import { MiddleTieLine } from 'src/models/middle-tie-line.model';
 
 /*
- * Add line at the top of curves and at the bottom of curves to support all margin value
- * Draw curves for 3 states
  * Test curves for mote than 3 states
  * Correct style for pass state
- * Set simple state instead pass state in branches
- * Set simple state in root branch
+ * Set simple state instead pass state in branches (try to use instead, everything should work)
+ * Set simple state in root branch (try to use instead, everything should work)
  * Draw all branch elements (drop area at the bottom, bottom curves, missing tie lines)
- * Refactor OOP - Draw branch service
  * Fix 2 drop area highlight at the same time
+ * Refactor OOP - Draw branch service
  * Test lib basic functionality
  * Merge all js files into one
  */
@@ -197,6 +201,14 @@ export class RemodzyWorkflowBuilder {
     const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(states);
     curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
       const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
+      curveLineStructure.middleItems.forEach((state: IStateGroup) => {
+        const bottomCoords = state.getCenterTopCoords();
+        const straightLine = new MiddleTieLine({
+          topCoords: rootCoords,
+          bottomCoords,
+        });
+        this.canvas.add(straightLine);
+      });
       curveLineStructure.leftSide.forEach((state: IStateGroup) => {
         const sideStateCoords = state.getCenterTopCoords();
         const leftCurve = new CurveTieLine(CurveTieLineDirection.topToLeft, rootCoords, sideStateCoords);

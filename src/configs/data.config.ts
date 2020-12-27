@@ -55,6 +55,19 @@ export const data: WorkflowStateData = {
               },
             }
           }
+        },
+        {
+          StartAt: 'Test',
+          States: {
+            Test: {
+              Type: 'Pass',
+              End: true,
+              Comment: 'Test',
+              Parameters: {
+                taskType: 'pass'
+              },
+            }
+          }
         }
       ]
     },
