@@ -30,15 +30,19 @@ import { CurveTieLine } from 'src/models/curve-tie-line.model';
 import { MiddleTieLine } from 'src/models/middle-tie-line.model';
 
 /*
- * Test curves for mote than 3 states
+ * Rework drop area to (+)
+ * Try more items in one child branch (not only pass state)
  * Correct style for pass state
- * Set simple state instead pass state in branches (try to use instead, everything should work)
- * Set simple state in root branch (try to use instead, everything should work)
  * Draw all branch elements (drop area at the bottom, bottom curves, missing tie lines)
  * Fix 2 drop area highlight at the same time
+ * Add some branch inside branch, improve calculating to support all levels of inheritance.
+ * Fix  drag and drop, and sorting between levels
  * Refactor OOP - Draw branch service
  * Test lib basic functionality
  * Merge all js files into one
+ *
+ * Set simple state instead pass state in branches ?
+ * Set simple state in root branch ?
  */
 
 export class RemodzyWorkflowBuilder {
