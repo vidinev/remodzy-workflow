@@ -34,13 +34,22 @@ export const data: WorkflowStateData = {
           StartAt: 'Reject',
           States: {
             Reject: {
-              End: true,
               Type: 'Pass',
+              Next: 'RejectChildState',
               Comment: 'Reject',
               Parameters: {
                 taskType: 'pass'
               },
-            }
+            },
+            RejectChildState: {
+              Type: 'Task',
+              End: true,
+              Parameters: {
+                taskType: 'sendEmail',
+                taskIcon: 'email-icon'
+              },
+              Comment: 'Reject child state',
+            },
           }
         },
         {

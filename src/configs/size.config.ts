@@ -11,6 +11,14 @@ export const stateItemSize = {
   dragDropAngle: 4,
   fontSize: 14,
 };
+
+export const passStateItemSize = {
+  width: 144,
+  height: 36,
+  fontSize: stateItemSize.fontSize,
+  dragDropAngle: stateItemSize.dragDropAngle
+};
+
 export const dropAreaSize = {
   width: 248,
   height: 32,

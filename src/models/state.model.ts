@@ -1,11 +1,17 @@
 import { IObjectOptions } from 'fabric/fabric-impl';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowState } from '../interfaces/state-language.interface';
-import { stateRectConfig, stateTextConfig } from './configs/state-group-config';
+import {
+  passStateRectConfig,
+  passStateTextConfig,
+  stateRectConfig,
+  stateTextConfig,
+} from './configs/state-group-config';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { IDropAreaGroup } from './interfaces/drop-area.interface';
 import { ITiePointCircle } from './interfaces/tie-point.interface';
 import { IStateGroup } from './interfaces/state.interface';
+import { StateTypesEnum } from '../configs/state-types.enum';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
@@ -16,14 +22,15 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   _active: false,
 
   initialize: function(stateData: WorkflowState, options: IObjectOptions = { }, isStart: boolean) {
-    const stateContainerObject = new fabric.Rect(stateRectConfig);
+    const rectConfig = this._getConfig(stateData.Type);
+    const stateContainerObject = new fabric.Rect(rectConfig);
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
-    const stateTextObject = new fabric.Textbox(stateText, stateTextConfig);
+    const stateTextObject = new fabric.Textbox(stateText, this._getTextConfig(stateData.Type));
 
     this.callSuper('initialize', [stateContainerObject, stateTextObject], {
       hasControls: false,
       hasBorders: false,
-      ...options,
+      ...this._getOptions(stateData.Type, options),
       data: {
         ...stateData,
         Branches: stateData.Branches || null,
@@ -88,6 +95,37 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getChildrenStates(): IStateGroup[] {
     return this._childrenStates;
+  },
+
+  _getConfig(type: string) {
+    switch (type) {
+      case StateTypesEnum.Pass:
+        return passStateRectConfig;
+      default:
+        return stateRectConfig;
+    }
+  },
+
+  _getTextConfig(type: string) {
+    switch (type) {
+      case StateTypesEnum.Pass:
+        return passStateTextConfig;
+      default:
+        return stateTextConfig;
+    }
+  },
+
+  _getOptions(type: string, options: IObjectOptions) {
+    switch (type) {
+      case StateTypesEnum.Pass:
+        const passStateOffset = (stateRectConfig.width! - passStateRectConfig.width!) / 2;
+        return {
+          ...options,
+          left: (options.left || 0) + passStateOffset
+        };
+      default:
+        return options;
+    }
   },
 
   _render: function(ctx: CanvasRenderingContext2D) {

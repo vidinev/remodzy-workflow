@@ -1,6 +1,6 @@
 import { IRectOptions, ITextboxOptions, Shadow } from 'fabric/fabric-impl';
 import { remodzyColors } from '../../configs/colors.config';
-import { stateItemSize } from '../../configs/size.config';
+import { passStateItemSize, stateItemSize } from '../../configs/size.config';
 
 export const stateRectConfig: IRectOptions = {
   fill: remodzyColors.rectBgColor,
@@ -16,6 +16,14 @@ export const stateRectConfig: IRectOptions = {
   } as Shadow,
 };
 
+export const passStateRectConfig: IRectOptions = {
+  ...stateRectConfig,
+  width: passStateItemSize.width,
+  height: passStateItemSize.height,
+  rx: 8,
+  ry: 8
+}
+
 export const stateTextConfig: ITextboxOptions = {
   width: stateItemSize.width,
   top: Math.round(stateItemSize.height / 2 - stateItemSize.fontSize / 2),
@@ -26,3 +34,9 @@ export const stateTextConfig: ITextboxOptions = {
   textAlign: 'center',
   fill: remodzyColors.rectTextColor,
 };
+
+export const passStateTextConfig: ITextboxOptions = {
+  ...stateTextConfig,
+  width: passStateItemSize.width,
+  top: Math.round(passStateItemSize.height / 2 - passStateItemSize.fontSize / 2),
+}

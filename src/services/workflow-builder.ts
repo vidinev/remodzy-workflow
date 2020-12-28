@@ -28,12 +28,13 @@ import { BranchItems } from '../models/branch-items.model';
 import { CurveTieLinesStructure } from '../interfaces/curve-tie-lines-structure.interface';
 import { CurveTieLine } from 'src/models/curve-tie-line.model';
 import { MiddleTieLine } from 'src/models/middle-tie-line.model';
+import { StateTypesEnum } from '../configs/state-types.enum';
 
 /*
- * Try more items in one child branch (not only pass state)
- * Correct style for pass state
+ * Draw tie lines for children branches
  * Draw all branch elements (drop area at the bottom, bottom curves, missing tie lines)
  * Fix 2 drop area highlight at the same time
+ * Fix drag and drop for 2 level
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
  * Fix  drag and drop, and sorting between levels
  * Refactor OOP - Draw branch service
@@ -127,13 +128,14 @@ export class RemodzyWorkflowBuilder {
 
   private drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {
     const isStart = stateData.Parameters?.stateId === workflowData?.getStartStateId();
+    const isEnd = stateData.Parameters?.stateId === this.workflowData.getEndStateId();
     const stateGroup = new StateGroup(
       stateData,
       {
         left: position.x,
         top: position.y,
-        hoverCursor: isStart || stateData.End ? 'default' : 'pointer',
-        selectable: !(isStart || stateData.End),
+        hoverCursor: isStart || isEnd ? 'default' : 'pointer',
+        selectable: !(isStart || isEnd),
       },
       isStart,
     );
@@ -176,10 +178,10 @@ export class RemodzyWorkflowBuilder {
     return dropAreaGroup;
   }
 
-  private drawTiePoint(stateId: string, top: number): ITiePointCircle {
+  private drawTiePoint(stateId: string, pointCoords: PointCoords): ITiePointCircle {
     const tiePoint = new TiePointCircle({
-      top,
-      left: Math.round((this.canvas.width || 0) / 2 - tiePointSize.radius),
+      top: Math.round(pointCoords.y - tiePointSize.radius),
+      left: Math.round(pointCoords.x - tiePointSize.radius),
       data: {
         stateId,
       },
@@ -268,15 +270,15 @@ export class RemodzyWorkflowBuilder {
 
   private drawTiePoints(states: IStateGroup[]) {
     states.forEach((stateGroup: IStateGroup) => {
-      const stateTop = stateGroup.top || 0;
-      const tiePointTopPosition = stateTop - tiePointSize.radius;
-      const tiePointBottomPosition = tiePointTopPosition + stateGroup.height;
+      if (stateGroup.data.Type === StateTypesEnum.Pass) {
+        return;
+      }
       if (!stateGroup.data.Start) {
-        const topTiePoint = this.drawTiePoint(stateGroup.data.stateId, tiePointTopPosition);
+        const topTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterTopCoords());
         stateGroup.setTopTiePoint(topTiePoint);
       }
-      if (!stateGroup.data.End) {
-        const bottomTiePoint = this.drawTiePoint(stateGroup.data.stateId, tiePointBottomPosition);
+      if (!stateGroup.data.End && stateGroup.data.Type) {
+        const bottomTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterBottomCoords());
         stateGroup.setBottomTiePoint(bottomTiePoint);
       }
     });
