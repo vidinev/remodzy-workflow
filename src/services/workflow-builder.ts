@@ -7,7 +7,7 @@ import { data } from '../configs/data.config';
 import {
   canvasSize,
   marginSize,
-  stateItemSize,
+  stateItemSize, tieLineSize,
   tiePointSize,
 } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
@@ -30,7 +30,6 @@ import { CurveTieLine } from 'src/models/curve-tie-line.model';
 import { MiddleTieLine } from 'src/models/middle-tie-line.model';
 
 /*
- * Rework drop area to (+)
  * Try more items in one child branch (not only pass state)
  * Correct style for pass state
  * Draw all branch elements (drop area at the bottom, bottom curves, missing tie lines)
@@ -172,7 +171,7 @@ export class RemodzyWorkflowBuilder {
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.set({
       left: Math.round(dropAreaGroup.left - dropAreaGroup.width / 2),
-      top: Math.round(dropAreaGroup.top - dropAreaGroup.height / 2),
+      top: Math.ceil(dropAreaGroup.top - dropAreaGroup.height / 2),
     });
     return dropAreaGroup;
   }
@@ -196,8 +195,8 @@ export class RemodzyWorkflowBuilder {
       const { y: toTieY } = tieLineStructure.endCoords;
       const { y: toDropY } = tieLineStructure.dropArea.getCenterTopCoords();
       const { y: fromDropY } = tieLineStructure.dropArea.getCenterBottomCoords();
-      this.drawTieLine(x, fromTieY, x, toDropY);
-      this.drawTieLine(x, fromDropY, x, toTieY);
+      this.canvas.add(new TieLine([x, fromTieY, x, toDropY], tieLineSize.margin, 0));
+      this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0));
     });
   }
 
@@ -224,10 +223,6 @@ export class RemodzyWorkflowBuilder {
         this.canvas.add(rightCurve);
       });
     });
-  }
-
-  private drawTieLine(fromX: number, fromY: number, toX: number, toY: number) {
-    this.canvas.add(new TieLine([fromX, fromY, toX, toY]));
   }
 
   private drawStates(workflowData: WorkflowData, startPosition: PointCoords): IStateGroup[] {
