@@ -4,12 +4,7 @@ import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawPositionService } from './draw-position.service';
 import { data } from '../configs/data.config';
-import {
-  canvasSize,
-  marginSize,
-  stateItemSize, tieLineSize,
-  tiePointSize,
-} from '../configs/size.config';
+import { canvasSize, marginSize, stateItemSize, tieLineSize, tiePointSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
@@ -194,11 +189,13 @@ export class RemodzyWorkflowBuilder {
     const tieLinesStructure = this.tieLines.getTieLinesStructure(states);
     tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
       const { x, y: fromTieY } = tieLineStructure.startCoords;
-      const { y: toTieY } = tieLineStructure.endCoords;
+      const { y: toTieY } = tieLineStructure.endCoords || { y: null };
       const { y: toDropY } = tieLineStructure.dropArea.getCenterTopCoords();
       const { y: fromDropY } = tieLineStructure.dropArea.getCenterBottomCoords();
       this.canvas.add(new TieLine([x, fromTieY, x, toDropY], tieLineSize.margin, 0));
-      this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0));
+      if (toTieY) {
+        this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0));
+      }
     });
   }
 
@@ -277,7 +274,8 @@ export class RemodzyWorkflowBuilder {
         const topTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterTopCoords());
         stateGroup.setTopTiePoint(topTiePoint);
       }
-      if (!stateGroup.data.End && stateGroup.data.Type) {
+      const isMainBranchEnd = stateGroup.data.stateId === this.workflowData.getEndStateId();
+      if (!isMainBranchEnd && stateGroup.data.Type) {
         const bottomTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterBottomCoords());
         stateGroup.setBottomTiePoint(bottomTiePoint);
       }

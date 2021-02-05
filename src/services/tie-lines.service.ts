@@ -16,23 +16,23 @@ export class TieLinesService {
   getTieLinesStructure(states: IStateGroup[]): TieLineStructure[] {
     const tieLinesStructure: TieLineStructure[] = [];
     states.forEach((canvasObject: IStateGroup) => {
-      if (!canvasObject.data.End) {
+      const dropArea = canvasObject.getDropArea();
+      if (!canvasObject.data.End || (canvasObject.data.End && dropArea)) {
         const nextState = this.getStateGroupById(states, canvasObject.data.Next!);
-        if (nextState) {
-          const tieStart = canvasObject.getBottomTiePoint();
-          const tieEnd = nextState.getTopTiePoint();
-          const dropArea = canvasObject.getDropArea();
-          let startCoords = tieStart?.getCenterBottomCoords();
-          if (canvasObject.data.Type === StateTypesEnum.Pass && !tieStart) {
-            startCoords = canvasObject.getCenterBottomCoords();
-          }
-          if (startCoords && tieEnd && dropArea) {
-            tieLinesStructure.push({
-              startCoords,
-              endCoords: tieEnd.getCenterTopCoords(),
-              dropArea,
-            });
-          }
+        const tieStart = canvasObject.getBottomTiePoint();
+        const tieEnd = nextState?.getTopTiePoint();
+
+        let startCoords = tieStart?.getCenterBottomCoords();
+        if (canvasObject.data.Type === StateTypesEnum.Pass && !tieStart) {
+          startCoords = canvasObject.getCenterBottomCoords();
+        }
+
+        if (startCoords && dropArea) {
+          tieLinesStructure.push({
+            startCoords,
+            endCoords: tieEnd?.getCenterTopCoords(),
+            dropArea,
+          });
         }
       }
     });
