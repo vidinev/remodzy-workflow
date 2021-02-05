@@ -26,7 +26,8 @@ import { MiddleTieLine } from 'src/models/middle-tie-line.model';
 import { StateTypesEnum } from '../configs/state-types.enum';
 
 /*
- * Draw all branch elements (drop area at the bottom, bottom curves, missing tie lines)
+ * Drop area at the bottom of the branch (dev/1.jpg)
+ * Draw all branch elements (bottom curves, missing tie lines)
  * Fix 2 drop area highlight at the same time
  * Fix drag and drop for 2 level
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
