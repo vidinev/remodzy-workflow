@@ -26,7 +26,6 @@ import { MiddleTieLine } from 'src/models/middle-tie-line.model';
 import { StateTypesEnum } from '../configs/state-types.enum';
 
 /*
- * Draw tie lines for children branches
  * Draw all branch elements (drop area at the bottom, bottom curves, missing tie lines)
  * Fix 2 drop area highlight at the same time
  * Fix drag and drop for 2 level
