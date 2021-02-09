@@ -97,6 +97,16 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return this._childrenStates;
   },
 
+  getCenterBottomCoordsUnderChildren(): PointCoords {
+    let lowerItem: IStateGroup = { } as IStateGroup;
+    this._childrenStates.forEach((state: IStateGroup) => {
+      if ((state.top || 0) > (lowerItem?.top || 0)) {
+        lowerItem = state;
+      }
+    });
+    return lowerItem.getCenterBottomCoords();
+  },
+
   _getConfig(type: string) {
     switch (type) {
       case StateTypesEnum.Pass:
