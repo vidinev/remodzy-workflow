@@ -2,7 +2,7 @@ import { MathService } from '../services/math.service';
 
 export const canvasSize = {
   width: 1200,
-  height: 1200,
+  height: 900,
 };
 
 export const stateItemSize = {

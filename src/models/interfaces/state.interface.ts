@@ -9,6 +9,7 @@ export interface IStateGroup extends Group {
   top: number;
   left: number;
   height: number;
+  width: number;
   isBranchRoot: () => boolean;
   addChildState: (state: IStateGroup) => void;
   getChildrenStates: () => IStateGroup[];

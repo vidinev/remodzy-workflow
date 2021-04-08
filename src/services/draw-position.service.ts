@@ -14,4 +14,8 @@ export class DrawPositionService {
   moveBottom(offset: number) {
     this.offset.y += offset;
   }
+
+  moveRight(offset: number) {
+    this.offset.x += offset;
+  }
 }

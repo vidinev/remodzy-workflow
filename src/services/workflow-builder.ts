@@ -1,9 +1,8 @@
 import { Canvas, Group, ICanvasOptions, IEvent, Object as CanvasObject } from 'fabric/fabric-impl';
-import { RemodzyWFSettings } from '../interfaces/workflow-settings.interface';
+import { RemodzyWfDirection, RemodzyWFSettings } from '../interfaces/workflow-settings.interface';
 import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
 import { DrawPositionService } from './draw-position.service';
-import { data } from '../configs/data.config';
 import { canvasSize, marginSize, stateItemSize, tieLineSize, tiePointSize } from '../configs/size.config';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
@@ -47,6 +46,9 @@ export class RemodzyWorkflowBuilder {
     selection: false,
     backgroundColor: remodzyColors.canvasBg,
   };
+  private readonly workflowSettings: Partial<RemodzyWFSettings> = {
+    direction: RemodzyWfDirection.vertical
+  }
   private canvasEvents: CanvasEventsService;
   private animate: AnimateService;
   private tieLines: TieLinesService;
@@ -58,7 +60,12 @@ export class RemodzyWorkflowBuilder {
     this.canvasEvents = new CanvasEventsService(this.canvas);
     this.animate = new AnimateService(this.canvas);
     this.tieLines = new TieLinesService(this.canvas);
-    this.workflowData = new WorkflowData(data);
+    this.workflowData = new WorkflowData(settings.data);
+    const { data, ...workflowSettings  } = settings;
+    this.workflowSettings = {
+      ...this.workflowSettings,
+      ...workflowSettings
+    }
     this.setupCanvasEvents();
     this.initialize().then(() => {
       this.canvasEvents.setupDropAreaEvents();
@@ -71,10 +78,23 @@ export class RemodzyWorkflowBuilder {
   }
 
   public render() {
-    const initialBranchPosition = {
-      x: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
-      y: marginSize.verticalMargin,
-    };
+    let initialBranchPosition;
+
+    switch (this.workflowSettings.direction) {
+      case RemodzyWfDirection.horizontal:
+        console.log(this.canvas.height!, this.canvas.height! / 2);
+        initialBranchPosition = {
+          x: marginSize.verticalMargin,
+          y: Math.round(this.canvas.height! / 2 - stateItemSize.height / 2),
+        };
+        break;
+      default:
+        initialBranchPosition = {
+          x: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
+          y: marginSize.verticalMargin,
+        };
+    }
+
     this.drawBranch(this.workflowData, initialBranchPosition);
   }
 
@@ -236,7 +256,11 @@ export class RemodzyWorkflowBuilder {
         drawPosition.getCurrentPosition(),
         workflowData,
       );
-      drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
+      if (this.workflowSettings.direction === RemodzyWfDirection.vertical) {
+        drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
+      } else {
+        drawPosition.moveRight(marginSize.verticalMargin + rootState.width + (branchesItemsGroup?.width || 0))
+      }
       currentStateData = workflowData.getStateById(currentStateData.Next!);
       states.push(rootState);
       branchesItemsGroup?.destroy();
