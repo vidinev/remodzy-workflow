@@ -19,6 +19,8 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   _dropArea: null,
   _topTiePoint: null,
   _bottomTiePoint: null,
+  _rightTiePoint: null,
+  _leftTiePoint: null,
   _active: false,
 
   initialize: function(stateData: WorkflowState, options: IObjectOptions = { }, isStart: boolean) {
@@ -44,6 +46,20 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return {
       x: Math.ceil((this.left || 0) + this.width / 2),
       y: this.top + this.height - 1
+    };
+  },
+
+  getCenterRightCoords(): PointCoords {
+    return {
+      x: (this.left || 0) + this.width,
+      y: Math.ceil((this.top || 0) + this.height / 2),
+    };
+  },
+
+  getCenterLeftCoords(): PointCoords {
+    return {
+      x: (this.left || 0),
+      y: Math.ceil((this.top || 0) + this.height / 2),
     };
   },
 
@@ -73,6 +89,22 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   setTopTiePoint(tiePoint: ITiePointCircle) {
     this._topTiePoint = tiePoint;
+  },
+
+  setLeftTiePoint(tiePoint: ITiePointCircle) {
+    this._leftTiePoint = tiePoint;
+  },
+
+  getLeftTiePoint(): ITiePointCircle {
+    return this._leftTiePoint;
+  },
+
+  setRightTiePoint(tiePoint: ITiePointCircle) {
+    this._rightTiePoint = tiePoint;
+  },
+
+  getRightTiePoint(): ITiePointCircle {
+    return this._rightTiePoint;
   },
 
   getTopTiePoint(): ITiePointCircle {

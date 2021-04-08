@@ -108,10 +108,10 @@ export class RemodzyWorkflowBuilder {
   private drawBranch(data: WorkflowData, startPosition: PointCoords): IStateGroup[] {
     const states = this.drawStates(data, startPosition);
     // TODO rework draw tie lines for horizontal
+    this.drawTiePoints(states);
+    this.drawTieLines(states);
     if (this.workflowSettings.direction === RemodzyWfDirection.vertical) {
       this.drawDropAreas(states);
-      this.drawTiePoints(states);
-      this.drawTieLines(states);
       this.drawCurveTieLines(states);
     }
     return states;
@@ -188,17 +188,14 @@ export class RemodzyWorkflowBuilder {
         const heightForBranches =
           branches.length * (stateItemSize.height + marginSize.verticalMargin) - marginSize.verticalMargin;
         const startY = position.y - Math.ceil(heightForBranches / 2) + Math.ceil(stateItemSize.height / 2);
-
         for (let i = 0; i < branches.length; i++) {
           const branchWorkflowData = branches[i];
           const states = this.drawBranch(branchWorkflowData, {
             y: startY + (stateItemSize.height + marginSize.verticalMargin) * i,
             x: position.x + stateItemSize.width + marginSize.stateToBranchMargin,
           });
-          const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
-          branchSubItems.push(new BranchItems(states, dropAreas));
+          branchSubItems.push(new BranchItems(states, []));
         }
-
         break;
       default:
         const widthForBranches =
@@ -246,17 +243,29 @@ export class RemodzyWorkflowBuilder {
   }
 
   private drawTieLines(states: IStateGroup[]) {
-    const tieLinesStructure = this.tieLines.getTieLinesStructure(states);
-    tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
-      const { x, y: fromTieY } = tieLineStructure.startCoords;
-      const { y: toTieY } = tieLineStructure.endCoords || { y: null };
-      const { y: toDropY } = tieLineStructure.dropArea.getCenterTopCoords();
-      const { y: fromDropY } = tieLineStructure.dropArea.getCenterBottomCoords();
-      this.canvas.add(new TieLine([x, fromTieY, x, toDropY], tieLineSize.margin, 0));
-      if (toTieY) {
-        this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0));
-      }
-    });
+    let tieLinesStructure;
+    switch (this.workflowSettings.direction) {
+      case RemodzyWfDirection.horizontal:
+        tieLinesStructure = this.tieLines.getHorizontalTieLinesStructure(states);
+        tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
+          const { x: fromTieX } = tieLineStructure.startCoords;
+          const { x: toTieX, y } = tieLineStructure.endCoords || { x: null };
+          this.canvas.add(new TieLine([fromTieX, y, toTieX, y], tieLineSize.margin, 0));
+        });
+        break;
+      default:
+        tieLinesStructure = this.tieLines.getTieLinesStructure(states);
+        tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
+          const { x, y: fromTieY } = tieLineStructure.startCoords;
+          const { y: toTieY } = tieLineStructure.endCoords || { y: null };
+          const { y: toDropY } = tieLineStructure.dropArea!.getCenterTopCoords();
+          const { y: fromDropY } = tieLineStructure.dropArea!.getCenterBottomCoords();
+          this.canvas.add(new TieLine([x, fromTieY, x, toDropY], tieLineSize.margin, 0));
+          if (toTieY) {
+            this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0));
+          }
+        });
+    }
   }
 
   private drawCurveTieLines(states: IStateGroup[]) {
@@ -298,7 +307,9 @@ export class RemodzyWorkflowBuilder {
       // TODO refactor (move logic to service)
       switch (this.workflowSettings.direction) {
         case RemodzyWfDirection.horizontal:
-          drawPosition.moveRight(marginSize.verticalMargin + rootState.width + (branchesItemsGroup?.width || 0));
+          // TODO fix branchesItemsGroup width detection
+          // drawPosition.moveRight(marginSize.horizontalMargin + rootState.width + (branchesItemsGroup?.width || 0));
+          drawPosition.setRight(rootState.getCenterRightCoords().x + marginSize.horizontalMargin + (branchesItemsGroup?.width || 0))
           break;
         default:
           drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
@@ -344,13 +355,29 @@ export class RemodzyWorkflowBuilder {
         return;
       }
       if (!stateGroup.data.Start) {
-        const topTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterTopCoords());
-        stateGroup.setTopTiePoint(topTiePoint);
+        // TODO refactor switch
+        switch (this.workflowSettings.direction) {
+          case RemodzyWfDirection.horizontal:
+            const rightTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterLeftCoords());
+            stateGroup.setLeftTiePoint(rightTiePoint);
+            break;
+          default:
+            const topTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterTopCoords());
+            stateGroup.setTopTiePoint(topTiePoint);
+        }
       }
       const isMainBranchEnd = stateGroup.data.stateId === this.workflowData.getEndStateId();
       if (!isMainBranchEnd && stateGroup.data.Type) {
-        const bottomTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterBottomCoords());
-        stateGroup.setBottomTiePoint(bottomTiePoint);
+        // TODO refactor switch
+        switch (this.workflowSettings.direction) {
+          case RemodzyWfDirection.horizontal:
+            const rightTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterRightCoords());
+            stateGroup.setRightTiePoint(rightTiePoint);
+            break;
+          default:
+            const bottomTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterBottomCoords());
+            stateGroup.setBottomTiePoint(bottomTiePoint);
+        }
       }
     });
   }

@@ -39,6 +39,28 @@ export class TieLinesService {
     return tieLinesStructure;
   }
 
+  getHorizontalTieLinesStructure(states: IStateGroup[]): TieLineStructure[] {
+    const tieLinesStructure: TieLineStructure[] = [];
+    states.forEach((canvasObject: IStateGroup) => {
+      if (!canvasObject.data.End) {
+        const nextState = this.getStateGroupById(states, canvasObject.data.Next!);
+        const tieStart = canvasObject.getRightTiePoint();
+        const tieEnd = nextState?.getLeftTiePoint();
+        let startCoords = tieStart?.getCenterRightCoords();
+        if (canvasObject.data.Type === StateTypesEnum.Pass && !tieStart) {
+          startCoords = canvasObject.getCenterRightCoords();
+        }
+        if (startCoords && !canvasObject.isBranchRoot()) {
+          tieLinesStructure.push({
+            startCoords,
+            endCoords: tieEnd?.getCenterLeftCoords(),
+          });
+        }
+      }
+    });
+    return tieLinesStructure;
+  }
+
   getCurveTieLinesStructure(states: IStateGroup[]): CurveTieLinesStructure[] {
     const curveTieLinesStructure: CurveTieLinesStructure[] = [];
     states.forEach((canvasObject: IStateGroup) => {

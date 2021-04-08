@@ -16,6 +16,8 @@ export interface IStateGroup extends Group {
   getCenterBottomCoordsUnderChildren: () => PointCoords;
   getCenterTopCoords: () => PointCoords;
   getCenterBottomCoords: () => PointCoords;
+  getCenterRightCoords: () => PointCoords;
+  getCenterLeftCoords: () => PointCoords;
   getStateData: () => WorkflowState;
   setDropArea: (dropArea: IDropAreaGroup) => void;
   getDropArea: () => IDropAreaGroup;
@@ -23,4 +25,8 @@ export interface IStateGroup extends Group {
   getTopTiePoint: () => ITiePointCircle;
   setBottomTiePoint: (tiePoint: ITiePointCircle) => void;
   getBottomTiePoint: () => ITiePointCircle;
+  setLeftTiePoint: (tiePoint: ITiePointCircle) => void;
+  getLeftTiePoint: () => ITiePointCircle;
+  setRightTiePoint: (tiePoint: ITiePointCircle) => void;
+  getRightTiePoint: () => ITiePointCircle;
 }
