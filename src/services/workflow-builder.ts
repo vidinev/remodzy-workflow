@@ -32,6 +32,8 @@ import { MiddleTieLine } from 'src/models/middle-tie-line.model';
 import { StateTypesEnum } from '../configs/state-types.enum';
 
 /*
+ * Create http server for testing
+ * Fix 0 margin for straight tie lines
  * Drop area at the bottom of the branch (dev/1.jpg)
  * Draw all branch elements (bottom curves, missing tie lines)
  * Fix 2 drop area highlight at the same time
