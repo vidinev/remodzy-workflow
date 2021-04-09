@@ -108,11 +108,11 @@ export class RemodzyWorkflowBuilder {
   private drawBranch(data: WorkflowData, startPosition: PointCoords): IStateGroup[] {
     const states = this.drawStates(data, startPosition);
     this.drawTiePoints(states);
-    this.drawTieLines(states);
     if (this.workflowSettings.direction === RemodzyWfDirection.vertical) {
       this.drawDropAreas(states);
       this.drawCurveTieLines(states);
     }
+    this.drawTieLines(states);
     return states;
   }
 
