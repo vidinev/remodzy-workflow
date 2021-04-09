@@ -29,9 +29,8 @@ export const tiePointSize = {
   radius: 6,
 };
 
-// TODO fix margin
 export const tieLineSize = {
-  margin: 0,
+  margin: 3,
 };
 
 export const curveRoundPartSize = 14;

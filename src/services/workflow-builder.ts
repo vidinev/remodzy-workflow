@@ -32,14 +32,14 @@ import { MiddleTieLine } from 'src/models/middle-tie-line.model';
 import { StateTypesEnum } from '../configs/state-types.enum';
 
 /*
- * Fix 0 margin for straight tie lines
+ * Refactor OOP - Draw branch service, refactor switch direction
  * Drop area at the bottom of the branch (dev/1.jpg)
  * Draw all branch elements (bottom curves, missing tie lines)
  * Fix 2 drop area highlight at the same time
  * Fix drag and drop for 2 level
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
  * Fix  drag and drop, and sorting between levels
- * Refactor OOP - Draw branch service
+
  * Test lib basic functionality
  * Merge all js files into one
  *
@@ -251,7 +251,12 @@ export class RemodzyWorkflowBuilder {
         tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
           const { x: fromTieX } = tieLineStructure.startCoords;
           const { x: toTieX, y } = tieLineStructure.endCoords || { x: null };
-          this.canvas.add(new TieLine([fromTieX, y, toTieX, y], tieLineSize.margin, 0));
+          this.canvas.add(new TieLine([
+            fromTieX,
+            y,
+            toTieX,
+            y
+          ], tieLineSize.margin, tieLineSize.margin, this.workflowSettings.direction));
         });
         break;
       default:
@@ -261,9 +266,15 @@ export class RemodzyWorkflowBuilder {
           const { y: toTieY } = tieLineStructure.endCoords || { y: null };
           const { y: toDropY } = tieLineStructure.dropArea!.getCenterTopCoords();
           const { y: fromDropY } = tieLineStructure.dropArea!.getCenterBottomCoords();
-          this.canvas.add(new TieLine([x, fromTieY, x, toDropY], tieLineSize.margin, 0));
+          const tieLine = new TieLine([
+            x,
+            fromTieY,
+            x,
+            toDropY
+          ], tieLineSize.margin, 0, this.workflowSettings.direction);
+          this.canvas.add(tieLine);
           if (toTieY) {
-            this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0));
+            this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0, this.workflowSettings.direction));
           }
         });
     }

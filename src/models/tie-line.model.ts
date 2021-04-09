@@ -2,16 +2,21 @@ import { IObjectOptions } from 'fabric/fabric-impl';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { tieLineConfig } from './configs/tie-line-config';
 import { tieLineSize } from '../configs/size.config';
+import { RemodzyWfDirection } from '../interfaces/workflow-settings.interface';
 
 export const TieLine = fabric.util.createClass(fabric.Line, {
   type: ObjectTypes.tieLine,
   _active: false,
 
   initialize: function([fromX, fromY, toX, toY]: number[],
-                       marginTop: number = tieLineSize.margin,
-                       marginBottom: number = tieLineSize.margin,
+                       marginStart: number = tieLineSize.margin,
+                       marginEnd: number = tieLineSize.margin,
+                       direction: RemodzyWfDirection,
                        options: IObjectOptions = { }) {
-    this.callSuper('initialize', [fromX, fromY + marginTop, toX, toY - marginBottom], {
+    const coords = direction === RemodzyWfDirection.horizontal
+      ? [fromX + marginStart, fromY, toX - marginEnd, toY]
+      : [fromX, fromY + marginStart, toX, toY - marginEnd]
+    this.callSuper('initialize', coords, {
       ...tieLineConfig,
       ...options
     });
