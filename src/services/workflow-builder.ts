@@ -266,15 +266,19 @@ export class RemodzyWorkflowBuilder {
           const { y: toTieY } = tieLineStructure.endCoords || { y: null };
           const { y: toDropY } = tieLineStructure.dropArea!.getCenterTopCoords();
           const { y: fromDropY } = tieLineStructure.dropArea!.getCenterBottomCoords();
-          const tieLine = new TieLine([
+          this.canvas.add(new TieLine([
             x,
             fromTieY,
             x,
             toDropY
-          ], tieLineSize.margin, 0, this.workflowSettings.direction);
-          this.canvas.add(tieLine);
+          ], tieLineSize.margin, 0, this.workflowSettings.direction));
           if (toTieY) {
-            this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0, this.workflowSettings.direction));
+            this.canvas.add(new TieLine([
+              x,
+              fromDropY,
+              x,
+              toTieY
+            ], 0, tieLineSize.margin, this.workflowSettings.direction));
           }
         });
     }

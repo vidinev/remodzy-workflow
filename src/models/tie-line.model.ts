@@ -15,7 +15,7 @@ export const TieLine = fabric.util.createClass(fabric.Line, {
                        options: IObjectOptions = { }) {
     const coords = direction === RemodzyWfDirection.horizontal
       ? [fromX + marginStart, fromY, toX - marginEnd, toY]
-      : [fromX, fromY + marginStart, toX, toY - marginEnd]
+      : [fromX, fromY + marginStart, toX, toY - marginEnd];
     this.callSuper('initialize', coords, {
       ...tieLineConfig,
       ...options
