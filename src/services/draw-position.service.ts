@@ -22,4 +22,8 @@ export class DrawPositionService {
   setRight(x: number) {
     this.offset.x = x;
   }
+
+  setBottom(y: number) {
+    this.offset.y = y;
+  }
 }

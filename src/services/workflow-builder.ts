@@ -107,7 +107,6 @@ export class RemodzyWorkflowBuilder {
 
   private drawBranch(data: WorkflowData, startPosition: PointCoords): IStateGroup[] {
     const states = this.drawStates(data, startPosition);
-    // TODO rework draw tie lines for horizontal
     this.drawTiePoints(states);
     this.drawTieLines(states);
     if (this.workflowSettings.direction === RemodzyWfDirection.vertical) {
@@ -192,7 +191,7 @@ export class RemodzyWorkflowBuilder {
           const branchWorkflowData = branches[i];
           const states = this.drawBranch(branchWorkflowData, {
             y: startY + (stateItemSize.height + marginSize.verticalMargin) * i,
-            x: position.x + stateItemSize.width + marginSize.stateToBranchMargin,
+            x: position.x + stateItemSize.width
           });
           branchSubItems.push(new BranchItems(states, []));
         }
@@ -244,6 +243,7 @@ export class RemodzyWorkflowBuilder {
 
   private drawTieLines(states: IStateGroup[]) {
     let tieLinesStructure;
+    // TODO switch Refactor - service
     switch (this.workflowSettings.direction) {
       case RemodzyWfDirection.horizontal:
         tieLinesStructure = this.tieLines.getHorizontalTieLinesStructure(states);
@@ -307,9 +307,10 @@ export class RemodzyWorkflowBuilder {
       // TODO refactor (move logic to service)
       switch (this.workflowSettings.direction) {
         case RemodzyWfDirection.horizontal:
-          // TODO fix branchesItemsGroup width detection
-          // drawPosition.moveRight(marginSize.horizontalMargin + rootState.width + (branchesItemsGroup?.width || 0));
-          drawPosition.setRight(rootState.getCenterRightCoords().x + marginSize.horizontalMargin + (branchesItemsGroup?.width || 0))
+          const drawPositionRight = branchesItemsGroup
+            ? ((branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0)) + marginSize.horizontalMargin
+            : rootState.getCenterRightCoords().x + marginSize.horizontalMargin
+          drawPosition.setRight(drawPositionRight);
           break;
         default:
           drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
