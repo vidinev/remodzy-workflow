@@ -24,6 +24,7 @@ import { DropAreaGroup } from '../models/drop-area.model';
 export class DrawBranchService {
   private readonly position: PointCoords;
   private tieLines: TieLinesService;
+  private states: IStateGroup[] = [];
   constructor(
     private workflowData: WorkflowData,
     private canvas: Canvas,
@@ -52,14 +53,14 @@ export class DrawBranchService {
   }
 
   public drawBranch(): IStateGroup[] {
-    const states = this.drawStates(this.workflowData, this.position);
-    this.drawTiePoints(states);
+    this.drawStates();
+    this.drawTiePoints();
     if (this.direction === RemodzyWfDirection.vertical) {
-      this.drawDropAreas(states);
-      this.drawCurveTieLines(states);
+      this.drawDropAreas();
+      this.drawCurveTieLines();
     }
-    this.drawTieLines(states);
-    return states;
+    this.drawTieLines();
+    return this.states;
   }
 
   public drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {
@@ -125,15 +126,15 @@ export class DrawBranchService {
     return branchSubItems;
   }
 
-  private drawStates(data: WorkflowData, coords: PointCoords): IStateGroup[] {
+  private drawStates(): IStateGroup[] {
     const states: IStateGroup[] = [];
-    let currentStateData = data.getStartState();
-    const drawPosition = new DrawPositionService(coords);
+    let currentStateData = this.workflowData.getStartState();
+    const drawPosition = new DrawPositionService(this.position);
     while (!currentStateData.End) {
       const { rootState, branchesItemsGroup } = this.drawState(
         currentStateData,
         drawPosition.getCurrentPosition(),
-        data,
+        this.workflowData,
       );
 
       // TODO refactor (move logic to service)
@@ -148,14 +149,19 @@ export class DrawBranchService {
           drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
       }
 
-      currentStateData = data.getStateById(currentStateData.Next!);
+      currentStateData = this.workflowData.getStateById(currentStateData.Next!);
       states.push(rootState);
       branchesItemsGroup?.destroy();
     }
     if (currentStateData.End) {
-      const { rootState: endStateGroup } = this.drawState(currentStateData, drawPosition.getCurrentPosition(), data);
+      const { rootState: endStateGroup } = this.drawState(
+        currentStateData,
+        drawPosition.getCurrentPosition(),
+        this.workflowData
+      );
       states.push(endStateGroup);
     }
+    this.states = states;
     return states;
   }
 
@@ -179,8 +185,8 @@ export class DrawBranchService {
     return { branchesItemsGroup, rootState };
   }
 
-  private drawTiePoints(states: IStateGroup[]) {
-    states.forEach((stateGroup: IStateGroup) => {
+  private drawTiePoints() {
+    this.states.forEach((stateGroup: IStateGroup) => {
       if (stateGroup.data.Type === StateTypesEnum.Pass) {
         return;
       }
@@ -224,8 +230,8 @@ export class DrawBranchService {
     return tiePoint;
   }
 
-  private drawDropAreas(states: IStateGroup[]) {
-    states.forEach((stateGroup: IStateGroup) => {
+  private drawDropAreas() {
+    this.states.forEach((stateGroup: IStateGroup) => {
       if (stateGroup.isBranchRoot()) {
         // stateGroup.getCenterBottomCoordsUnderChildren()
       }
@@ -259,8 +265,8 @@ export class DrawBranchService {
     return dropAreaGroup;
   }
 
-  private drawCurveTieLines(states: IStateGroup[]) {
-    const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(states);
+  private drawCurveTieLines() {
+    const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(this.states);
     curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
       const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
       curveLineStructure.middleItems.forEach((state: IStateGroup) => {
@@ -284,12 +290,12 @@ export class DrawBranchService {
     });
   }
 
-  private drawTieLines(states: IStateGroup[]) {
+  private drawTieLines() {
     let tieLinesStructure;
     // TODO switch Refactor - service
     switch (this.direction) {
       case RemodzyWfDirection.horizontal:
-        tieLinesStructure = this.tieLines.getHorizontalTieLinesStructure(states);
+        tieLinesStructure = this.tieLines.getHorizontalTieLinesStructure(this.states);
         tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
           const { x: fromTieX } = tieLineStructure.startCoords;
           const { x: toTieX, y } = tieLineStructure.endCoords || { x: null };
@@ -299,7 +305,7 @@ export class DrawBranchService {
         });
         break;
       default:
-        tieLinesStructure = this.tieLines.getTieLinesStructure(states);
+        tieLinesStructure = this.tieLines.getTieLinesStructure(this.states);
         tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
           const { x, y: fromTieY } = tieLineStructure.startCoords;
           const { y: toTieY } = tieLineStructure.endCoords || { y: null };
