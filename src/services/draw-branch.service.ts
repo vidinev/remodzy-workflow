@@ -24,11 +24,13 @@ import { DropAreaGroup } from '../models/drop-area.model';
 export class DrawBranchService {
   private readonly position: PointCoords;
   private tieLines: TieLinesService;
-  constructor(private workflowData: WorkflowData,
-              private canvas: Canvas,
-              // TODO rework to inheritance
-              private direction: RemodzyWfDirection = RemodzyWfDirection.vertical,
-              private startPosition?: PointCoords) {
+  constructor(
+    private workflowData: WorkflowData,
+    private canvas: Canvas,
+    // TODO rework to inheritance
+    private direction: RemodzyWfDirection = RemodzyWfDirection.vertical,
+    private startPosition?: PointCoords,
+  ) {
     if (startPosition) {
       this.position = startPosition;
     } else {
@@ -49,8 +51,8 @@ export class DrawBranchService {
     this.tieLines = new TieLinesService(this.canvas);
   }
 
-  public drawBranch(data: WorkflowData = this.workflowData, coords: PointCoords = this.position): IStateGroup[] {
-    const states = this.drawStates(data, coords);
+  public drawBranch(): IStateGroup[] {
+    const states = this.drawStates(this.workflowData, this.position);
     this.drawTiePoints(states);
     if (this.direction === RemodzyWfDirection.vertical) {
       this.drawDropAreas(states);
@@ -97,10 +99,11 @@ export class DrawBranchService {
         const startY = position.y - Math.ceil(heightForBranches / 2) + Math.ceil(stateItemSize.height / 2);
         for (let i = 0; i < branches.length; i++) {
           const branchWorkflowData = branches[i];
-          const states = this.drawBranch(branchWorkflowData, {
+          const drawBranchService = new DrawBranchService(branchWorkflowData, this.canvas, this.direction, {
             y: startY + (stateItemSize.height + marginSize.verticalMargin) * i,
-            x: position.x + stateItemSize.width
+            x: position.x + stateItemSize.width,
           });
+          const states = drawBranchService.drawBranch();
           branchSubItems.push(new BranchItems(states, []));
         }
         break;
@@ -110,10 +113,11 @@ export class DrawBranchService {
         const startX = position.x - widthForBranches / 2 + stateItemSize.width / 2;
         for (let i = 0; i < branches.length; i++) {
           const branchWorkflowData = branches[i];
-          const states = this.drawBranch(branchWorkflowData, {
+          const drawBranchService = new DrawBranchService(branchWorkflowData, this.canvas, this.direction, {
             y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
             x: startX + (stateItemSize.width + marginSize.horizontalMargin) * i,
           });
+          const states = drawBranchService.drawBranch();
           const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
           branchSubItems.push(new BranchItems(states, dropAreas));
         }
@@ -136,8 +140,8 @@ export class DrawBranchService {
       switch (this.direction) {
         case RemodzyWfDirection.horizontal:
           const drawPositionRight = branchesItemsGroup
-            ? ((branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0)) + marginSize.horizontalMargin
-            : rootState.getCenterRightCoords().x + marginSize.horizontalMargin
+            ? (branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0) + marginSize.horizontalMargin
+            : rootState.getCenterRightCoords().x + marginSize.horizontalMargin;
           drawPosition.setRight(drawPositionRight);
           break;
         default:
@@ -149,11 +153,7 @@ export class DrawBranchService {
       branchesItemsGroup?.destroy();
     }
     if (currentStateData.End) {
-      const { rootState: endStateGroup } = this.drawState(
-        currentStateData,
-        drawPosition.getCurrentPosition(),
-        data,
-      );
+      const { rootState: endStateGroup } = this.drawState(currentStateData, drawPosition.getCurrentPosition(), data);
       states.push(endStateGroup);
     }
     return states;
@@ -293,12 +293,9 @@ export class DrawBranchService {
         tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
           const { x: fromTieX } = tieLineStructure.startCoords;
           const { x: toTieX, y } = tieLineStructure.endCoords || { x: null };
-          this.canvas.add(new TieLine([
-            fromTieX,
-            y,
-            toTieX,
-            y
-          ], tieLineSize.margin, tieLineSize.margin, this.direction));
+          this.canvas.add(
+            new TieLine([fromTieX, y, toTieX, y], tieLineSize.margin, tieLineSize.margin, this.direction),
+          );
         });
         break;
       default:
@@ -308,19 +305,9 @@ export class DrawBranchService {
           const { y: toTieY } = tieLineStructure.endCoords || { y: null };
           const { y: toDropY } = tieLineStructure.dropArea!.getCenterTopCoords();
           const { y: fromDropY } = tieLineStructure.dropArea!.getCenterBottomCoords();
-          this.canvas.add(new TieLine([
-            x,
-            fromTieY,
-            x,
-            toDropY
-          ], tieLineSize.margin, 0, this.direction));
+          this.canvas.add(new TieLine([x, fromTieY, x, toDropY], tieLineSize.margin, 0, this.direction));
           if (toTieY) {
-            this.canvas.add(new TieLine([
-              x,
-              fromDropY,
-              x,
-              toTieY
-            ], 0, tieLineSize.margin, this.direction));
+            this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0, tieLineSize.margin, this.direction));
           }
         });
     }
