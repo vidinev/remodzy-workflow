@@ -2,24 +2,24 @@ import { Canvas, ICanvasOptions, IEvent } from 'fabric/fabric-impl';
 import { RemodzyWfDirection, RemodzyWFSettings } from '../interfaces/workflow-settings.interface';
 import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
-import {
-  canvasSize,
-} from '../configs/size.config';
+import { canvasSize } from '../configs/size.config';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { WorkflowData } from './workflow-data.service';
 import { TieLinesService } from './tie-lines.service';
 import { IStateGroup } from '../models/interfaces/state.interface';
 import { remodzyColors } from '../configs/colors.config';
 import { DrawBranchService } from './draw-branch.service';
+import { DrawBranchHorizontalService } from './draw-branch-horizontal.service';
+import { DrawBranchVerticalService } from './draw-branch-vertical.service';
 
 /*
- * Refactor OOP - Draw branch service, refactor switch direction
  * Drop area at the bottom of the branch (dev/1.jpg)
  * Draw all branch elements (bottom curves, missing tie lines)
- * Fix 2 drop area highlight at the same time
- * Fix drag and drop for 2 level
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
  * Fix  drag and drop, and sorting between levels
+ *
+ * Fix 2 drop area highlight at the same time
+ * Fix drag and drop for 2 level
 
  * Test lib basic functionality
  * Merge all js files into one
@@ -56,7 +56,9 @@ export class RemodzyWorkflowBuilder {
       ...this.workflowSettings,
       ...workflowSettings,
     };
-    this.drawBranchService = new DrawBranchService(this.workflowData, this.canvas, this.workflowSettings.direction);
+    this.drawBranchService = this.workflowSettings.direction === RemodzyWfDirection.horizontal
+      ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
+      : new DrawBranchVerticalService(this.workflowData, this.canvas);
     this.setupCanvasEvents();
     this.initialize().then(() => {
       this.canvasEvents.setupDropAreaEvents();
@@ -96,7 +98,9 @@ export class RemodzyWorkflowBuilder {
     this.workflowData.sortStates(id, dropArea.data.stateId);
     this.canvas.clear();
     this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => {
-      this.drawBranchService = new DrawBranchService(this.workflowData, this.canvas, this.workflowSettings.direction);
+      this.drawBranchService = this.workflowSettings.direction === RemodzyWfDirection.horizontal
+        ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
+        : new DrawBranchVerticalService(this.workflowData, this.canvas);
       this.drawBranchService.drawBranch();
     });
   }
