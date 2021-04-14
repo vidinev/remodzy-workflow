@@ -13,6 +13,9 @@ import { DrawBranchHorizontalService } from './draw-branch-horizontal.service';
 import { DrawBranchVerticalService } from './draw-branch-vertical.service';
 
 /*
+ * Ctrl + Shift + F - rework to base class and inheritance
+ * Ctrl + Shift + F - remove direction logic
+ * DrawBranchHorizontalService / DrawBranchVerticalService factory
  * Drop area at the bottom of the branch (dev/1.jpg)
  * Draw all branch elements (bottom curves, missing tie lines)
  * Add some branch inside branch, improve calculating to support all levels of inheritance.

@@ -13,6 +13,7 @@ export const TieLine = fabric.util.createClass(fabric.Line, {
                        marginEnd: number = tieLineSize.margin,
                        direction: RemodzyWfDirection,
                        options: IObjectOptions = { }) {
+    // TODO remove direction logic
     const coords = direction === RemodzyWfDirection.horizontal
       ? [fromX + marginStart, fromY, toX - marginEnd, toY]
       : [fromX, fromY + marginStart, toX, toY - marginEnd];

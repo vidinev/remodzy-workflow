@@ -84,7 +84,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   protected drawTieLines() {
     let tieLinesStructure;
-    tieLinesStructure = this.tieLines.getTieLinesStructure(this.states);
+    tieLinesStructure = this.tieLines.getVerticalTieLinesStructure(this.states);
     tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
       const { x, y: fromTieY } = tieLineStructure.startCoords;
       const { y: toTieY } = tieLineStructure.endCoords || { y: null };

@@ -13,7 +13,8 @@ export class TieLinesService {
     this.canvas = canvas;
   }
 
-  getTieLinesStructure(states: IStateGroup[]): TieLineStructure[] {
+  // TODO rework to base class and inheritance
+  getVerticalTieLinesStructure(states: IStateGroup[]): TieLineStructure[] {
     const tieLinesStructure: TieLineStructure[] = [];
     states.forEach((canvasObject: IStateGroup) => {
       const dropArea = canvasObject.getDropArea();
