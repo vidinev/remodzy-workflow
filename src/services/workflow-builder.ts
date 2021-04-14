@@ -95,6 +95,9 @@ export class RemodzyWorkflowBuilder {
   private sortObjectsAfterDragAndDrop(dropArea: IDropAreaGroup, id: string) {
     this.workflowData.sortStates(id, dropArea.data.stateId);
     this.canvas.clear();
-    this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => this.drawBranchService.drawBranch());
+    this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => {
+      this.drawBranchService = new DrawBranchService(this.workflowData, this.canvas, this.workflowSettings.direction);
+      this.drawBranchService.drawBranch();
+    });
   }
 }

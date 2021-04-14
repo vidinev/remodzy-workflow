@@ -32,7 +32,7 @@ export class DrawBranchService {
     private startPosition?: PointCoords,
   ) {
     if (startPosition) {
-      this.position = startPosition;
+      this.position = { ...startPosition };
     } else {
       switch (this.direction) {
         case RemodzyWfDirection.horizontal:
