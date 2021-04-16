@@ -11,12 +11,10 @@ import { remodzyColors } from '../configs/colors.config';
 import { DrawBranchService } from './draw-branch/draw-branch.service';
 import { DrawBranchHorizontalService } from './draw-branch/draw-branch-horizontal.service';
 import { DrawBranchVerticalService } from './draw-branch/draw-branch-vertical.service';
-import { TieLinesHorizontalService } from './tie-lines/tie-lines-horizontal.service';
-import { TieLinesVerticalService } from './tie-lines/tie-lines-vertical.service';
 import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.service';
+import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * DrawBranchHorizontalService / DrawBranchVerticalService factory
  * Drop area at the bottom of the branch (dev/1.jpg)
  * Draw all branch elements (bottom curves, missing tie lines)
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
@@ -53,11 +51,8 @@ export class RemodzyWorkflowBuilder {
     this.canvas = new fabric.Canvas(settings.elementId, this.canvasConfig);
     this.canvasEvents = new CanvasEventsService(this.canvas);
     this.animate = new AnimateService(this.canvas);
-    // TODO use factory
-    this.tieLines =
-      this.workflowSettings.direction === RemodzyWfDirection.horizontal
-        ? new TieLinesHorizontalService(this.canvas)
-        : new TieLinesVerticalService(this.canvas);
+    const tieLinesFactory = new TieLinesFactoryService(this.canvas);
+    this.tieLines = tieLinesFactory.getTieLinesService(this.workflowSettings.direction);
     this.workflowData = new WorkflowData(settings.data);
     const { data, ...workflowSettings } = settings;
     this.workflowSettings = {
