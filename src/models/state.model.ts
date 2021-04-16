@@ -23,7 +23,12 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   _leftTiePoint: null,
   _active: false,
 
-  initialize: function(stateData: WorkflowState, options: IObjectOptions = { }, isStart: boolean) {
+  initialize: function(
+    stateData: WorkflowState,
+    options: IObjectOptions = {},
+    isStart: boolean,
+    parentStateId: string,
+  ) {
     const rectConfig = this._getConfig(stateData.Type);
     const stateContainerObject = new fabric.Rect(rectConfig);
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
@@ -37,6 +42,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         ...stateData,
         Branches: stateData.Branches || null,
         Start: isStart,
+        parentStateId,
         stateId: (stateData.Parameters && stateData.Parameters.stateId) || '',
       },
     });
@@ -45,7 +51,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   getCenterBottomCoords(): PointCoords {
     return {
       x: Math.ceil((this.left || 0) + this.width / 2),
-      y: this.top + this.height - 1
+      y: this.top + this.height - 1,
     };
   },
 
@@ -58,7 +64,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getCenterLeftCoords(): PointCoords {
     return {
-      x: (this.left || 0),
+      x: this.left || 0,
       y: Math.ceil((this.top || 0) + this.height / 2),
     };
   },
@@ -66,7 +72,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   getCenterTopCoords(): PointCoords {
     return {
       x: (this.left || 0) + this.width / 2,
-      y: this.top
+      y: this.top,
     };
   },
 
@@ -77,6 +83,10 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   isBranchRoot(): boolean {
     return !!this.data?.Branches?.length;
+  },
+
+  isMainRoot(): boolean {
+    return this.data.Start && !this.data.parentStateId;
   },
 
   getDropArea(): IDropAreaGroup {
@@ -130,7 +140,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   },
 
   getCenterBottomCoordsUnderChildren(): PointCoords {
-    let lowerItem: IStateGroup = { } as IStateGroup;
+    let lowerItem: IStateGroup = {} as IStateGroup;
     this._childrenStates.forEach((state: IStateGroup) => {
       if ((state.top || 0) > (lowerItem?.top || 0)) {
         lowerItem = state;
@@ -163,7 +173,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         const passStateOffset = (stateRectConfig.width! - passStateRectConfig.width!) / 2;
         return {
           ...options,
-          left: (options.left || 0) + passStateOffset
+          left: (options.left || 0) + passStateOffset,
         };
       default:
         return options;
@@ -172,5 +182,5 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   _render: function(ctx: CanvasRenderingContext2D) {
     this.callSuper('_render', ctx);
-  }
+  },
 });

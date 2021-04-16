@@ -49,6 +49,7 @@ export class DrawBranchService {
         selectable: !(isStart || isEnd),
       },
       isStart,
+      workflowData?.getParentStateId(),
     );
   }
 
