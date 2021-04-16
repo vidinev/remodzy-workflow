@@ -15,7 +15,6 @@ import { TieLinesHorizontalService } from './tie-lines/tie-lines-horizontal.serv
 import { TieLinesVerticalService } from './tie-lines/tie-lines-vertical.service';
 
 /*
- * Ctrl + Shift + F - remove direction logic
  * DrawBranchHorizontalService / DrawBranchVerticalService factory
  * Drop area at the bottom of the branch (dev/1.jpg)
  * Draw all branch elements (bottom curves, missing tie lines)

@@ -7,7 +7,6 @@ import { IStateGroup } from '../../models/interfaces/state.interface';
 import { WorkflowState } from '../../interfaces/state-language.interface';
 import { BranchItems } from '../../models/branch-items.model';
 import { StateTypesEnum } from '../../configs/state-types.enum';
-import { RemodzyWfDirection } from '../../interfaces/workflow-settings.interface';
 import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface';
 import { TieLine } from '../../models/tie-line.model';
 import { DrawPositionService } from '../draw-position.service';
@@ -89,9 +88,9 @@ export class DrawBranchVerticalService extends DrawBranchService {
       const { y: toTieY } = tieLineStructure.endCoords || { y: null };
       const { y: toDropY } = tieLineStructure.dropArea!.getCenterTopCoords();
       const { y: fromDropY } = tieLineStructure.dropArea!.getCenterBottomCoords();
-      this.canvas.add(new TieLine([x, fromTieY, x, toDropY], tieLineSize.margin, 0, RemodzyWfDirection.vertical));
+      this.canvas.add(new TieLine([x, fromTieY + tieLineSize.margin, x, toDropY]));
       if (toTieY) {
-        this.canvas.add(new TieLine([x, fromDropY, x, toTieY], 0, tieLineSize.margin, RemodzyWfDirection.vertical));
+        this.canvas.add(new TieLine([x, fromDropY, x, toTieY - tieLineSize.margin]));
       }
     });
   }

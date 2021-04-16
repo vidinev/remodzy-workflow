@@ -7,7 +7,6 @@ import { IStateGroup } from '../../models/interfaces/state.interface';
 import { WorkflowState } from '../../interfaces/state-language.interface';
 import { StateTypesEnum } from '../../configs/state-types.enum';
 import { BranchItems } from '../../models/branch-items.model';
-import { RemodzyWfDirection } from '../../interfaces/workflow-settings.interface';
 import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface';
 import { TieLine } from '../../models/tie-line.model';
 import { DrawPositionService } from '../draw-position.service';
@@ -93,7 +92,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       const { x: fromTieX } = tieLineStructure.startCoords;
       const { x: toTieX, y } = tieLineStructure.endCoords || { x: null };
       this.canvas.add(
-        new TieLine([fromTieX, y, toTieX, y], tieLineSize.margin, tieLineSize.margin, RemodzyWfDirection.horizontal),
+        new TieLine([fromTieX + tieLineSize.margin, y, (toTieX || tieLineSize.margin) - tieLineSize.margin, y]),
       );
     });
   }
