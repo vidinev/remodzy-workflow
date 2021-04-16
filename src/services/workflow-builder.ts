@@ -13,6 +13,7 @@ import { DrawBranchHorizontalService } from './draw-branch/draw-branch-horizonta
 import { DrawBranchVerticalService } from './draw-branch/draw-branch-vertical.service';
 import { TieLinesHorizontalService } from './tie-lines/tie-lines-horizontal.service';
 import { TieLinesVerticalService } from './tie-lines/tie-lines-vertical.service';
+import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.service';
 
 /*
  * DrawBranchHorizontalService / DrawBranchVerticalService factory
@@ -63,11 +64,8 @@ export class RemodzyWorkflowBuilder {
       ...this.workflowSettings,
       ...workflowSettings,
     };
-    // TODO use factory
-    this.drawBranchService =
-      this.workflowSettings.direction === RemodzyWfDirection.horizontal
-        ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
-        : new DrawBranchVerticalService(this.workflowData, this.canvas);
+    const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, this.canvas);
+    this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();
     this.initialize().then(() => {
       this.canvasEvents.setupDropAreaEvents();
