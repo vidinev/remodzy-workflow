@@ -1,32 +1,28 @@
-import { WorkflowData } from './workflow-data.service';
-import { PointCoords } from '../interfaces/point-coords.interface';
-import { IStateGroup } from '../models/interfaces/state.interface';
-import { marginSize, tiePointSize } from '../configs/size.config';
+import { WorkflowData } from '../workflow-data.service';
+import { PointCoords } from '../../interfaces/point-coords.interface';
+import { IStateGroup } from '../../models/interfaces/state.interface';
+import { marginSize, tiePointSize } from '../../configs/size.config';
 import { Canvas, Group, Object as CanvasObject } from 'fabric/fabric-impl';
-import { DrawPositionService } from './draw-position.service';
-import { CurveTieLinesStructure } from '../interfaces/curve-tie-lines-structure.interface';
-import { MiddleTieLine } from '../models/middle-tie-line.model';
-import { CurveTieLine } from '../models/curve-tie-line.model';
-import { CurveTieLineDirection } from '../models/configs/curve-tie-line-config';
-import { TieLinesService } from './tie-lines.service';
-import { WorkflowState } from '../interfaces/state-language.interface';
-import { StateGroup } from '../models/state.model';
-import { BranchItems } from '../models/branch-items.model';
-import { ITiePointCircle } from '../models/interfaces/tie-point.interface';
-import { TiePointCircle } from '../models/tie-point.model';
-import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
-import { DropAreaGroup } from '../models/drop-area.model';
+import { DrawPositionService } from '../draw-position.service';
+import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
+import { MiddleTieLine } from '../../models/middle-tie-line.model';
+import { CurveTieLine } from '../../models/curve-tie-line.model';
+import { CurveTieLineDirection } from '../../models/configs/curve-tie-line-config';
+import { TieLinesService } from '../tie-lines/tie-lines.service';
+import { WorkflowState } from '../../interfaces/state-language.interface';
+import { StateGroup } from '../../models/state.model';
+import { BranchItems } from '../../models/branch-items.model';
+import { ITiePointCircle } from '../../models/interfaces/tie-point.interface';
+import { TiePointCircle } from '../../models/tie-point.model';
+import { IDropAreaGroup } from '../../models/interfaces/drop-area.interface';
+import { DropAreaGroup } from '../../models/drop-area.model';
 
 export class DrawBranchService {
   protected position: PointCoords = { x: 0, y: 0 };
   protected tieLines: TieLinesService;
   protected drawPosition: DrawPositionService = new DrawPositionService(this.position);
   protected states: IStateGroup[] = [];
-  constructor(
-    protected workflowData: WorkflowData,
-    protected canvas: Canvas,
-    protected startPosition?: PointCoords,
-  ) {
+  constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
     if (startPosition) {
       this.position = { ...startPosition };
     }
@@ -80,7 +76,7 @@ export class DrawBranchService {
       const { rootState: endStateGroup } = this.drawState(
         currentStateData,
         this.drawPosition.getCurrentPosition(),
-        this.workflowData
+        this.workflowData,
       );
       states.push(endStateGroup);
     }

@@ -1,21 +1,20 @@
 import { DrawBranchService } from './draw-branch.service';
-import { WorkflowData } from './workflow-data.service';
+import { WorkflowData } from '../workflow-data.service';
 import { Canvas, Group } from 'fabric/fabric-impl';
-import { PointCoords } from '../interfaces/point-coords.interface';
-import { marginSize, passStateItemSize, stateItemSize, tieLineSize } from '../configs/size.config';
-import { IStateGroup } from '../models/interfaces/state.interface';
-import { WorkflowState } from '../interfaces/state-language.interface';
-import { StateTypesEnum } from '../configs/state-types.enum';
-import { BranchItems } from '../models/branch-items.model';
-import { RemodzyWfDirection } from '../interfaces/workflow-settings.interface';
-import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
-import { TieLine } from '../models/tie-line.model';
-import { DrawPositionService } from './draw-position.service';
+import { PointCoords } from '../../interfaces/point-coords.interface';
+import { marginSize, passStateItemSize, stateItemSize, tieLineSize } from '../../configs/size.config';
+import { IStateGroup } from '../../models/interfaces/state.interface';
+import { WorkflowState } from '../../interfaces/state-language.interface';
+import { StateTypesEnum } from '../../configs/state-types.enum';
+import { BranchItems } from '../../models/branch-items.model';
+import { RemodzyWfDirection } from '../../interfaces/workflow-settings.interface';
+import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface';
+import { TieLine } from '../../models/tie-line.model';
+import { DrawPositionService } from '../draw-position.service';
+import { TieLinesHorizontalService } from '../tie-lines/tie-lines-horizontal.service';
 
 export class DrawBranchHorizontalService extends DrawBranchService {
-  constructor(protected workflowData: WorkflowData,
-              protected canvas: Canvas,
-              protected startPosition?: PointCoords) {
+  constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
     super(workflowData, canvas, startPosition);
 
     if (!startPosition) {
@@ -25,6 +24,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       };
     }
     this.drawPosition = new DrawPositionService(this.position);
+    this.tieLines = new TieLinesHorizontalService(this.canvas);
   }
 
   public drawBranch(): IStateGroup[] {
@@ -88,7 +88,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
 
   protected drawTieLines() {
     let tieLinesStructure;
-    tieLinesStructure = this.tieLines.getHorizontalTieLinesStructure(this.states);
+    tieLinesStructure = this.tieLines.getTieLinesStructure(this.states);
     tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
       const { x: fromTieX } = tieLineStructure.startCoords;
       const { x: toTieX, y } = tieLineStructure.endCoords || { x: null };

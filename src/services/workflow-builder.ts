@@ -5,15 +5,16 @@ import { AnimateService } from './animate.service';
 import { canvasSize } from '../configs/size.config';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { WorkflowData } from './workflow-data.service';
-import { TieLinesService } from './tie-lines.service';
+import { TieLinesService } from './tie-lines/tie-lines.service';
 import { IStateGroup } from '../models/interfaces/state.interface';
 import { remodzyColors } from '../configs/colors.config';
-import { DrawBranchService } from './draw-branch.service';
-import { DrawBranchHorizontalService } from './draw-branch-horizontal.service';
-import { DrawBranchVerticalService } from './draw-branch-vertical.service';
+import { DrawBranchService } from './draw-branch/draw-branch.service';
+import { DrawBranchHorizontalService } from './draw-branch/draw-branch-horizontal.service';
+import { DrawBranchVerticalService } from './draw-branch/draw-branch-vertical.service';
+import { TieLinesHorizontalService } from './tie-lines/tie-lines-horizontal.service';
+import { TieLinesVerticalService } from './tie-lines/tie-lines-vertical.service';
 
 /*
- * Ctrl + Shift + F - rework to base class and inheritance
  * Ctrl + Shift + F - remove direction logic
  * DrawBranchHorizontalService / DrawBranchVerticalService factory
  * Drop area at the bottom of the branch (dev/1.jpg)
@@ -52,16 +53,22 @@ export class RemodzyWorkflowBuilder {
     this.canvas = new fabric.Canvas(settings.elementId, this.canvasConfig);
     this.canvasEvents = new CanvasEventsService(this.canvas);
     this.animate = new AnimateService(this.canvas);
-    this.tieLines = new TieLinesService(this.canvas);
+    // TODO use factory
+    this.tieLines =
+      this.workflowSettings.direction === RemodzyWfDirection.horizontal
+        ? new TieLinesHorizontalService(this.canvas)
+        : new TieLinesVerticalService(this.canvas);
     this.workflowData = new WorkflowData(settings.data);
     const { data, ...workflowSettings } = settings;
     this.workflowSettings = {
       ...this.workflowSettings,
       ...workflowSettings,
     };
-    this.drawBranchService = this.workflowSettings.direction === RemodzyWfDirection.horizontal
-      ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
-      : new DrawBranchVerticalService(this.workflowData, this.canvas);
+    // TODO use factory
+    this.drawBranchService =
+      this.workflowSettings.direction === RemodzyWfDirection.horizontal
+        ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
+        : new DrawBranchVerticalService(this.workflowData, this.canvas);
     this.setupCanvasEvents();
     this.initialize().then(() => {
       this.canvasEvents.setupDropAreaEvents();
@@ -101,9 +108,10 @@ export class RemodzyWorkflowBuilder {
     this.workflowData.sortStates(id, dropArea.data.stateId);
     this.canvas.clear();
     this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => {
-      this.drawBranchService = this.workflowSettings.direction === RemodzyWfDirection.horizontal
-        ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
-        : new DrawBranchVerticalService(this.workflowData, this.canvas);
+      this.drawBranchService =
+        this.workflowSettings.direction === RemodzyWfDirection.horizontal
+          ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
+          : new DrawBranchVerticalService(this.workflowData, this.canvas);
       this.drawBranchService.drawBranch();
     });
   }
