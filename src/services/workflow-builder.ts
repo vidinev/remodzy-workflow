@@ -9,13 +9,10 @@ import { TieLinesService } from './tie-lines/tie-lines.service';
 import { IStateGroup } from '../models/interfaces/state.interface';
 import { remodzyColors } from '../configs/colors.config';
 import { DrawBranchService } from './draw-branch/draw-branch.service';
-import { DrawBranchHorizontalService } from './draw-branch/draw-branch-horizontal.service';
-import { DrawBranchVerticalService } from './draw-branch/draw-branch-vertical.service';
 import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.service';
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix issue with sorting for bottom of branches drop area
  * Correct margin for bottom of branches drop area
  * Drop area at the bottom of the branch (dev/1.jpg)
  * Draw all branch elements (bottom curves, missing tie lines)
@@ -102,10 +99,10 @@ export class RemodzyWorkflowBuilder {
     this.workflowData.sortStates(id, dropArea.data.stateId);
     this.canvas.clear();
     this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => {
-      this.drawBranchService =
-        this.workflowSettings.direction === RemodzyWfDirection.horizontal
-          ? new DrawBranchHorizontalService(this.workflowData, this.canvas)
-          : new DrawBranchVerticalService(this.workflowData, this.canvas);
+      const tieLinesFactory = new TieLinesFactoryService(this.canvas);
+      this.tieLines = tieLinesFactory.getTieLinesService(this.workflowSettings.direction);
+      const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, this.canvas);
+      this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
       this.drawBranchService.drawBranch();
     });
   }

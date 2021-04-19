@@ -129,10 +129,13 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return this._bottomTiePoint;
   },
 
-  addChildState(state: IStateGroup): void {
-    if (state && state.type === ObjectTypes.state) {
-      this._childrenStates.push(state);
-    }
+  setChildrenState(states: IStateGroup[]): void {
+    this._childrenStates = [];
+    states.forEach((state: IStateGroup) => {
+      if (state && state.type === ObjectTypes.state) {
+        this._childrenStates.push(state);
+      }
+    });
   },
 
   getChildrenStates(): IStateGroup[] {

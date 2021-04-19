@@ -102,9 +102,11 @@ export class DrawBranchService {
       this.drawBranches(stateData.BranchesData, position).forEach((branchItems) => {
         branchesItems = [...branchesItems, ...branchItems.getAllItems()];
       });
+      const childrenStates: IStateGroup[] = [];
       branchesItems.forEach((branchItem) => {
-        rootState.addChildState(branchItem as IStateGroup);
+        childrenStates.push(branchItem as IStateGroup);
       });
+      rootState.setChildrenState(childrenStates);
       branchesItemsGroup = new fabric.Group(branchesItems.filter(Boolean));
     }
     return { branchesItemsGroup, rootState };
