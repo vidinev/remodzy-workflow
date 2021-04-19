@@ -84,13 +84,15 @@ export class DrawBranchVerticalService extends DrawBranchService {
     let tieLinesStructure;
     tieLinesStructure = this.tieLines.getTieLinesStructure(this.states);
     tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
-      const { x, y: fromTieY } = tieLineStructure.startCoords;
-      const { y: toTieY } = tieLineStructure.endCoords || { y: null };
+      const { x, y: fromTieY } = tieLineStructure.startCoords || { x: null, y: null };
+      const { y: toTieY, x: toTieX } = tieLineStructure.endCoords || { y: null, x: null };
       const { y: toDropY } = tieLineStructure.dropArea!.getCenterTopCoords();
       const { y: fromDropY } = tieLineStructure.dropArea!.getCenterBottomCoords();
-      this.canvas.add(new TieLine([x, fromTieY + tieLineSize.margin, x, toDropY]));
+      if (x && fromTieY) {
+        this.canvas.add(new TieLine([x, fromTieY + tieLineSize.margin, x, toDropY]));
+      }
       if (toTieY) {
-        this.canvas.add(new TieLine([x, fromDropY, x, toTieY - tieLineSize.margin]));
+        this.canvas.add(new TieLine([x || toTieX, fromDropY, x || toTieX, toTieY - tieLineSize.margin]));
       }
     });
   }

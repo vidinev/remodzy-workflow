@@ -89,11 +89,13 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     let tieLinesStructure;
     tieLinesStructure = this.tieLines.getTieLinesStructure(this.states);
     tieLinesStructure.forEach((tieLineStructure: TieLineStructure) => {
-      const { x: fromTieX } = tieLineStructure.startCoords;
+      const { x: fromTieX } = tieLineStructure.startCoords || { x: null };
       const { x: toTieX, y } = tieLineStructure.endCoords || { x: null };
-      this.canvas.add(
-        new TieLine([fromTieX + tieLineSize.margin, y, (toTieX || tieLineSize.margin) - tieLineSize.margin, y]),
-      );
+      if (fromTieX) {
+        this.canvas.add(
+          new TieLine([fromTieX + tieLineSize.margin, y, (toTieX || tieLineSize.margin) - tieLineSize.margin, y]),
+        );
+      }
     });
   }
 }

@@ -139,6 +139,28 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return this._childrenStates;
   },
 
+  getRightMostItemUnderChildren(): IStateGroup {
+    let rightmostItem: IStateGroup = {} as IStateGroup;
+    this._childrenStates.forEach((state: IStateGroup) => {
+      const currentRight = (rightmostItem.left || 0) + (rightmostItem.width || 0);
+      const right = state.left + state.width;
+      if (right > currentRight) {
+        rightmostItem = state;
+      }
+    });
+    return rightmostItem;
+  },
+
+  getLeftMostItemUnderChildren(): IStateGroup {
+    let leftmostItem: IStateGroup = {} as IStateGroup;
+    this._childrenStates.forEach((state: IStateGroup) => {
+      if (((leftmostItem.left || 0) === 0) || (state.left < (leftmostItem.left || 0))) {
+        leftmostItem = state;
+      }
+    });
+    return leftmostItem;
+  },
+
   getCenterBottomCoordsUnderChildren(): PointCoords {
     let lowerItem: IStateGroup = {} as IStateGroup;
     this._childrenStates.forEach((state: IStateGroup) => {

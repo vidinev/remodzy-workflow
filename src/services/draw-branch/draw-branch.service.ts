@@ -22,6 +22,7 @@ export class DrawBranchService {
   protected tieLines: TieLinesService;
   protected drawPosition: DrawPositionService = new DrawPositionService(this.position);
   protected states: IStateGroup[] = [];
+
   constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
     if (startPosition) {
       this.position = { ...startPosition };
@@ -128,7 +129,13 @@ export class DrawBranchService {
   protected drawDropAreas() {
     this.states.forEach((stateGroup: IStateGroup) => {
       if (stateGroup.isBranchRoot()) {
-        // stateGroup.getCenterBottomCoordsUnderChildren()
+        const { y: underChildrenBottom } = stateGroup.getCenterBottomCoordsUnderChildren();
+        const { x: stateLeft } = stateGroup.getCenterBottomCoords();
+        const dropAreaGroup = this.drawDropArea(stateGroup.data.stateId, {
+          x: stateLeft,
+          y: underChildrenBottom,
+        });
+        stateGroup.setDropArea(dropAreaGroup);
       }
 
       const isMainBranchEnd = stateGroup.data.stateId === this.workflowData.getEndStateId();

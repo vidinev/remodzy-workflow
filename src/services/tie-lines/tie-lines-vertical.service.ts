@@ -13,6 +13,17 @@ export class TieLinesVerticalService extends TieLinesService {
     const tieLinesStructure: TieLineStructure[] = [];
     states.forEach((canvasObject: IStateGroup) => {
       const dropArea = canvasObject.getDropArea();
+      if (canvasObject.data.BranchesData && canvasObject.data.BranchesData.length) {
+        const nextState = this.getStateGroupById(states, canvasObject.data.Next!);
+        const tieEnd = nextState?.getTopTiePoint();
+        if (dropArea) {
+          tieLinesStructure.push({
+            endCoords: tieEnd?.getCenterTopCoords(),
+            dropArea,
+          });
+        }
+        return;
+      }
       if (!canvasObject.data.End || (canvasObject.data.End && dropArea)) {
         const nextState = this.getStateGroupById(states, canvasObject.data.Next!);
         const tieStart = canvasObject.getBottomTiePoint();
