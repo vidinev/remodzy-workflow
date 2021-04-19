@@ -1,42 +1,15 @@
 import { Canvas } from 'fabric/fabric-impl';
-import { TieLineStructure } from '../interfaces/tie-lines-structure.interface';
-import { IStateGroup } from '../models/interfaces/state.interface';
-import { WorkflowData } from './workflow-data.service';
-import { StateItemsBySide } from '../interfaces/state-items-by-side.interface';
-import { CurveTieLinesStructure } from '../interfaces/curve-tie-lines-structure.interface';
-import { StateTypesEnum } from '../configs/state-types.enum';
+import { IStateGroup } from '../../models/interfaces/state.interface';
+import { WorkflowData } from '../workflow-data.service';
+import { StateItemsBySide } from '../../interfaces/state-items-by-side.interface';
+import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface';
+import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
 
 export class TieLinesService {
-  canvas: Canvas;
-
-  constructor(canvas: Canvas) {
-    this.canvas = canvas;
-  }
+  constructor(protected canvas: Canvas) {}
 
   getTieLinesStructure(states: IStateGroup[]): TieLineStructure[] {
-    const tieLinesStructure: TieLineStructure[] = [];
-    states.forEach((canvasObject: IStateGroup) => {
-      const dropArea = canvasObject.getDropArea();
-      if (!canvasObject.data.End || (canvasObject.data.End && dropArea)) {
-        const nextState = this.getStateGroupById(states, canvasObject.data.Next!);
-        const tieStart = canvasObject.getBottomTiePoint();
-        const tieEnd = nextState?.getTopTiePoint();
-
-        let startCoords = tieStart?.getCenterBottomCoords();
-        if (canvasObject.data.Type === StateTypesEnum.Pass && !tieStart) {
-          startCoords = canvasObject.getCenterBottomCoords();
-        }
-
-        if (startCoords && dropArea) {
-          tieLinesStructure.push({
-            startCoords,
-            endCoords: tieEnd?.getCenterTopCoords(),
-            dropArea,
-          });
-        }
-      }
-    });
-    return tieLinesStructure;
+    return [];
   }
 
   getCurveTieLinesStructure(states: IStateGroup[]): CurveTieLinesStructure[] {
@@ -53,7 +26,7 @@ export class TieLinesService {
     return curveTieLinesStructure;
   }
 
-  private getGroupedItemsBySide(canvasObject: IStateGroup): StateItemsBySide {
+  protected getGroupedItemsBySide(canvasObject: IStateGroup): StateItemsBySide {
     const branchesLength = canvasObject.data.BranchesData?.length || 0;
     const isEvenBranches = branchesLength % 2 === 0;
     const middleBranchIndex = Math.ceil(branchesLength / 2);
@@ -79,7 +52,7 @@ export class TieLinesService {
     return { leftSide, middleItems, rightSide };
   }
 
-  private getStateGroupById(states: IStateGroup[], stateId: string) {
+  protected getStateGroupById(states: IStateGroup[], stateId: string) {
     return states.find((state: IStateGroup) => state.data.stateId === stateId);
   }
 }

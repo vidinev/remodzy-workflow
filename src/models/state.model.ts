@@ -19,9 +19,16 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   _dropArea: null,
   _topTiePoint: null,
   _bottomTiePoint: null,
+  _rightTiePoint: null,
+  _leftTiePoint: null,
   _active: false,
 
-  initialize: function(stateData: WorkflowState, options: IObjectOptions = { }, isStart: boolean) {
+  initialize: function(
+    stateData: WorkflowState,
+    options: IObjectOptions = {},
+    isStart: boolean,
+    parentStateId: string,
+  ) {
     const rectConfig = this._getConfig(stateData.Type);
     const stateContainerObject = new fabric.Rect(rectConfig);
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
@@ -35,6 +42,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         ...stateData,
         Branches: stateData.Branches || null,
         Start: isStart,
+        parentStateId,
         stateId: (stateData.Parameters && stateData.Parameters.stateId) || '',
       },
     });
@@ -43,14 +51,28 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   getCenterBottomCoords(): PointCoords {
     return {
       x: Math.ceil((this.left || 0) + this.width / 2),
-      y: this.top + this.height - 1
+      y: this.top + this.height - 1,
+    };
+  },
+
+  getCenterRightCoords(): PointCoords {
+    return {
+      x: (this.left || 0) + this.width,
+      y: Math.ceil((this.top || 0) + this.height / 2),
+    };
+  },
+
+  getCenterLeftCoords(): PointCoords {
+    return {
+      x: this.left || 0,
+      y: Math.ceil((this.top || 0) + this.height / 2),
     };
   },
 
   getCenterTopCoords(): PointCoords {
     return {
       x: (this.left || 0) + this.width / 2,
-      y: this.top
+      y: this.top,
     };
   },
 
@@ -61,6 +83,10 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   isBranchRoot(): boolean {
     return !!this.data?.Branches?.length;
+  },
+
+  isMainRoot(): boolean {
+    return this.data.Start && !this.data.parentStateId;
   },
 
   getDropArea(): IDropAreaGroup {
@@ -75,6 +101,22 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     this._topTiePoint = tiePoint;
   },
 
+  setLeftTiePoint(tiePoint: ITiePointCircle) {
+    this._leftTiePoint = tiePoint;
+  },
+
+  getLeftTiePoint(): ITiePointCircle {
+    return this._leftTiePoint;
+  },
+
+  setRightTiePoint(tiePoint: ITiePointCircle) {
+    this._rightTiePoint = tiePoint;
+  },
+
+  getRightTiePoint(): ITiePointCircle {
+    return this._rightTiePoint;
+  },
+
   getTopTiePoint(): ITiePointCircle {
     return this._topTiePoint;
   },
@@ -87,18 +129,43 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return this._bottomTiePoint;
   },
 
-  addChildState(state: IStateGroup): void {
-    if (state && state.type === ObjectTypes.state) {
-      this._childrenStates.push(state);
-    }
+  setChildrenState(states: IStateGroup[]): void {
+    this._childrenStates = [];
+    states.forEach((state: IStateGroup) => {
+      if (state && state.type === ObjectTypes.state) {
+        this._childrenStates.push(state);
+      }
+    });
   },
 
   getChildrenStates(): IStateGroup[] {
     return this._childrenStates;
   },
 
+  getRightMostItemUnderChildren(): IStateGroup {
+    let rightmostItem: IStateGroup = {} as IStateGroup;
+    this._childrenStates.forEach((state: IStateGroup) => {
+      const currentRight = (rightmostItem.left || 0) + (rightmostItem.width || 0);
+      const right = state.left + state.width;
+      if (right > currentRight) {
+        rightmostItem = state;
+      }
+    });
+    return rightmostItem;
+  },
+
+  getLeftMostItemUnderChildren(): IStateGroup {
+    let leftmostItem: IStateGroup = {} as IStateGroup;
+    this._childrenStates.forEach((state: IStateGroup) => {
+      if (((leftmostItem.left || 0) === 0) || (state.left < (leftmostItem.left || 0))) {
+        leftmostItem = state;
+      }
+    });
+    return leftmostItem;
+  },
+
   getCenterBottomCoordsUnderChildren(): PointCoords {
-    let lowerItem: IStateGroup = { } as IStateGroup;
+    let lowerItem: IStateGroup = {} as IStateGroup;
     this._childrenStates.forEach((state: IStateGroup) => {
       if ((state.top || 0) > (lowerItem?.top || 0)) {
         lowerItem = state;
@@ -131,7 +198,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         const passStateOffset = (stateRectConfig.width! - passStateRectConfig.width!) / 2;
         return {
           ...options,
-          left: (options.left || 0) + passStateOffset
+          left: (options.left || 0) + passStateOffset,
         };
       default:
         return options;
@@ -140,5 +207,5 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   _render: function(ctx: CanvasRenderingContext2D) {
     this.callSuper('_render', ctx);
-  }
+  },
 });

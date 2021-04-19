@@ -55,9 +55,9 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
     group.push(bottomCorner);
     const straightLine = new TieLine([
       this.bottomCoords.x + curveRoundPartSize,
-      bottomCornerTop - tieLineSize.margin,
+      bottomCornerTop,
       topCornerLeft + curveTieLineConfig.strokeWidth!,
-      top + curveRoundPartSize + tieLineSize.margin,
+      top + curveRoundPartSize,
     ]);
     group.push(straightLine);
     return group;
@@ -80,9 +80,9 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
     group.push(bottomCorner);
     const straightLine = new TieLine([
       this.topCoords.x + curveRoundPartSize,
-      top + curveRoundPartSize - tieLineSize.margin,
+      top + curveRoundPartSize,
       this.bottomCoords.x + curveTieLineConfig.strokeWidth! - curveRoundPartSize,
-      top + curveRoundPartSize + tieLineSize.margin,
+      top + curveRoundPartSize,
     ]);
     group.push(straightLine);
     return group;

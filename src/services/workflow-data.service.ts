@@ -9,7 +9,7 @@ export class WorkflowData {
     for (let key in statesDraft) {
       if (statesDraft.hasOwnProperty(key)) {
         statesDraft[key] = {
-          ...statesDraft[key]
+          ...statesDraft[key],
         };
       }
     }
@@ -19,28 +19,28 @@ export class WorkflowData {
   private static prepareWorkFlowData(workflowStateData: WorkflowStateData): WorkflowStateData {
     const data = {
       ...workflowStateData,
-      States: WorkflowData.getStatesDraft(workflowStateData.States)
+      States: WorkflowData.getStatesDraft(workflowStateData.States),
     };
 
     for (let key in data.States) {
       if (data.States.hasOwnProperty(key)) {
         data.States[key].Parameters = {
           ...data.States[key].Parameters,
-          stateId: key
+          stateId: key,
         };
         if (data.States[key].Branches) {
-          data.States[key].BranchesData = (data.States[key].Branches || [])
-            .map((branch: WorkflowStateData) => new WorkflowData(branch));
+          data.States[key].BranchesData = (data.States[key].Branches || []).map(
+            (branch: WorkflowStateData) => new WorkflowData(branch, data.States[key].Parameters.stateId),
+          );
         }
       }
     }
     return data;
   }
 
-  constructor(workflowStateData: WorkflowStateData) {
+  constructor(workflowStateData: WorkflowStateData, private parentStateId?: string) {
     this.data = WorkflowData.prepareWorkFlowData(workflowStateData);
-    this.endStateId = Object.keys(this.data.States)
-      .find((key: string) => this.data.States[key].End) || '';
+    this.endStateId = Object.keys(this.data.States).find((key: string) => this.data.States[key].End) || '';
   }
 
   getStateById(stateId: string) {
@@ -51,12 +51,20 @@ export class WorkflowData {
     return this.data.StartAt;
   }
 
-  getEndStateId(): string|null {
+  getEndStateId(): string | null {
     return this.endStateId;
   }
 
   getStartState() {
     return this.data.States[this.data.StartAt];
+  }
+
+  isMainRoot() {
+    return !this.parentStateId;
+  }
+
+  getParentStateId(): string | null {
+    return this.parentStateId || null;
   }
 
   sortStates(movedStateId: string, stateBeforeNewPositionId: string) {
@@ -81,7 +89,7 @@ export class WorkflowData {
 
     this.data = {
       ...this.data,
-      States: statesDraft
+      States: statesDraft,
     };
   }
 }

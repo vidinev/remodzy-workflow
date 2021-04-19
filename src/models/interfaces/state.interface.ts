@@ -5,16 +5,21 @@ import { IDropAreaGroup } from './drop-area.interface';
 import { ITiePointCircle } from './tie-point.interface';
 
 export interface IStateGroup extends Group {
-  data: WorkflowState & { stateId: string, Start: boolean };
+  data: WorkflowState & { stateId: string; parentStateId: string | null; Start: boolean };
   top: number;
   left: number;
   height: number;
+  width: number;
   isBranchRoot: () => boolean;
-  addChildState: (state: IStateGroup) => void;
+  setChildrenState: (states: IStateGroup[]) => void;
   getChildrenStates: () => IStateGroup[];
   getCenterBottomCoordsUnderChildren: () => PointCoords;
+  getRightMostItemUnderChildren: () => IStateGroup;
+  getLeftMostItemUnderChildren: () => IStateGroup;
   getCenterTopCoords: () => PointCoords;
   getCenterBottomCoords: () => PointCoords;
+  getCenterRightCoords: () => PointCoords;
+  getCenterLeftCoords: () => PointCoords;
   getStateData: () => WorkflowState;
   setDropArea: (dropArea: IDropAreaGroup) => void;
   getDropArea: () => IDropAreaGroup;
@@ -22,4 +27,8 @@ export interface IStateGroup extends Group {
   getTopTiePoint: () => ITiePointCircle;
   setBottomTiePoint: (tiePoint: ITiePointCircle) => void;
   getBottomTiePoint: () => ITiePointCircle;
+  setLeftTiePoint: (tiePoint: ITiePointCircle) => void;
+  getLeftTiePoint: () => ITiePointCircle;
+  setRightTiePoint: (tiePoint: ITiePointCircle) => void;
+  getRightTiePoint: () => ITiePointCircle;
 }

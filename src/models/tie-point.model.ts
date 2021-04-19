@@ -28,6 +28,20 @@ export const TiePointCircle = fabric.util.createClass(fabric.Circle, {
     };
   },
 
+  getCenterRightCoords(): PointCoords {
+    return {
+      x: (this.left || 0) + this.width,
+      y: Math.ceil((this.top || 0) + this.height / 2),
+    };
+  },
+
+  getCenterLeftCoords(): PointCoords {
+    return {
+      x: (this.left || 0),
+      y: Math.ceil((this.top || 0) + this.height / 2),
+    };
+  },
+
   _render: function(ctx: CanvasRenderingContext2D) {
     this.callSuper('_render', ctx);
   }

@@ -1,7 +1,7 @@
 import { MathService } from '../services/math.service';
 
 export const canvasSize = {
-  width: 1200,
+  width: 2400,
   height: 1200,
 };
 
@@ -16,7 +16,7 @@ export const passStateItemSize = {
   width: 144,
   height: 36,
   fontSize: stateItemSize.fontSize,
-  dragDropAngle: stateItemSize.dragDropAngle
+  dragDropAngle: stateItemSize.dragDropAngle,
 };
 
 export const dropAreaSize = {
