@@ -2,7 +2,7 @@ import { DrawBranchService } from './draw-branch.service';
 import { WorkflowData } from '../workflow-data.service';
 import { Canvas, Group } from 'fabric/fabric-impl';
 import { PointCoords } from '../../interfaces/point-coords.interface';
-import { marginSize, stateItemSize, tieLineSize } from '../../configs/size.config';
+import { dropAreaSize, marginSize, stateItemSize, tieLineSize } from '../../configs/size.config';
 import { IStateGroup } from '../../models/interfaces/state.interface';
 import { WorkflowState } from '../../interfaces/state-language.interface';
 import { BranchItems } from '../../models/branch-items.model';
@@ -60,6 +60,13 @@ export class DrawBranchVerticalService extends DrawBranchService {
   }
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
+    if (branchesItemsGroup?.height) {
+      this.drawPosition.moveBottom(rootState.height
+        + (branchesItemsGroup?.height || 0)
+        + marginSize.stateToBranchMargin * 2
+        + dropAreaSize.height);
+      return;
+    }
     this.drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
   }
 

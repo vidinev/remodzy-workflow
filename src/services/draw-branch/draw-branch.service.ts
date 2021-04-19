@@ -135,7 +135,7 @@ export class DrawBranchService {
         const { x: stateLeft } = stateGroup.getCenterBottomCoords();
         const dropAreaGroup = this.drawDropArea(stateGroup.data.stateId, {
           x: stateLeft,
-          y: underChildrenBottom,
+          y: underChildrenBottom + marginSize.stateToBranchMargin,
         });
         stateGroup.setDropArea(dropAreaGroup);
       }
