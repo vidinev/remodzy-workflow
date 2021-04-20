@@ -198,7 +198,12 @@ export class DrawBranchService {
       curveLineStructure.rightSide.forEach((state: IStateGroup) => {
         const sideStateCoords = state.getCenterTopCoords();
         const rightCurve = new CurveTieLine(CurveTieLineDirection.topToRight, rootCoords, sideStateCoords);
-        this.canvas.add(rightCurve);
+        const bottomRight = new CurveTieLine(CurveTieLineDirection.bottomToRight,
+          {
+            ...rootCoords,
+            y: bottomDropArea.top || 0,
+          }, sideStateCoords)
+        this.canvas.add(rightCurve, bottomRight);
       });
     });
   }

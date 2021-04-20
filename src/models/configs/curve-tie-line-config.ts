@@ -15,6 +15,7 @@ export enum CurveTieLineDirection {
   topToRight = 'topToRight',
   topToLeft = 'topToLeft',
   bottomToLeft = 'bottomToLeft',
+  bottomToRight = 'bottomToRight'
 }
 
 export const curvesPath = {
