@@ -3,5 +3,4 @@ export interface MarginSize {
   horizontalMargin: number;
   stateToBranchMargin: number;
   marginForCustomDropArea: number;
-  underBranchChildrenMargin: number;
 }

@@ -45,12 +45,10 @@ const margins = {
 };
 
 const marginForCustomDropArea = dropAreaSize.height + strokeWidth * 2 + margins.verticalMargin / 2;
-const underBranchChildrenMargin = marginForCustomDropArea + margins.stateToBranchMargin;
 
 export const marginSize: MarginSize = {
   ...margins,
   marginForCustomDropArea,
-  underBranchChildrenMargin,
 };
 
 export const topAngleOffset = (stateItemSize.width * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;

@@ -1,7 +1,7 @@
 import { WorkflowData } from '../workflow-data.service';
 import { PointCoords } from '../../interfaces/point-coords.interface';
 import { IStateGroup } from '../../models/interfaces/state.interface';
-import { marginSize, tiePointSize } from '../../configs/size.config';
+import { dropAreaSize, marginSize, strokeWidth, tiePointSize } from '../../configs/size.config';
 import { Canvas, Group, Object as CanvasObject } from 'fabric/fabric-impl';
 import { DrawPositionService } from '../draw-position.service';
 import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
@@ -135,7 +135,7 @@ export class DrawBranchService {
         const { x: stateLeft } = stateGroup.getCenterBottomCoords();
         const dropAreaGroup = this.drawDropArea(stateGroup.data.stateId, {
           x: stateLeft,
-          y: underChildrenBottom + marginSize.underBranchChildrenMargin,
+          y: underChildrenBottom + (dropAreaSize.height + strokeWidth) / 2 + marginSize.stateToBranchMargin,
         });
         stateGroup.setDropArea(dropAreaGroup);
       }

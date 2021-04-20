@@ -175,7 +175,15 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         lowerItem = state;
       }
     });
-    return lowerItem.getCenterBottomCoords();
+    const dropArea = lowerItem.getDropArea?.();
+    const centerBottomCoords = lowerItem.getCenterBottomCoords();
+    if (dropArea) {
+      return {
+        ...centerBottomCoords,
+        y: (dropArea.top || 0) + (dropArea.height || 0),
+      };
+    }
+    return centerBottomCoords;
   },
 
   _getConfig(type: string) {
