@@ -1,10 +1,11 @@
 import { ICircleOptions, ILineOptions } from 'fabric/fabric-impl';
 import { remodzyColors } from '../../configs/colors.config';
+import { strokeWidth } from '../../configs/size.config';
 
 export const dropAreaPlusConfig: ILineOptions = {
   fill: remodzyColors.tieLineColor,
   stroke: remodzyColors.tieLineColor,
-  strokeWidth: 1.5,
+  strokeWidth,
   selectable: false,
   evented: false,
 };
@@ -13,7 +14,7 @@ export const dropAreaRoundConfig: ICircleOptions = {
   fill: 'transparent',
   radius: 16,
   stroke: remodzyColors.tieLineColor,
-  strokeWidth: 1.5,
+  strokeWidth,
   selectable: false,
   hoverCursor: 'default',
 };

@@ -1,10 +1,11 @@
 import { ILineOptions } from 'fabric/fabric-impl';
 import { remodzyColors } from '../../configs/colors.config';
+import { strokeWidth } from '../../configs/size.config';
 
 export const tieLineConfig: ILineOptions = {
-  strokeWidth: 1.5,
+  strokeWidth,
   fill: remodzyColors.tieLineColor,
-  stroke:  remodzyColors.tieLineColor,
+  stroke: remodzyColors.tieLineColor,
   selectable: false,
   evented: false,
 };

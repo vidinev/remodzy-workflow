@@ -11,6 +11,8 @@ export interface IStateGroup extends Group {
   height: number;
   width: number;
   isBranchRoot: () => boolean;
+  isMainRoot: () => boolean;
+  isInMainBranch: () => boolean;
   setChildrenState: (states: IStateGroup[]) => void;
   getChildrenStates: () => IStateGroup[];
   getCenterBottomCoordsUnderChildren: () => PointCoords;

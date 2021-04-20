@@ -1,9 +1,12 @@
 import { MathService } from '../services/math.service';
+import { MarginSize } from '../interfaces/margin-size.interface';
 
 export const canvasSize = {
   width: 2400,
   height: 1200,
 };
+
+export const strokeWidth = 1.5;
 
 export const stateItemSize = {
   width: 280,
@@ -35,10 +38,19 @@ export const tieLineSize = {
 
 export const curveRoundPartSize = 14;
 
-export const marginSize = {
+const margins = {
   verticalMargin: 76,
   horizontalMargin: 40,
-  stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2 + 3,
+  stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2 + strokeWidth * 2,
+};
+
+const marginForCustomDropArea = dropAreaSize.height + strokeWidth * 2 + margins.verticalMargin / 2;
+const underBranchChildrenMargin = marginForCustomDropArea + margins.stateToBranchMargin;
+
+export const marginSize: MarginSize = {
+  ...margins,
+  marginForCustomDropArea,
+  underBranchChildrenMargin,
 };
 
 export const topAngleOffset = (stateItemSize.width * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;

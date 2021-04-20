@@ -1,8 +1,9 @@
 import { ILineOptions } from 'fabric/fabric-impl';
 import { remodzyColors } from '../../configs/colors.config';
+import { strokeWidth } from '../../configs/size.config';
 
 export const curveTieLineConfig: ILineOptions = {
-  strokeWidth: 1.5,
+  strokeWidth,
   fill: '',
   stroke: remodzyColors.tieLineColor,
   objectCaching: false,

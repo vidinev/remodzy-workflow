@@ -89,6 +89,10 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return this.data.Start && !this.data.parentStateId;
   },
 
+  isInMainBranch(): boolean {
+    return !this.data.parentStateId;
+  },
+
   getDropArea(): IDropAreaGroup {
     return this._dropArea;
   },
@@ -157,7 +161,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   getLeftMostItemUnderChildren(): IStateGroup {
     let leftmostItem: IStateGroup = {} as IStateGroup;
     this._childrenStates.forEach((state: IStateGroup) => {
-      if (((leftmostItem.left || 0) === 0) || (state.left < (leftmostItem.left || 0))) {
+      if ((leftmostItem.left || 0) === 0 || state.left < (leftmostItem.left || 0)) {
         leftmostItem = state;
       }
     });

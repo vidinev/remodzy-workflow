@@ -61,10 +61,13 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
     if (branchesItemsGroup?.height) {
-      this.drawPosition.moveBottom(rootState.height
-        + (branchesItemsGroup?.height || 0)
-        + marginSize.stateToBranchMargin * 2
-        + dropAreaSize.height);
+      this.drawPosition.moveBottom(
+        rootState.height +
+          (branchesItemsGroup?.height || 0) +
+          marginSize.stateToBranchMargin * 2 +
+          marginSize.verticalMargin / 2 +
+          dropAreaSize.height / 2,
+      );
       return;
     }
     this.drawPosition.moveBottom(marginSize.verticalMargin + rootState.height + (branchesItemsGroup?.height || 0));
@@ -79,7 +82,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
         const topTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterTopCoords());
         stateGroup.setTopTiePoint(topTiePoint);
       }
-      const isMainBranchEnd = stateGroup.data.stateId === this.workflowData.getEndStateId();
+      const isMainBranchEnd = stateGroup.isInMainBranch() && stateGroup.data.End;
       if (!isMainBranchEnd && stateGroup.data.Type) {
         const bottomTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterBottomCoords());
         stateGroup.setBottomTiePoint(bottomTiePoint);

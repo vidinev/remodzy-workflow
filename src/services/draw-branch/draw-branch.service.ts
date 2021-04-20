@@ -135,12 +135,12 @@ export class DrawBranchService {
         const { x: stateLeft } = stateGroup.getCenterBottomCoords();
         const dropAreaGroup = this.drawDropArea(stateGroup.data.stateId, {
           x: stateLeft,
-          y: underChildrenBottom + marginSize.stateToBranchMargin,
+          y: underChildrenBottom + marginSize.underBranchChildrenMargin,
         });
         stateGroup.setDropArea(dropAreaGroup);
       }
 
-      const isMainBranchEnd = stateGroup.data.stateId === this.workflowData.getEndStateId();
+      const isMainBranchEnd = stateGroup.isInMainBranch() && stateGroup.data.End;
       if (!isMainBranchEnd && !stateGroup.isBranchRoot()) {
         const { x: stateLeft, y: stateBottom } = stateGroup.getCenterBottomCoords();
         const dropAreaTop = stateBottom + marginSize.verticalMargin / 2;
