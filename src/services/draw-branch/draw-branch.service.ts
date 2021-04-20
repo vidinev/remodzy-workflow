@@ -173,6 +173,7 @@ export class DrawBranchService {
     const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(this.states);
     curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
       const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
+      const bottomDropArea = curveLineStructure?.rootState?.getDropArea();
       curveLineStructure.middleItems.forEach((state: IStateGroup) => {
         const bottomCoords = state.getCenterTopCoords();
         const straightLine = new MiddleTieLine({
@@ -184,7 +185,15 @@ export class DrawBranchService {
       curveLineStructure.leftSide.forEach((state: IStateGroup) => {
         const sideStateCoords = state.getCenterTopCoords();
         const leftCurve = new CurveTieLine(CurveTieLineDirection.topToLeft, rootCoords, sideStateCoords);
-        this.canvas.add(leftCurve);
+        const bottomLeft = new CurveTieLine(
+          CurveTieLineDirection.bottomToLeft,
+          {
+            ...rootCoords,
+            y: bottomDropArea.top || 0,
+          },
+          sideStateCoords,
+        );
+        this.canvas.add(leftCurve, bottomLeft);
       });
       curveLineStructure.rightSide.forEach((state: IStateGroup) => {
         const sideStateCoords = state.getCenterTopCoords();

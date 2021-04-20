@@ -14,6 +14,7 @@ export const curveTieLineConfig: ILineOptions = {
 export enum CurveTieLineDirection {
   topToRight = 'topToRight',
   topToLeft = 'topToLeft',
+  bottomToLeft = 'bottomToLeft',
 }
 
 export const curvesPath = {

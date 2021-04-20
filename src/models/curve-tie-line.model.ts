@@ -33,9 +33,40 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
         return this.createTopToLeftGroup();
       case CurveTieLineDirection.topToRight:
         return this.createTopToRightGroup();
+      case CurveTieLineDirection.bottomToLeft:
+        return this.createBottomToLeftGroup();
       default:
         return [];
     }
+  },
+
+  createBottomToLeftGroup(): Group[] {
+    const group: Group[] = [];
+    const bottomCornerLeft = this.topCoords.x - curveRoundPartSize;
+    const bottomCornerTop = this.topCoords.y - curveRoundPartSize - this.getCurveLineTopMargin();
+    const bottomCorner = new CurveTieLineCorner(curvesPath.rightToTop, {
+      left: bottomCornerLeft,
+      top: bottomCornerTop,
+    });
+    group.push(bottomCorner);
+
+    const topCorner = new CurveTieLineCorner(curvesPath.topToRight, {
+      left: this.bottomCoords.x,
+      top: bottomCornerTop - curveRoundPartSize,
+    });
+
+    group.push(topCorner);
+
+    const straightLine = new TieLine([
+      this.bottomCoords.x + curveRoundPartSize,
+      bottomCornerTop,
+      bottomCornerLeft + curveTieLineConfig.strokeWidth!,
+      bottomCornerTop,
+    ]);
+
+    group.push(straightLine);
+
+    return group;
   },
 
   createTopToLeftGroup(): Group[] {

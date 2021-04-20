@@ -18,6 +18,7 @@ export class TieLinesService {
       if (canvasObject.data.BranchesData && canvasObject.data.BranchesData.length) {
         const tieStart = canvasObject.getBottomTiePoint();
         curveTieLinesStructure.push({
+          rootState: canvasObject,
           tieStart,
           ...this.getGroupedItemsBySide(canvasObject),
         });

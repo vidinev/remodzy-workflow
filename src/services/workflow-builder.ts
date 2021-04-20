@@ -14,7 +14,6 @@ import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
  * Draw all branch elements (bottom curves, missing tie lines)
- * Drop area at the bottom of the branch (dev/1.jpg)
  * Test with different cases
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
  * Fix  drag and drop, and sorting between levels
