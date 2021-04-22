@@ -3,6 +3,7 @@ import { WorkflowState } from '../../interfaces/state-language.interface';
 import { PointCoords } from '../../interfaces/point-coords.interface';
 import { IDropAreaGroup } from './drop-area.interface';
 import { ITiePointCircle } from './tie-point.interface';
+import { BranchItems } from '../branch-items.model';
 
 export interface IStateGroup extends Group {
   data: WorkflowState & { stateId: string; parentStateId: string | null; Start: boolean };
@@ -13,7 +14,8 @@ export interface IStateGroup extends Group {
   isBranchRoot: () => boolean;
   isMainRoot: () => boolean;
   isInMainBranch: () => boolean;
-  setChildrenState: (states: IStateGroup[]) => void;
+  setBranchItems: (branchItems: BranchItems[]) => void;
+  getBranchItems: () => BranchItems[];
   getChildrenStates: () => IStateGroup[];
   getCenterBottomCoordsUnderChildren: () => PointCoords;
   getRightMostItemUnderChildren: () => IStateGroup;

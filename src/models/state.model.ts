@@ -12,10 +12,11 @@ import { IDropAreaGroup } from './interfaces/drop-area.interface';
 import { ITiePointCircle } from './interfaces/tie-point.interface';
 import { IStateGroup } from './interfaces/state.interface';
 import { StateTypesEnum } from '../configs/state-types.enum';
+import { BranchItems } from './branch-items.model';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
-  _childrenStates: [],
+  _childrenBranches: [],
   _dropArea: null,
   _topTiePoint: null,
   _bottomTiePoint: null,
@@ -133,22 +134,26 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return this._bottomTiePoint;
   },
 
-  setChildrenState(states: IStateGroup[]): void {
-    this._childrenStates = [];
-    states.forEach((state: IStateGroup) => {
-      if (state && state.type === ObjectTypes.state) {
-        this._childrenStates.push(state);
-      }
-    });
+  setBranchItems(branchItems: BranchItems[]): void {
+    this._childrenBranches = [...branchItems];
+  },
+
+  getBranchItems(): BranchItems[] {
+    return this._childrenBranches || [];
   },
 
   getChildrenStates(): IStateGroup[] {
-    return this._childrenStates;
+    let states: IStateGroup[] = [];
+    const branches = (this._childrenBranches || []) as BranchItems[];
+    branches.forEach((branch: BranchItems) => {
+      states = [...states, ...(branch.states || [])];
+    });
+    return states;
   },
 
   getRightMostItemUnderChildren(): IStateGroup {
     let rightmostItem: IStateGroup = {} as IStateGroup;
-    this._childrenStates.forEach((state: IStateGroup) => {
+    this.getChildrenStates().forEach((state: IStateGroup) => {
       const currentRight = (rightmostItem.left || 0) + (rightmostItem.width || 0);
       const right = state.left + state.width;
       if (right > currentRight) {
@@ -160,7 +165,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getLeftMostItemUnderChildren(): IStateGroup {
     let leftmostItem: IStateGroup = {} as IStateGroup;
-    this._childrenStates.forEach((state: IStateGroup) => {
+    this.getChildrenStates().forEach((state: IStateGroup) => {
       if ((leftmostItem.left || 0) === 0 || state.left < (leftmostItem.left || 0)) {
         leftmostItem = state;
       }
@@ -170,7 +175,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getCenterBottomCoordsUnderChildren(): PointCoords {
     let lowerItem: IStateGroup = {} as IStateGroup;
-    this._childrenStates.forEach((state: IStateGroup) => {
+    this.getChildrenStates().forEach((state: IStateGroup) => {
       if ((state.top || 0) > (lowerItem?.top || 0)) {
         lowerItem = state;
       }

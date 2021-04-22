@@ -95,19 +95,16 @@ export class DrawBranchService {
     position: PointCoords,
     workflowData: WorkflowData,
   ): { rootState: IStateGroup; branchesItemsGroup?: Group } {
-    let branchesItems: CanvasObject[] = [];
     let branchesItemsGroup;
     const rootState = this.drawStateRoot(stateData, position, workflowData);
     if (stateData.BranchesData?.length) {
-      this.drawBranches(stateData.BranchesData, position).forEach((branchItems) => {
-        branchesItems = [...branchesItems, ...branchItems.getAllItems()];
+      const branchesItems: BranchItems[] = this.drawBranches(stateData.BranchesData, position).filter(Boolean);
+      rootState.setBranchItems(branchesItems);
+      let branchObjects: CanvasObject[] = [];
+      branchesItems.forEach((branch: BranchItems) => {
+        branchObjects = [...branchObjects, ...branch.getAllItems()];
       });
-      const childrenStates: IStateGroup[] = [];
-      branchesItems.forEach((branchItem) => {
-        childrenStates.push(branchItem as IStateGroup);
-      });
-      rootState.setChildrenState(childrenStates);
-      branchesItemsGroup = new fabric.Group(branchesItems.filter(Boolean));
+      branchesItemsGroup = new fabric.Group(branchObjects);
     }
     return { branchesItemsGroup, rootState };
   }
@@ -198,11 +195,14 @@ export class DrawBranchService {
       curveLineStructure.rightSide.forEach((state: IStateGroup) => {
         const sideStateCoords = state.getCenterTopCoords();
         const rightCurve = new CurveTieLine(CurveTieLineDirection.topToRight, rootCoords, sideStateCoords);
-        const bottomRight = new CurveTieLine(CurveTieLineDirection.bottomToRight,
+        const bottomRight = new CurveTieLine(
+          CurveTieLineDirection.bottomToRight,
           {
             ...rootCoords,
             y: bottomDropArea.top || 0,
-          }, sideStateCoords)
+          },
+          sideStateCoords,
+        );
         this.canvas.add(rightCurve, bottomRight);
       });
     });
