@@ -19,8 +19,8 @@ export const DropAreaGroup = fabric.util.createClass(fabric.Group, {
 
   getCenterTopCoords(): PointCoords {
     return {
-     x: (this.left || 0) + this.width / 2,
-     y: this.top
+      x: (this.left || 0) + this.width / 2,
+      y: this.top,
     };
   },
 

@@ -174,11 +174,20 @@ export class DrawBranchService {
       const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
       curveLineStructure.middleItems.forEach((sideState: SideState) => {
         const bottomCoords = sideState.state.getCenterTopCoords();
+        const bottomDropArea = curveLineStructure?.rootState?.getDropArea();
+        const sideStateCoords = sideState.state.getCenterTopCoords();
+        const bottomOfBranch = this.getBottomOfBranch(curveLineStructure, sideState);
         const straightLine = new MiddleTieLine({
           topCoords: rootCoords,
           bottomCoords,
         });
-        this.canvas.add(straightLine);
+        const bottomOfBranchTieLine = new TieLine([
+          bottomOfBranch?.x,
+          bottomOfBranch?.y,
+          sideStateCoords.x,
+          (bottomDropArea.top || 0)
+        ]);
+        this.canvas.add(straightLine, bottomOfBranchTieLine);
       });
       curveLineStructure.leftSide.forEach((sideState: SideState) => {
         this.drawCurveTieLineForSide(curveLineStructure, sideState, CurveTieLineDirection.topToLeft);
@@ -194,7 +203,6 @@ export class DrawBranchService {
                                     direction: CurveTieLineDirection) {
     const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
     const bottomDropArea = curveLineStructure?.rootState?.getDropArea();
-    const branchItems = curveLineStructure.rootState.getBranchItems();
     const sideStateCoords = sideState.state.getCenterTopCoords();
     const rightCurve = new CurveTieLine(direction, rootCoords, sideStateCoords);
     const bottomRight = new CurveTieLine(
@@ -205,8 +213,7 @@ export class DrawBranchService {
       },
       sideStateCoords,
     );
-    const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
-    const bottomOfBranch = currentBranchItem?.getCenterBottomCoords();
+    const bottomOfBranch = this.getBottomOfBranch(curveLineStructure, sideState);
     const bottomOfBranchTieLine = new TieLine([
       bottomOfBranch?.x,
       bottomOfBranch?.y,
@@ -214,6 +221,13 @@ export class DrawBranchService {
       (bottomDropArea.top || 0) - curveRoundPartSize * 2
     ]);
     this.canvas.add(rightCurve, bottomRight, bottomOfBranchTieLine);
+  }
+
+  protected getBottomOfBranch(curveLineStructure: CurveTieLinesStructure,
+                              sideState: SideState) {
+    const branchItems = curveLineStructure.rootState.getBranchItems();
+    const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
+    return currentBranchItem?.getCenterBottomCoords();
   }
 
   protected getBottomCurveTieLineDirection(direction: CurveTieLineDirection) {

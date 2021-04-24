@@ -73,7 +73,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getCenterTopCoords(): PointCoords {
     return {
-      x: (this.left || 0) + this.width / 2,
+      x: Math.ceil((this.left || 0) + this.width / 2),
       y: this.top,
     };
   },

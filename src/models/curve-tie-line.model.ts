@@ -4,7 +4,7 @@ import { CurveTieLineCorner } from './curve-tie-line-corner.model';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { TieLine } from './tie-line.model';
 import { Group } from 'fabric/fabric-impl';
-import { curveRoundPartSize, tieLineSize } from '../configs/size.config';
+import { curveRoundPartSize, strokeWidth, tieLineSize } from '../configs/size.config';
 
 export const CurveTieLine = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.curveTieLine,
@@ -60,7 +60,7 @@ export const CurveTieLine = fabric.util.createClass(fabric.Group, {
     group.push(topCorner);
 
     const straightLine = new TieLine([
-      this.bottomCoords.x - curveRoundPartSize,
+      this.bottomCoords.x - curveRoundPartSize + strokeWidth,
       bottomCornerTop,
       bottomCornerLeft + curveRoundPartSize * 2,
       bottomCornerTop,
