@@ -1,7 +1,7 @@
 import { Canvas } from 'fabric/fabric-impl';
 import { IStateGroup } from '../../models/interfaces/state.interface';
 import { WorkflowData } from '../workflow-data.service';
-import { StateItemsBySide } from '../../interfaces/state-items-by-side.interface';
+import { SideState, StateItemsBySide } from '../../interfaces/state-items-by-side.interface';
 import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface';
 import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
 
@@ -32,21 +32,30 @@ export class TieLinesService {
     const isEvenBranches = branchesLength % 2 === 0;
     const middleBranchIndex = Math.ceil(branchesLength / 2);
     const childrenStates = canvasObject.getChildrenStates();
-    const leftSide: IStateGroup[] = [];
-    const rightSide: IStateGroup[] = [];
-    const middleItems: IStateGroup[] = [];
+    const leftSide: SideState[] = [];
+    const rightSide: SideState[] = [];
+    const middleItems: SideState[] = [];
     canvasObject.data.BranchesData?.forEach((branchData: WorkflowData, i: number) => {
       const indexNumber = i + 1;
       const state = this.getStateGroupById(childrenStates, branchData.getStartStateId());
       if (state) {
         if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
-          leftSide.push(state);
+          leftSide.push({
+            branchIndex: i,
+            state
+          });
         }
         if (!isEvenBranches && indexNumber === middleBranchIndex) {
-          middleItems.push(state);
+          middleItems.push({
+            branchIndex: i,
+            state
+          });
         }
         if (indexNumber > middleBranchIndex) {
-          rightSide.push(state);
+          rightSide.push({
+            branchIndex: i,
+            state
+          });
         }
       }
     });

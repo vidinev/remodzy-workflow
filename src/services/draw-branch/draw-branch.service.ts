@@ -16,6 +16,7 @@ import { ITiePointCircle } from '../../models/interfaces/tie-point.interface';
 import { TiePointCircle } from '../../models/tie-point.model';
 import { IDropAreaGroup } from '../../models/interfaces/drop-area.interface';
 import { DropAreaGroup } from '../../models/drop-area.model';
+import { SideState } from '../../interfaces/state-items-by-side.interface';
 
 export class DrawBranchService {
   protected position: PointCoords = { x: 0, y: 0 };
@@ -171,16 +172,16 @@ export class DrawBranchService {
     curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
       const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
       const bottomDropArea = curveLineStructure?.rootState?.getDropArea();
-      curveLineStructure.middleItems.forEach((state: IStateGroup) => {
-        const bottomCoords = state.getCenterTopCoords();
+      curveLineStructure.middleItems.forEach((sideState: SideState) => {
+        const bottomCoords = sideState.state.getCenterTopCoords();
         const straightLine = new MiddleTieLine({
           topCoords: rootCoords,
           bottomCoords,
         });
         this.canvas.add(straightLine);
       });
-      curveLineStructure.leftSide.forEach((state: IStateGroup) => {
-        const sideStateCoords = state.getCenterTopCoords();
+      curveLineStructure.leftSide.forEach((sideState: SideState) => {
+        const sideStateCoords = sideState.state.getCenterTopCoords();
         const leftCurve = new CurveTieLine(CurveTieLineDirection.topToLeft, rootCoords, sideStateCoords);
         const bottomLeft = new CurveTieLine(
           CurveTieLineDirection.bottomToLeft,
@@ -192,8 +193,8 @@ export class DrawBranchService {
         );
         this.canvas.add(leftCurve, bottomLeft);
       });
-      curveLineStructure.rightSide.forEach((state: IStateGroup) => {
-        const sideStateCoords = state.getCenterTopCoords();
+      curveLineStructure.rightSide.forEach((sideState: SideState) => {
+        const sideStateCoords = sideState.state.getCenterTopCoords();
         const rightCurve = new CurveTieLine(CurveTieLineDirection.topToRight, rootCoords, sideStateCoords);
         const bottomRight = new CurveTieLine(
           CurveTieLineDirection.bottomToRight,
