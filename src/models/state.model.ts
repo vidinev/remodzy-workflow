@@ -13,6 +13,7 @@ import { ITiePointCircle } from './interfaces/tie-point.interface';
 import { IStateGroup } from './interfaces/state.interface';
 import { StateTypesEnum } from '../configs/state-types.enum';
 import { BranchItems } from './branch-items.model';
+import { CoordsService } from '../services/coords.service';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
@@ -174,21 +175,8 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   },
 
   getCenterBottomCoordsUnderChildren(): PointCoords {
-    let lowerItem: IStateGroup = {} as IStateGroup;
-    this.getChildrenStates().forEach((state: IStateGroup) => {
-      if ((state.top || 0) > (lowerItem?.top || 0)) {
-        lowerItem = state;
-      }
-    });
-    const dropArea = lowerItem.getDropArea?.();
-    const centerBottomCoords = lowerItem.getCenterBottomCoords();
-    if (dropArea) {
-      return {
-        ...centerBottomCoords,
-        y: (dropArea.top || 0) + (dropArea.height || 0),
-      };
-    }
-    return centerBottomCoords;
+    const coordsService = new CoordsService();
+    return coordsService.getCenterBottomCoords(this.getChildrenStates());
   },
 
   _getConfig(type: string) {
