@@ -11,6 +11,9 @@ import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface
 import { TieLine } from '../../models/tie-line.model';
 import { DrawPositionService } from '../draw-position.service';
 import { TieLinesHorizontalService } from '../tie-lines/tie-lines-horizontal.service';
+import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
+import { SideState } from '../../interfaces/state-items-by-side.interface';
+import { BezierCurveTieLine } from 'src/models/bezier-curve-tie-line.model';
 
 export class DrawBranchHorizontalService extends DrawBranchService {
   constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
@@ -29,6 +32,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
   public drawBranch(): IStateGroup[] {
     this.drawStates();
     this.drawTiePoints();
+    this.drawCurveTieLines();
     this.drawTieLines();
     return this.states;
   }
@@ -42,6 +46,20 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     const stateGroup = this.getRootStateGroup(stateData, left, top, workflowData);
     this.canvas.add(stateGroup);
     return stateGroup;
+  }
+
+  protected drawCurveTieLines() {
+    const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(this.states);
+    curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
+      const startCoords = curveLineStructure.rootState?.getRightTiePoint?.().getCenterRightCoords?.() || { x: 0, y: 0 };
+      startCoords.x = startCoords.x + tieLineSize.margin;
+      const { leftSide = [], rightSide = [], middleItems = [] } = curveLineStructure;
+      [...leftSide, ...rightSide, ...middleItems].forEach((sideState: SideState) => {
+        const endCoords = sideState.state?.getCenterLeftCoords?.() || { x: null, y: null };
+        const tieLine = new BezierCurveTieLine(startCoords, endCoords);
+        this.canvas.add(tieLine);
+      });
+    });
   }
 
   protected drawBranches(branches: WorkflowData[], position: PointCoords): BranchItems[] {

@@ -5,5 +5,6 @@ export enum ObjectTypes {
   tieLine = 'tieLine',
   middleTieLine = 'middleTieLine',
   curveTieLine = 'curveTieLine',
-  curveTieLineCorner = 'curveTieLineCorner'
+  bezierCurveTieLine = 'bezierCurveTieLine',
+  curveTieLineCorner = 'curveTieLineCorner',
 }
