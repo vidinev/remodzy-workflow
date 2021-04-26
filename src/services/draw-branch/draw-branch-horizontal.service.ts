@@ -54,10 +54,23 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       const startCoords = curveLineStructure.rootState?.getRightTiePoint?.().getCenterRightCoords?.() || { x: 0, y: 0 };
       startCoords.x = startCoords.x + tieLineSize.margin;
       const { leftSide = [], rightSide = [], middleItems = [] } = curveLineStructure;
+      const rightmostCoords = curveLineStructure.rootState.getRightMostItemCoordsUnderChildren();
       [...leftSide, ...rightSide, ...middleItems].forEach((sideState: SideState) => {
         const endCoords = sideState.state?.getCenterLeftCoords?.() || { x: null, y: null };
         const tieLine = new BezierCurveTieLine(startCoords, endCoords);
         this.canvas.add(tieLine);
+        const branchItems = curveLineStructure.rootState.getBranchItems();
+        const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
+        const branchRightMost = currentBranchItem?.getCenterRightCoords();
+        if (branchRightMost?.x !== rightmostCoords.x) {
+          const bottomOfBranchTieLine = new TieLine([
+            branchRightMost?.x,
+            branchRightMost?.y,
+            rightmostCoords.x,
+            branchRightMost?.y,
+          ]);
+          this.canvas.add(bottomOfBranchTieLine);
+        }
       });
     });
   }

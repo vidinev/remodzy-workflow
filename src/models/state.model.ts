@@ -152,16 +152,9 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return states;
   },
 
-  getRightMostItemUnderChildren(): IStateGroup {
-    let rightmostItem: IStateGroup = {} as IStateGroup;
-    this.getChildrenStates().forEach((state: IStateGroup) => {
-      const currentRight = (rightmostItem.left || 0) + (rightmostItem.width || 0);
-      const right = state.left + state.width;
-      if (right > currentRight) {
-        rightmostItem = state;
-      }
-    });
-    return rightmostItem;
+  getRightMostItemCoordsUnderChildren(): PointCoords {
+    const coordsService = new CoordsService();
+    return coordsService.getCenterRightCoords(this.getChildrenStates());
   },
 
   getLeftMostItemUnderChildren(): IStateGroup {

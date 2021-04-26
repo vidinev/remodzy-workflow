@@ -17,4 +17,8 @@ export class BranchItems {
   getCenterBottomCoords(): PointCoords {
     return this.coordsService.getCenterBottomCoords(this.states);
   }
+
+  getCenterRightCoords(): PointCoords {
+    return this.coordsService.getCenterRightCoords(this.states);
+  }
 }
