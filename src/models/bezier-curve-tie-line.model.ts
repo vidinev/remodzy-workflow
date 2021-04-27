@@ -9,13 +9,15 @@ export const BezierCurveTieLine = fabric.util.createClass(fabric.Path, {
   endCoords: null,
   direction: null,
 
-  initialize: function(startCoords: PointCoords, endCoords: PointCoords) {
+  initialize: function(startCoords: PointCoords, endCoords: PointCoords, mirror: boolean) {
     this.startCoords = startCoords;
     this.endCoords = endCoords;
 
     if (startCoords.x && startCoords.y && endCoords.x && endCoords.y) {
-      const curveStartControlPoint = startCoords.x + Math.ceil(Math.abs(endCoords.x - startCoords.x) * 0.3);
-      const curveEndControlPoint = endCoords.x - Math.ceil(Math.abs(endCoords.x - startCoords.x) * 0.7);
+      const deltaLeft = Math.ceil(Math.abs(endCoords.x - startCoords.x) * 0.3);
+      const deltaRight = Math.ceil(Math.abs(endCoords.x - startCoords.x) * 0.7);
+      const curveStartControlPoint = mirror ? startCoords.x - deltaLeft : startCoords.x + deltaLeft;
+      const curveEndControlPoint = mirror ? endCoords.x + deltaRight : endCoords.x - deltaRight;
       const startPath = `M${startCoords.x},${startCoords.y}`;
       const cubicPath = `C${curveStartControlPoint},${startCoords.y},${curveEndControlPoint},${endCoords.y},${endCoords.x},${endCoords.y}`;
 

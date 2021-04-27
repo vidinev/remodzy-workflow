@@ -52,27 +52,77 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(this.states);
     curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
       const startCoords = curveLineStructure.rootState?.getRightTiePoint?.().getCenterRightCoords?.() || { x: 0, y: 0 };
+      const nextStateCoords = curveLineStructure.nextState?.getLeftTiePoint?.().getCenterLeftCoords?.();
       startCoords.x = startCoords.x + tieLineSize.margin;
       const { leftSide = [], rightSide = [], middleItems = [] } = curveLineStructure;
       const rightmostCoords = curveLineStructure.rootState.getRightMostItemCoordsUnderChildren();
-      [...leftSide, ...rightSide, ...middleItems].forEach((sideState: SideState) => {
-        const endCoords = sideState.state?.getCenterLeftCoords?.() || { x: null, y: null };
-        const tieLine = new BezierCurveTieLine(startCoords, endCoords);
-        this.canvas.add(tieLine);
-        const branchItems = curveLineStructure.rootState.getBranchItems();
-        const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
-        const branchRightMost = currentBranchItem?.getCenterRightCoords();
-        if (branchRightMost?.x !== rightmostCoords.x) {
-          const bottomOfBranchTieLine = new TieLine([
-            branchRightMost?.x,
-            branchRightMost?.y,
-            rightmostCoords.x,
-            branchRightMost?.y,
-          ]);
-          this.canvas.add(bottomOfBranchTieLine);
-        }
+
+      leftSide.forEach((sideState: SideState) => {
+        this.drawStartCurveTieLine(sideState, startCoords);
+        this.drawEndCurveTieLine(curveLineStructure, sideState, rightmostCoords, nextStateCoords);
+      });
+      rightSide.forEach((sideState: SideState) => {
+        this.drawStartCurveTieLine(sideState, startCoords);
+        this.drawEndCurveTieLine(curveLineStructure, sideState, rightmostCoords, nextStateCoords, 1);
+      });
+
+      middleItems.forEach((sideState: SideState) => {
+        this.drawStartCurveTieLine(sideState, startCoords);
+        this.drawStraightBranchItemLine(curveLineStructure, sideState, nextStateCoords);
       });
     });
+  }
+
+  protected drawEndCurveTieLine(
+    curveLineStructure: CurveTieLinesStructure,
+    sideState: SideState,
+    rightmostCoords: PointCoords,
+    nextStateCoords: PointCoords = rightmostCoords,
+    offsetY: number = 0,
+  ) {
+    const branchRightMost = this.drawStraightBranchItemLine(
+      curveLineStructure,
+      sideState,
+      rightmostCoords,
+    )?.getCenterRightCoords();
+    if (branchRightMost && nextStateCoords?.x && nextStateCoords?.y) {
+      const tieLine = new BezierCurveTieLine(
+        nextStateCoords,
+        {
+          x: rightmostCoords.x,
+          y: branchRightMost?.y,
+        },
+        true,
+      );
+      tieLine.set({ top: tieLine.top + offsetY });
+      this.canvas.add(tieLine);
+    }
+  }
+
+  protected drawStartCurveTieLine(sideState: SideState, startCoords: PointCoords) {
+    const endCoords = sideState.state?.getCenterLeftCoords?.() || { x: null, y: null };
+    const tieLine = new BezierCurveTieLine(startCoords, endCoords);
+    this.canvas.add(tieLine);
+  }
+
+  protected drawStraightBranchItemLine(
+    curveLineStructure: CurveTieLinesStructure,
+    sideState: SideState,
+    rightmostCoords?: PointCoords,
+  ): BranchItems | null {
+    const branchItems = curveLineStructure.rootState.getBranchItems();
+    const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
+    const branchRightMost = currentBranchItem?.getCenterRightCoords();
+    if (rightmostCoords && branchRightMost?.x !== rightmostCoords.x) {
+      const bottomOfBranchTieLine = new TieLine([
+        branchRightMost?.x,
+        branchRightMost?.y,
+        rightmostCoords?.x,
+        branchRightMost?.y,
+      ]);
+      this.canvas.add(bottomOfBranchTieLine);
+    }
+    return currentBranchItem;
   }
 
   protected drawBranches(branches: WorkflowData[], position: PointCoords): BranchItems[] {
@@ -93,8 +143,9 @@ export class DrawBranchHorizontalService extends DrawBranchService {
   }
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
+    const passStateMargin = (stateItemSize.width - passStateItemSize.width) / 2;
     const drawPositionRight = branchesItemsGroup
-      ? (branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0) + marginSize.horizontalMargin
+      ? (branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0) + passStateMargin
       : rootState.getCenterRightCoords().x + marginSize.horizontalMargin;
     this.drawPosition.setRight(drawPositionRight);
   }
@@ -108,7 +159,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
         const rightTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterLeftCoords());
         stateGroup.setLeftTiePoint(rightTiePoint);
       }
-      const isMainBranchEnd = stateGroup.data.stateId === this.workflowData.getEndStateId();
+      const isMainBranchEnd = stateGroup.isInMainBranch() && stateGroup.data.End;
       if (!isMainBranchEnd && stateGroup.data.Type) {
         const rightTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterRightCoords());
         stateGroup.setRightTiePoint(rightTiePoint);

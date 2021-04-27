@@ -19,6 +19,7 @@ export class TieLinesService {
         const tieStart = canvasObject.getBottomTiePoint();
         curveTieLinesStructure.push({
           rootState: canvasObject,
+          nextState: this.getStateGroupById(states, canvasObject.data.Next || '') || null,
           tieStart,
           ...this.getGroupedItemsBySide(canvasObject),
         });
@@ -42,19 +43,19 @@ export class TieLinesService {
         if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
           leftSide.push({
             branchIndex: i,
-            state
+            state,
           });
         }
         if (!isEvenBranches && indexNumber === middleBranchIndex) {
           middleItems.push({
             branchIndex: i,
-            state
+            state,
           });
         }
         if (indexNumber > middleBranchIndex) {
           rightSide.push({
             branchIndex: i,
-            state
+            state,
           });
         }
       }

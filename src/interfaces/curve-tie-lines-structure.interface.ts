@@ -5,4 +5,5 @@ import { IStateGroup } from '../models/interfaces/state.interface';
 export interface CurveTieLinesStructure extends StateItemsBySide {
   tieStart: ITiePointCircle;
   rootState: IStateGroup;
+  nextState: IStateGroup | null;
 }
