@@ -13,8 +13,9 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Add tie point to horizontal state in branch
- * Draw curve tie lines for horizontal
+ * Fix margin between root state and first children pass state items (should be 3, now more) - vertical
+ * Avoid using offsetY, draw curves to line object coords
+ * Add tie line margin for pass states in horizontal branch draw
  * Test with different cases
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
  * Fix  drag and drop, and sorting between levels
