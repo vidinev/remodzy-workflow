@@ -13,7 +13,6 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix margin between root state and first children pass state items (should be 3, now more) - vertical
  * Avoid using offsetY, draw curves to line object coords
  * Add tie line margin for pass states in horizontal branch draw
  * Test with different cases

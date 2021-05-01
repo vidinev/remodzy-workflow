@@ -1,7 +1,13 @@
 import { WorkflowData } from '../workflow-data.service';
 import { PointCoords } from '../../interfaces/point-coords.interface';
 import { IStateGroup } from '../../models/interfaces/state.interface';
-import { curveRoundPartSize, dropAreaSize, marginSize, strokeWidth, tiePointSize } from '../../configs/size.config';
+import {
+  curveRoundPartSize,
+  dropAreaSize,
+  marginSize,
+  strokeWidth,
+  tiePointSize,
+} from '../../configs/size.config';
 import { Canvas, Group, Object as CanvasObject } from 'fabric/fabric-impl';
 import { DrawPositionService } from '../draw-position.service';
 import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
@@ -185,7 +191,7 @@ export class DrawBranchService {
           bottomOfBranch?.x,
           bottomOfBranch?.y,
           sideStateCoords.x,
-          (bottomDropArea.top || 0)
+          (bottomDropArea.top || 0) - strokeWidth
         ]);
         this.canvas.add(straightLine, bottomOfBranchTieLine);
       });

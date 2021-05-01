@@ -41,7 +41,7 @@ export const curveRoundPartSize = 14;
 const margins = {
   verticalMargin: 76,
   horizontalMargin: 40,
-  stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2 + strokeWidth * 2,
+  stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2,
 };
 
 const marginForCustomDropArea = dropAreaSize.height + strokeWidth * 2 + margins.verticalMargin / 2;
