@@ -14,7 +14,6 @@ import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
  * Avoid using offsetY, draw curves to line object coords
- * Add tie line margin for pass states in horizontal branch draw
  * Test with different cases
  * Add some branch inside branch, improve calculating to support all levels of inheritance.
  * Fix  drag and drop, and sorting between levels

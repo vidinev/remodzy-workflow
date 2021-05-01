@@ -115,7 +115,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     const branchRightMost = currentBranchItem?.getCenterRightCoords();
     if (rightmostCoords && branchRightMost?.x !== rightmostCoords.x) {
       const bottomOfBranchTieLine = new TieLine([
-        branchRightMost?.x,
+        (branchRightMost?.x || 0) + tieLineSize.margin,
         branchRightMost?.y,
         rightmostCoords?.x,
         branchRightMost?.y,
