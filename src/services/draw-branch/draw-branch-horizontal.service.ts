@@ -2,7 +2,7 @@ import { DrawBranchService } from './draw-branch.service';
 import { WorkflowData } from '../workflow-data.service';
 import { Canvas, Group } from 'fabric/fabric-impl';
 import { PointCoords } from '../../interfaces/point-coords.interface';
-import { marginSize, passStateItemSize, stateItemSize, tieLineSize } from '../../configs/size.config';
+import { marginSize, passStateItemSize, stateItemSize, strokeWidth, tieLineSize } from '../../configs/size.config';
 import { IStateGroup } from '../../models/interfaces/state.interface';
 import { WorkflowState } from '../../interfaces/state-language.interface';
 import { StateTypesEnum } from '../../configs/state-types.enum';
@@ -63,7 +63,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       });
       rightSide.forEach((sideState: SideState) => {
         this.drawStartCurveTieLine(sideState, startCoords);
-        this.drawEndCurveTieLine(curveLineStructure, sideState, rightmostCoords, nextStateCoords, 1);
+        this.drawEndCurveTieLine(curveLineStructure, sideState, rightmostCoords, nextStateCoords, strokeWidth / 2);
       });
 
       middleItems.forEach((sideState: SideState) => {
