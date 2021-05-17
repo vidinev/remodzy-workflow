@@ -76,7 +76,6 @@ export const workflowTestData: WorkflowStateData = {
                     },
                   },
                 },
-                // TODO check all variants
                 // {
                 //   StartAt: 'RejectTen',
                 //   States: {

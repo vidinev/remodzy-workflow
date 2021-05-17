@@ -14,8 +14,7 @@ import { IStateGroup } from './interfaces/state.interface';
 import { StateTypesEnum } from '../configs/state-types.enum';
 import { BranchItems } from './branch-items.model';
 import { CoordsService } from '../services/coords.service';
-
-const passStateOffset = (stateRectConfig.width! - passStateRectConfig.width!) / 2;
+import { passStateOffset } from '../configs/size.config';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
@@ -61,12 +60,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   },
 
   getLeft(): number {
-    switch (this.data.Type) {
-      case StateTypesEnum.Pass:
-        return this.originLeft + passStateOffset || this.left || 0;
-      default:
-        return this.originLeft || this.left || 0;
-    }
+    return this.originLeft || this.left || 0;
   },
 
   getCenterBottomCoords(): PointCoords {
