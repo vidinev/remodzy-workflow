@@ -8,7 +8,7 @@ export const workflowTestData: WorkflowStateData = {
       Next: 'SendEmail10',
       Parameters: {
         taskType: 'calendar',
-        taskIcon: 'calendar-icon'
+        taskIcon: 'calendar-icon',
       },
       Comment: 'Calendar',
     },
@@ -17,7 +17,7 @@ export const workflowTestData: WorkflowStateData = {
       Next: 'BranchByCondition',
       Parameters: {
         taskType: 'sendEmail',
-        taskIcon: 'email-icon'
+        taskIcon: 'email-icon',
       },
       Comment: 'Send some Email',
     },
@@ -27,7 +27,7 @@ export const workflowTestData: WorkflowStateData = {
       Next: 'SendEmail11',
       Parameters: {
         taskType: 'byCondition',
-        taskIcon: 'by-condition-icon'
+        taskIcon: 'by-condition-icon',
       },
       Branches: [
         {
@@ -35,22 +35,64 @@ export const workflowTestData: WorkflowStateData = {
           States: {
             Reject: {
               Type: 'Pass',
-              Next: 'RejectChildState',
+              Next: 'RejectTypes',
               Comment: 'Reject',
               Parameters: {
-                taskType: 'pass'
+                taskType: 'pass',
               },
             },
-            RejectChildState: {
-              Type: 'Task',
+            RejectTypes: {
+              Type: 'Parallel',
               End: true,
               Parameters: {
                 taskType: 'sendEmail',
-                taskIcon: 'email-icon'
+                taskIcon: 'email-icon',
               },
-              Comment: 'Reject child state',
+              Comment: 'Reject types',
+              Branches: [
+                {
+                  StartAt: 'RejectOne',
+                  States: {
+                    RejectOne: {
+                      Type: 'Pass',
+                      End: true,
+                      Comment: 'Reject One',
+                      Parameters: {
+                        taskType: 'pass',
+                      },
+                    },
+                  },
+                },
+                {
+                  StartAt: 'RejectTwo',
+                  States: {
+                    RejectTwo: {
+                      Type: 'Pass',
+                      End: true,
+                      Comment: 'Reject Two',
+                      Parameters: {
+                        taskType: 'pass',
+                      },
+                    },
+                  },
+                },
+                // TODO check all variants
+                // {
+                //   StartAt: 'RejectTen',
+                //   States: {
+                //     RejectTen: {
+                //       Type: 'Pass',
+                //       End: true,
+                //       Comment: 'Reject Ren',
+                //       Parameters: {
+                //         taskType: 'pass'
+                //       },
+                //     }
+                //   }
+                // }
+              ],
             },
-          }
+          },
         },
         {
           StartAt: 'Approve',
@@ -60,10 +102,10 @@ export const workflowTestData: WorkflowStateData = {
               End: true,
               Comment: 'Approve',
               Parameters: {
-                taskType: 'pass'
+                taskType: 'pass',
               },
-            }
-          }
+            },
+          },
         },
         {
           StartAt: 'Test',
@@ -73,19 +115,19 @@ export const workflowTestData: WorkflowStateData = {
               End: true,
               Comment: 'Test',
               Parameters: {
-                taskType: 'pass'
+                taskType: 'pass',
               },
-            }
-          }
-        }
-      ]
+            },
+          },
+        },
+      ],
     },
     SendEmail11: {
       Type: 'Task',
       Next: 'Complete',
       Parameters: {
         taskType: 'sendDirectMessage',
-        taskIcon: 'slack-icon'
+        taskIcon: 'slack-icon',
       },
       Comment: 'Send direct Message',
     },
@@ -98,5 +140,5 @@ export const workflowTestData: WorkflowStateData = {
       },
       Comment: 'Assign a Task to HR team',
     },
-  }
+  },
 };

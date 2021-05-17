@@ -1,13 +1,7 @@
 import { WorkflowData } from '../workflow-data.service';
 import { PointCoords } from '../../interfaces/point-coords.interface';
 import { IStateGroup } from '../../models/interfaces/state.interface';
-import {
-  curveRoundPartSize,
-  dropAreaSize,
-  marginSize,
-  strokeWidth,
-  tiePointSize,
-} from '../../configs/size.config';
+import { curveRoundPartSize, dropAreaSize, marginSize, strokeWidth, tiePointSize } from '../../configs/size.config';
 import { Canvas, Group, Object as CanvasObject } from 'fabric/fabric-impl';
 import { DrawPositionService } from '../draw-position.service';
 import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
@@ -167,10 +161,7 @@ export class DrawBranchService {
       },
     });
     this.canvas.add(dropAreaGroup);
-    dropAreaGroup.set({
-      left: Math.round(dropAreaGroup.left - dropAreaGroup.width / 2),
-      top: Math.ceil(dropAreaGroup.top - dropAreaGroup.height / 2),
-    });
+    dropAreaGroup.moveToCenter();
     return dropAreaGroup;
   }
 
@@ -191,7 +182,7 @@ export class DrawBranchService {
           bottomOfBranch?.x,
           bottomOfBranch?.y,
           sideStateCoords.x,
-          (bottomDropArea.top || 0) - strokeWidth
+          (bottomDropArea.top || 0) - strokeWidth,
         ]);
         this.canvas.add(straightLine, bottomOfBranchTieLine);
       });
@@ -204,9 +195,11 @@ export class DrawBranchService {
     });
   }
 
-  protected drawCurveTieLineForSide(curveLineStructure: CurveTieLinesStructure,
-                                    sideState: SideState,
-                                    direction: CurveTieLineDirection) {
+  protected drawCurveTieLineForSide(
+    curveLineStructure: CurveTieLinesStructure,
+    sideState: SideState,
+    direction: CurveTieLineDirection,
+  ) {
     const rootCoords = curveLineStructure.tieStart.getCenterBottomCoords();
     const bottomDropArea = curveLineStructure?.rootState?.getDropArea();
     const sideStateCoords = sideState.state.getCenterTopCoords();
@@ -224,13 +217,12 @@ export class DrawBranchService {
       bottomOfBranch?.x,
       bottomOfBranch?.y,
       sideStateCoords.x,
-      (bottomDropArea.top || 0) - curveRoundPartSize * 2
+      (bottomDropArea.top || 0) - curveRoundPartSize * 2,
     ]);
     this.canvas.add(rightCurve, bottomRight, bottomOfBranchTieLine);
   }
 
-  protected getBottomOfBranch(curveLineStructure: CurveTieLinesStructure,
-                              sideState: SideState) {
+  protected getBottomOfBranch(curveLineStructure: CurveTieLinesStructure, sideState: SideState) {
     const branchItems = curveLineStructure.rootState.getBranchItems();
     const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
     return currentBranchItem?.getCenterBottomCoords();

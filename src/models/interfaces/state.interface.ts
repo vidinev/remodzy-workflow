@@ -8,9 +8,13 @@ import { BranchItems } from '../branch-items.model';
 export interface IStateGroup extends Group {
   data: WorkflowState & { stateId: string; parentStateId: string | null; Start: boolean };
   top: number;
+  originTop: number;
+  originLeft: number;
   left: number;
   height: number;
   width: number;
+  getTop: () => number;
+  getLeft: () => number;
   isBranchRoot: () => boolean;
   isMainRoot: () => boolean;
   isInMainBranch: () => boolean;

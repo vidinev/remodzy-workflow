@@ -13,18 +13,20 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Test with different cases
- * Add some branch inside branch, improve calculating to support all levels of inheritance.
+ * Fix horizontal draw for > 2 levels of inheritance, states should end on point in center
+ * Fix margins for > 2 levels of inheritance vertical
+ * Fix margins for > 2 levels horizontal
+ * Test different cases for > 2 levels
+ * Auto scale canvas
  * Fix  drag and drop, and sorting between levels
  *
  * Fix 2 drop area highlight at the same time
- * Fix drag and drop for 2 level
 
- * Test lib basic functionality
  * Merge all js files into one
+ * Test lib basic functionality
  *
- * Set simple state instead pass state in branches ?
- * Set simple state in root branch ?
+ * Discuss using Pass state in workflow
+ * Support using simple state (Non Pass type) for root of the branch ?
  */
 
 export class RemodzyWorkflowBuilder {
