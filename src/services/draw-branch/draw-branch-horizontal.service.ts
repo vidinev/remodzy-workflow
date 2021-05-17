@@ -15,6 +15,8 @@ import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structu
 import { SideState } from '../../interfaces/state-items-by-side.interface';
 import { BezierCurveTieLine } from 'src/models/bezier-curve-tie-line.model';
 
+const passStateMargin = (stateItemSize.width - passStateItemSize.width) / 2;
+
 export class DrawBranchHorizontalService extends DrawBranchService {
   constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
     super(workflowData, canvas, startPosition);
@@ -52,10 +54,17 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     const curveTieLinesStructure = this.tieLines.getCurveTieLinesStructure(this.states);
     curveTieLinesStructure.forEach((curveLineStructure: CurveTieLinesStructure) => {
       const startCoords = curveLineStructure.rootState?.getRightTiePoint?.().getCenterRightCoords?.() || { x: 0, y: 0 };
-      const nextStateCoords = curveLineStructure.nextState?.getLeftTiePoint?.().getCenterLeftCoords?.();
+      let nextStateCoords = curveLineStructure.nextState?.getLeftTiePoint?.().getCenterLeftCoords?.();
       startCoords.x = startCoords.x + tieLineSize.margin;
       const { leftSide = [], rightSide = [], middleItems = [] } = curveLineStructure;
       const rightmostCoords = curveLineStructure.rootState.getRightMostItemCoordsUnderChildren();
+
+      if (!curveLineStructure.nextState) {
+        nextStateCoords = {
+          x: rightmostCoords.x + passStateMargin,
+          y: startCoords.y,
+        };
+      }
 
       leftSide.forEach((sideState: SideState) => {
         this.drawStartCurveTieLine(sideState, startCoords);
@@ -143,7 +152,6 @@ export class DrawBranchHorizontalService extends DrawBranchService {
   }
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
-    const passStateMargin = (stateItemSize.width - passStateItemSize.width) / 2;
     const drawPositionRight = branchesItemsGroup
       ? (branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0) + passStateMargin
       : rootState.getCenterRightCoords().x + marginSize.horizontalMargin;
