@@ -1,6 +1,6 @@
 import { DrawBranchService } from './draw-branch.service';
 import { WorkflowData } from '../workflow-data.service';
-import { Canvas, Group } from 'fabric/fabric-impl';
+import { Canvas, Group, Object as CanvasObject } from 'fabric/fabric-impl';
 import { PointCoords } from '../../interfaces/point-coords.interface';
 import { dropAreaSize, marginSize, stateItemSize, tieLineSize } from '../../configs/size.config';
 import { IStateGroup } from '../../models/interfaces/state.interface';
@@ -57,6 +57,24 @@ export class DrawBranchVerticalService extends DrawBranchService {
       branchSubItems.push(new BranchItems(states, dropAreas, []));
     }
     return branchSubItems;
+  }
+
+  protected getWidthForBranch(states: IStateGroup[]) {
+    let widthOfBranch = stateItemSize.width;
+    states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot()) {
+        let allItems: CanvasObject[] = [];
+        state.getBranchItems().forEach((branchItem: BranchItems) => {
+          allItems = [...allItems, ...branchItem.getAllItems()];
+        });
+        const newGroup = new fabric.Group(allItems);
+        if ((newGroup.width || 0) > widthOfBranch) {
+          widthOfBranch = newGroup.width || 0;
+        }
+        newGroup.destroy();
+      }
+    });
+    return widthOfBranch;
   }
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
