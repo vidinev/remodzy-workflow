@@ -13,7 +13,6 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix horizontal draw for 3 items > 2 levels
  * Fix margins for > 2 levels of inheritance vertical
  * Fix margins for > 2 levels horizontal
  * Test different cases for > 2 levels
