@@ -150,10 +150,16 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
     const branchRightMost = currentBranchItem?.getCenterRightCoords();
     if (rightmostCoords && branchRightMost?.x !== rightmostCoords.x) {
+      let rightmostX = rightmostCoords?.x;
+      if (!curveLineStructure.nextState) {
+        const { left = 0 } = curveLineStructure.rootState.getConnectPoint();
+        rightmostX = left;
+      }
+
       const bottomOfBranchTieLine = new TieLine([
         (branchRightMost?.x || 0) + tieLineSize.margin + passStateOffset,
         branchRightMost?.y,
-        rightmostCoords?.x,
+        rightmostX,
         branchRightMost?.y,
       ]);
       this.canvas.add(bottomOfBranchTieLine);
