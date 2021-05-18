@@ -31,6 +31,13 @@ export class CoordsService {
     });
     const centerRightCoords = rightmostItem.getCenterRightCoords();
     const tiePoint = rightmostItem.getRightTiePoint();
+    const connectPoint = rightmostItem.getConnectPoint();
+    if (connectPoint) {
+      return {
+        x: connectPoint.left || 0,
+        y: connectPoint.top || 0,
+      };
+    }
     if (tiePoint) {
       return tiePoint.getCenterRightCoords();
     }

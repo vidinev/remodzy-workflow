@@ -54,7 +54,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
       });
       const states = drawBranchService.drawBranch();
       const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
-      branchSubItems.push(new BranchItems(states, dropAreas));
+      branchSubItems.push(new BranchItems(states, dropAreas, []));
     }
     return branchSubItems;
   }

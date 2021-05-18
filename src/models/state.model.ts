@@ -15,11 +15,13 @@ import { StateTypesEnum } from '../configs/state-types.enum';
 import { BranchItems } from './branch-items.model';
 import { CoordsService } from '../services/coords.service';
 import { passStateOffset } from '../configs/size.config';
+import { IConnectPoint } from './interfaces/connect-point.interface';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
   _childrenBranches: [],
   _dropArea: null,
+  _connectPoint: null,
   _topTiePoint: null,
   _bottomTiePoint: null,
   _rightTiePoint: null,
@@ -130,6 +132,14 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   setDropArea(dropArea: IDropAreaGroup) {
     this._dropArea = dropArea;
+  },
+
+  getConnectPoint(): IConnectPoint {
+    return this._connectPoint;
+  },
+
+  setConnectPoint(connectPoint: IConnectPoint) {
+    this._connectPoint = connectPoint;
   },
 
   setTopTiePoint(tiePoint: ITiePointCircle) {

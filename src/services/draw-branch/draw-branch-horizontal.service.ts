@@ -21,6 +21,7 @@ import { TieLinesHorizontalService } from '../tie-lines/tie-lines-horizontal.ser
 import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structure.interface';
 import { SideState } from '../../interfaces/state-items-by-side.interface';
 import { BezierCurveTieLine } from 'src/models/bezier-curve-tie-line.model';
+import { ConnectPoint } from 'src/models/connect-point.model';
 
 export class DrawBranchHorizontalService extends DrawBranchService {
   constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
@@ -39,6 +40,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
   public drawBranch(): IStateGroup[] {
     this.drawStates();
     this.drawTiePoints();
+    this.drawCurveConnectPoints();
     this.drawCurveTieLines();
     this.drawTieLines();
     return this.states;
@@ -53,6 +55,20 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     const stateGroup = this.getRootStateGroup(stateData, left, top, workflowData);
     this.canvas.add(stateGroup);
     return stateGroup;
+  }
+
+  protected drawCurveConnectPoints() {
+    this.states.forEach((stateGroup: IStateGroup) => {
+      if (stateGroup.isBranchRoot()) {
+        const { x: rightmostLeft } = stateGroup.getRightMostItemCoordsUnderChildren();
+        const { y: rightmostTop } = stateGroup.getCenterRightCoords();
+        const nextState = this.getStateGroupById(this.states, stateGroup.data.Next || '');
+        const left = rightmostLeft + (nextState ? passStateOffset : passStateOffset * 2);
+        const connectPoint = new ConnectPoint(left, rightmostTop);
+        stateGroup.setConnectPoint(connectPoint);
+        this.canvas.add(connectPoint);
+      }
+    });
   }
 
   protected drawCurveTieLines() {
@@ -101,9 +117,12 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     )?.getCenterRightCoords();
     if (branchRightMost && nextStateCoords?.x && nextStateCoords?.y) {
       const tieLine = new BezierCurveTieLine(
-        nextStateCoords,
         {
-          x: rightmostCoords.x,
+          x: nextStateCoords.x + (curveLineStructure.nextState ? 0 : passStateOffset),
+          y: nextStateCoords.y,
+        },
+        {
+          x: rightmostCoords.x + (curveLineStructure.nextState ? 0 : passStateOffset),
           y: branchRightMost?.y,
         },
         true,
@@ -154,7 +173,8 @@ export class DrawBranchHorizontalService extends DrawBranchService {
         x: position.x + stateItemSize.width,
       });
       const states = drawBranchService.drawBranch();
-      branchSubItems.push(new BranchItems(states, []));
+      const connectPoints = states.map((state: IStateGroup) => state.getConnectPoint()).filter(Boolean);
+      branchSubItems.push(new BranchItems(states, [], connectPoints));
     }
     return branchSubItems;
   }
@@ -204,5 +224,9 @@ export class DrawBranchHorizontalService extends DrawBranchService {
         );
       }
     });
+  }
+
+  protected getStateGroupById(states: IStateGroup[], stateId: string) {
+    return states.find((state: IStateGroup) => state.data.stateId === stateId);
   }
 }
