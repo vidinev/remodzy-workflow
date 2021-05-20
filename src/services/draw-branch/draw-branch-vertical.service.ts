@@ -48,6 +48,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
     let leftOffset = 0;
     const middleBranchIndex = Math.ceil(branchesConfiguration.length / 2);
     const isEvenBranches = branchesConfiguration.length % 2 === 0;
+    // TODO break on 2 methods
     branchesConfiguration.forEach((branchConfiguration, i: number) => {
       const indexNumber = i + 1;
       if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
@@ -75,6 +76,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return branchSubItems;
   }
 
+  // TODO rename 2
   protected calculateBranchWidth(branch: WorkflowData) {
     const virtualCanvas = new fabric.Canvas(null);
     const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, {
@@ -87,6 +89,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return width;
   }
 
+  // TODO rename 1
   protected getWidthForBranch(states: IStateGroup[]) {
     let widthOfBranch = stateItemSize.width;
     states.forEach((state: IStateGroup) => {
