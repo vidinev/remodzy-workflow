@@ -22,6 +22,7 @@ import { CurveTieLinesStructure } from '../../interfaces/curve-tie-lines-structu
 import { SideState } from '../../interfaces/state-items-by-side.interface';
 import { BezierCurveTieLine } from 'src/models/bezier-curve-tie-line.model';
 import { ConnectPoint } from 'src/models/connect-point.model';
+import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
 
 export class DrawBranchHorizontalService extends DrawBranchService {
   constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
@@ -167,13 +168,13 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     return currentBranchItem;
   }
 
-  protected drawBranches(branches: WorkflowData[], position: PointCoords): BranchItems[] {
+  protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
     let branchSubItems: BranchItems[] = [];
     const heightForBranches =
-      branches.length * (stateItemSize.height + marginSize.verticalMargin) - marginSize.verticalMargin;
+      branchesConfiguration.length * (stateItemSize.height + marginSize.verticalMargin) - marginSize.verticalMargin;
     const startY = position.y - Math.ceil(heightForBranches / 2) + Math.ceil(stateItemSize.height / 2);
-    for (let i = 0; i < branches.length; i++) {
-      const branchWorkflowData = branches[i];
+    for (let i = 0; i < branchesConfiguration.length; i++) {
+      const branchWorkflowData = branchesConfiguration[i].data;
       const drawBranchService = new DrawBranchHorizontalService(branchWorkflowData, this.canvas, {
         y: startY + (stateItemSize.height + marginSize.verticalMargin) * i,
         x: position.x + stateItemSize.width,

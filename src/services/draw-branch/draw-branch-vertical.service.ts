@@ -11,6 +11,7 @@ import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface
 import { TieLine } from '../../models/tie-line.model';
 import { DrawPositionService } from '../draw-position.service';
 import { TieLinesVerticalService } from '../tie-lines/tie-lines-vertical.service';
+import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
 
 export class DrawBranchVerticalService extends DrawBranchService {
   constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
@@ -41,22 +42,49 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return stateGroup;
   }
 
-  protected drawBranches(branches: WorkflowData[], position: PointCoords): BranchItems[] {
+  protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
     let branchSubItems: BranchItems[] = [];
-    const widthForBranches =
-      branches.length * (stateItemSize.width + marginSize.horizontalMargin) - marginSize.horizontalMargin;
-    const startX = position.x - widthForBranches / 2 + stateItemSize.width / 2;
-    for (let i = 0; i < branches.length; i++) {
-      const branchWorkflowData = branches[i];
+    let widthForBranches = 0;
+    let leftOffset = 0;
+    const middleBranchIndex = Math.ceil(branchesConfiguration.length / 2);
+    const isEvenBranches = branchesConfiguration.length % 2 === 0;
+    branchesConfiguration.forEach((branchConfiguration, i: number) => {
+      const indexNumber = i + 1;
+      if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
+        leftOffset += branchConfiguration.width;
+      }
+      if (!isEvenBranches && indexNumber === middleBranchIndex) {
+        leftOffset += branchConfiguration.width / 2;
+      }
+      return (widthForBranches += branchConfiguration.width);
+    });
+    let positionX = isEvenBranches ? position.x - widthForBranches / 2 : position.x - leftOffset;
+    positionX += stateItemSize.width / 2;
+
+    for (let i = 0; i < branchesConfiguration.length; i++) {
+      const branchWorkflowData = branchesConfiguration[i].data;
       const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
-        x: startX + (stateItemSize.width + marginSize.horizontalMargin) * i,
+        x: positionX,
       });
+      positionX += branchesConfiguration[i].width;
       const states = drawBranchService.drawBranch();
       const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
       branchSubItems.push(new BranchItems(states, dropAreas, []));
     }
     return branchSubItems;
+  }
+
+  protected calculateBranchWidth(branch: WorkflowData) {
+    const virtualCanvas = new fabric.Canvas(null);
+    const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, {
+      y: 0,
+      x: 0,
+    });
+    const states = drawBranchService.drawBranch();
+    const width = this.getWidthForBranch(states);
+    virtualCanvas.dispose();
+    return width;
   }
 
   protected getWidthForBranch(states: IStateGroup[]) {
