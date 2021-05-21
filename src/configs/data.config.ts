@@ -63,32 +63,32 @@ export const workflowTestData: WorkflowStateData = {
                     },
                   },
                 },
-                // {
-                //   StartAt: 'RejectTwo',
-                //   States: {
-                //     RejectTwo: {
-                //       Type: 'Pass',
-                //       End: true,
-                //       Comment: 'Reject Two',
-                //       Parameters: {
-                //         taskType: 'pass',
-                //       },
-                //     },
-                //   },
-                // },
-                // {
-                //   StartAt: 'RejectThree',
-                //   States: {
-                //     RejectThree: {
-                //       Type: 'Pass',
-                //       End: true,
-                //       Comment: 'Reject three',
-                //       Parameters: {
-                //         taskType: 'pass'
-                //       },
-                //     }
-                //   }
-                // },
+                {
+                  StartAt: 'RejectTwo',
+                  States: {
+                    RejectTwo: {
+                      Type: 'Pass',
+                      End: true,
+                      Comment: 'Reject Two',
+                      Parameters: {
+                        taskType: 'pass',
+                      },
+                    },
+                  },
+                },
+                {
+                  StartAt: 'RejectThree',
+                  States: {
+                    RejectThree: {
+                      Type: 'Pass',
+                      End: true,
+                      Comment: 'Reject three',
+                      Parameters: {
+                        taskType: 'pass',
+                      },
+                    },
+                  },
+                },
                 {
                   StartAt: 'RejectFour',
                   States: {
@@ -102,6 +102,19 @@ export const workflowTestData: WorkflowStateData = {
                     },
                   },
                 },
+                // {
+                //   StartAt: 'RejectFive',
+                //   States: {
+                //     RejectFive: {
+                //       Type: 'Pass',
+                //       End: true,
+                //       Comment: 'Reject five',
+                //       Parameters: {
+                //         taskType: 'pass'
+                //       },
+                //     }
+                //   }
+                // },
               ],
             },
           },

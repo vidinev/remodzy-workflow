@@ -44,23 +44,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
     let branchSubItems: BranchItems[] = [];
-    let widthForBranches = 0;
-    let leftOffset = 0;
-    const middleBranchIndex = Math.ceil(branchesConfiguration.length / 2);
-    const isEvenBranches = branchesConfiguration.length % 2 === 0;
-    // TODO break on 2 methods
-    branchesConfiguration.forEach((branchConfiguration, i: number) => {
-      const indexNumber = i + 1;
-      if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
-        leftOffset += branchConfiguration.width;
-      }
-      if (!isEvenBranches && indexNumber === middleBranchIndex) {
-        leftOffset += branchConfiguration.width / 2;
-      }
-      return (widthForBranches += branchConfiguration.width);
-    });
-    let positionX = isEvenBranches ? position.x - widthForBranches / 2 : position.x - leftOffset;
-    positionX += stateItemSize.width / 2;
+    let positionX = this.getBranchDrawStartPosition(branchesConfiguration, position);
 
     for (let i = 0; i < branchesConfiguration.length; i++) {
       const branchWorkflowData = branchesConfiguration[i].data;
@@ -76,7 +60,27 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return branchSubItems;
   }
 
-  // TODO rename 2
+  protected getBranchDrawStartPosition(branchesConfiguration: BranchConfiguration[], position: PointCoords) {
+    const isEvenBranches = branchesConfiguration.length % 2 === 0;
+    const middleBranchIndex = Math.ceil(branchesConfiguration.length / 2);
+
+    let widthForBranches = 0;
+    let leftOffset = 0;
+    branchesConfiguration.forEach((branchConfiguration, i: number) => {
+      const indexNumber = i + 1;
+      if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
+        leftOffset += branchConfiguration.width;
+      }
+      if (!isEvenBranches && indexNumber === middleBranchIndex) {
+        leftOffset += branchConfiguration.width / 2;
+      }
+      return (widthForBranches += branchConfiguration.width);
+    });
+    let startPosition = isEvenBranches ? position.x - widthForBranches / 2 : position.x - leftOffset;
+    startPosition += stateItemSize.width / 2;
+    return startPosition;
+  }
+
   protected calculateBranchWidth(branch: WorkflowData) {
     const virtualCanvas = new fabric.Canvas(null);
     const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, {
@@ -84,13 +88,12 @@ export class DrawBranchVerticalService extends DrawBranchService {
       x: 0,
     });
     const states = drawBranchService.drawBranch();
-    const width = this.getWidthForBranch(states);
+    const width = this.getStatesWidth(states);
     virtualCanvas.dispose();
     return width;
   }
 
-  // TODO rename 1
-  protected getWidthForBranch(states: IStateGroup[]) {
+  protected getStatesWidth(states: IStateGroup[]) {
     let widthOfBranch = stateItemSize.width;
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {

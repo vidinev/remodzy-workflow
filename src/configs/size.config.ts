@@ -2,7 +2,7 @@ import { MathService } from '../services/math.service';
 import { MarginSize } from '../interfaces/margin-size.interface';
 
 export const canvasSize = {
-  width: 2400,
+  width: 4000,
   height: 1200,
 };
 
