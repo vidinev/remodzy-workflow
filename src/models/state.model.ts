@@ -14,11 +14,14 @@ import { IStateGroup } from './interfaces/state.interface';
 import { StateTypesEnum } from '../configs/state-types.enum';
 import { BranchItems } from './branch-items.model';
 import { CoordsService } from '../services/coords.service';
+import { passStateOffset } from '../configs/size.config';
+import { IConnectPoint } from './interfaces/connect-point.interface';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
   _childrenBranches: [],
   _dropArea: null,
+  _connectPoint: null,
   _topTiePoint: null,
   _bottomTiePoint: null,
   _rightTiePoint: null,
@@ -48,34 +51,62 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         stateId: (stateData.Parameters && stateData.Parameters.stateId) || '',
       },
     });
+    this.set({
+      originLeft: options.left,
+      originTop: options.top,
+    });
+  },
+
+  getTop(): number {
+    return this.originTop || this.top || 0;
+  },
+
+  getLeft(): number {
+    return this.originLeft || this.left || 0;
   },
 
   getCenterBottomCoords(): PointCoords {
-    return {
-      x: Math.ceil((this.left || 0) + this.width / 2),
-      y: this.top + this.height - 1,
-    };
+    switch (this.data.Type) {
+      case StateTypesEnum.Pass:
+        return {
+          x: Math.ceil(this.getLeft() + passStateOffset + this.width / 2),
+          y: this.getTop() + this.height - 1,
+        };
+      default:
+        return {
+          x: Math.ceil(this.getLeft() + this.width / 2),
+          y: this.getTop() + this.height - 1,
+        };
+    }
   },
 
   getCenterRightCoords(): PointCoords {
     return {
-      x: (this.left || 0) + this.width,
-      y: Math.ceil((this.top || 0) + this.height / 2),
+      x: this.getLeft() + this.width,
+      y: Math.ceil(this.getTop() + this.height / 2),
     };
   },
 
   getCenterLeftCoords(): PointCoords {
     return {
-      x: this.left || 0,
-      y: Math.ceil((this.top || 0) + this.height / 2),
+      x: this.getLeft(),
+      y: Math.ceil(this.getTop() + this.height / 2),
     };
   },
 
   getCenterTopCoords(): PointCoords {
-    return {
-      x: Math.ceil((this.left || 0) + this.width / 2),
-      y: this.top,
-    };
+    switch (this.data.Type) {
+      case StateTypesEnum.Pass:
+        return {
+          x: Math.ceil(this.getLeft() + passStateOffset + this.width / 2),
+          y: this.getTop(),
+        };
+      default:
+        return {
+          x: Math.ceil(this.getLeft() + this.width / 2),
+          y: this.getTop(),
+        };
+    }
   },
 
   getStateData(): WorkflowState {
@@ -101,6 +132,14 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   setDropArea(dropArea: IDropAreaGroup) {
     this._dropArea = dropArea;
+  },
+
+  getConnectPoint(): IConnectPoint {
+    return this._connectPoint;
+  },
+
+  setConnectPoint(connectPoint: IConnectPoint) {
+    this._connectPoint = connectPoint;
   },
 
   setTopTiePoint(tiePoint: ITiePointCircle) {
@@ -160,7 +199,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   getLeftMostItemUnderChildren(): IStateGroup {
     let leftmostItem: IStateGroup = {} as IStateGroup;
     this.getChildrenStates().forEach((state: IStateGroup) => {
-      if ((leftmostItem.left || 0) === 0 || state.left < (leftmostItem.left || 0)) {
+      if ((leftmostItem?.getLeft?.() || 0) === 0 || state.getLeft() < (leftmostItem?.getLeft?.() || 0)) {
         leftmostItem = state;
       }
     });
@@ -193,7 +232,6 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   _getOptions(type: string, options: IObjectOptions) {
     switch (type) {
       case StateTypesEnum.Pass:
-        const passStateOffset = (stateRectConfig.width! - passStateRectConfig.width!) / 2;
         return {
           ...options,
           left: (options.left || 0) + passStateOffset,

@@ -5,7 +5,7 @@ export class CoordsService {
   getCenterBottomCoords(states: IStateGroup[]) {
     let lowerItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
-      if ((state.top || 0) > (lowerItem?.top || 0)) {
+      if ((state.getTop() || 0) > (lowerItem?.getTop?.() || 0)) {
         lowerItem = state;
       }
     });
@@ -14,7 +14,7 @@ export class CoordsService {
     if (dropArea) {
       return {
         ...centerBottomCoords,
-        y: (dropArea.top || 0) + (dropArea.height || 0),
+        y: dropArea.getTop() + (dropArea.height || 0),
       };
     }
     return centerBottomCoords;
@@ -31,6 +31,13 @@ export class CoordsService {
     });
     const centerRightCoords = rightmostItem.getCenterRightCoords();
     const tiePoint = rightmostItem.getRightTiePoint();
+    const connectPoint = rightmostItem.getConnectPoint();
+    if (connectPoint) {
+      return {
+        x: connectPoint.left || 0,
+        y: connectPoint.top || 0,
+      };
+    }
     if (tiePoint) {
       return tiePoint.getCenterRightCoords();
     }

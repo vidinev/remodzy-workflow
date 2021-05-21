@@ -2,7 +2,7 @@ import { MathService } from '../services/math.service';
 import { MarginSize } from '../interfaces/margin-size.interface';
 
 export const canvasSize = {
-  width: 2400,
+  width: 4000,
   height: 1200,
 };
 
@@ -53,3 +53,5 @@ export const marginSize: MarginSize = {
 
 export const topAngleOffset = (stateItemSize.width * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;
 export const leftAngleOffset = (stateItemSize.height * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;
+
+export const passStateOffset = (stateItemSize.width! - passStateItemSize.width!) / 2;

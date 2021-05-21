@@ -3,6 +3,9 @@
     "tslint-config-standard",
     "tslint-config-prettier"
   ],
+  "rules": {
+    "no-empty": false
+  },
   "linterOptions": {
     "exclude": [
       "node_modules/**"

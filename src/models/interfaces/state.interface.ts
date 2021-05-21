@@ -4,13 +4,18 @@ import { PointCoords } from '../../interfaces/point-coords.interface';
 import { IDropAreaGroup } from './drop-area.interface';
 import { ITiePointCircle } from './tie-point.interface';
 import { BranchItems } from '../branch-items.model';
+import { IConnectPoint } from './connect-point.interface';
 
 export interface IStateGroup extends Group {
   data: WorkflowState & { stateId: string; parentStateId: string | null; Start: boolean };
   top: number;
+  originTop: number;
+  originLeft: number;
   left: number;
   height: number;
   width: number;
+  getTop: () => number;
+  getLeft: () => number;
   isBranchRoot: () => boolean;
   isMainRoot: () => boolean;
   isInMainBranch: () => boolean;
@@ -27,6 +32,8 @@ export interface IStateGroup extends Group {
   getStateData: () => WorkflowState;
   setDropArea: (dropArea: IDropAreaGroup) => void;
   getDropArea: () => IDropAreaGroup;
+  getConnectPoint: () => IConnectPoint;
+  setConnectPoint: (connectPoint: IConnectPoint) => void;
   setTopTiePoint: (tiePoint: ITiePointCircle) => void;
   getTopTiePoint: () => ITiePointCircle;
   setBottomTiePoint: (tiePoint: ITiePointCircle) => void;
