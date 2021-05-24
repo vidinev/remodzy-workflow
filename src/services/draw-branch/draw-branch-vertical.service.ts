@@ -45,14 +45,15 @@ export class DrawBranchVerticalService extends DrawBranchService {
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
     let branchSubItems: BranchItems[] = [];
     let positionX = this.getBranchDrawStartPosition(branchesConfiguration, position);
-
     for (let i = 0; i < branchesConfiguration.length; i++) {
       const branchWorkflowData = branchesConfiguration[i].data;
+      const widthWithMargin = branchesConfiguration[i].width + marginSize.branchesMargin;
+      positionX += widthWithMargin / 2;
       const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
         x: positionX,
       });
-      positionX += branchesConfiguration[i].width;
+      positionX += widthWithMargin / 2;
       const states = drawBranchService.drawBranch();
       const dropAreas = states.map((state: IStateGroup) => state.getDropArea());
       branchSubItems.push(new BranchItems(states, dropAreas, []));
@@ -67,18 +68,19 @@ export class DrawBranchVerticalService extends DrawBranchService {
     let widthForBranches = 0;
     let leftOffset = 0;
     branchesConfiguration.forEach((branchConfiguration, i: number) => {
+      const widthWithMargin = i === branchesConfiguration.length - 1
+        ? branchConfiguration.width
+        : branchConfiguration.width + marginSize.branchesMargin;
       const indexNumber = i + 1;
       if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
-        leftOffset += branchConfiguration.width;
+        leftOffset += widthWithMargin;
       }
       if (!isEvenBranches && indexNumber === middleBranchIndex) {
-        leftOffset += branchConfiguration.width / 2;
+        leftOffset += widthWithMargin / 2;
       }
-      return (widthForBranches += branchConfiguration.width);
+      return (widthForBranches += widthWithMargin);
     });
-    let startPosition = isEvenBranches ? position.x - widthForBranches / 2 : position.x - leftOffset;
-    startPosition += stateItemSize.width / 2;
-    return startPosition;
+    return isEvenBranches ? position.x - widthForBranches / 2 : position.x - leftOffset;
   }
 
   protected calculateBranchWidth(branch: WorkflowData) {

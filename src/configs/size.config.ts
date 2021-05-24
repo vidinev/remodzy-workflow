@@ -2,8 +2,8 @@ import { MathService } from '../services/math.service';
 import { MarginSize } from '../interfaces/margin-size.interface';
 
 export const canvasSize = {
-  width: 4000,
-  height: 1200,
+  width: 3000,
+  height: 1600,
 };
 
 export const strokeWidth = 1.5;
@@ -16,7 +16,7 @@ export const stateItemSize = {
 };
 
 export const passStateItemSize = {
-  width: 144,
+  width: 160,
   height: 36,
   fontSize: stateItemSize.fontSize,
   dragDropAngle: stateItemSize.dragDropAngle,
@@ -40,7 +40,9 @@ export const curveRoundPartSize = 14;
 
 const margins = {
   verticalMargin: 76,
-  horizontalMargin: 40,
+  horizontalMargin: 80,
+  // Set branch margin depending on state item size (can be reworked to more accurate sizing)
+  branchesMargin: 0.33 * stateItemSize.width,
   stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2,
 };
 

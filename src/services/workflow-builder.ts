@@ -13,9 +13,9 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix margins for > 2 levels of inheritance vertical
+ * Accurate margin calculation for vertical
  * Fix margins for > 2 levels horizontal
- * Test different cases for > 2 levels
+ * Add more test cases
  * Auto scale canvas
  * Fix  drag and drop, and sorting between levels
  *

@@ -81,27 +81,35 @@ export const workflowTestData: WorkflowStateData = {
                   States: {
                     RejectThree: {
                       Type: 'Pass',
-                      End: true,
+                      Next: 'TestingSubState',
                       Comment: 'Reject three',
                       Parameters: {
                         taskType: 'pass',
                       },
                     },
-                  },
-                },
-                {
-                  StartAt: 'RejectFour',
-                  States: {
-                    RejectFour: {
-                      Type: 'Pass',
+                    TestingSubState: {
+                      Type: 'Task',
                       End: true,
-                      Comment: 'Reject four',
+                      Comment: 'Testing Sub State',
                       Parameters: {
-                        taskType: 'pass',
+                        taskType: 'task',
                       },
-                    },
+                    }
                   },
                 },
+                // {
+                //   StartAt: 'RejectFour',
+                //   States: {
+                //     RejectFour: {
+                //       Type: 'Pass',
+                //       End: true,
+                //       Comment: 'Reject four',
+                //       Parameters: {
+                //         taskType: 'pass',
+                //       },
+                //     },
+                //   },
+                // },
                 // {
                 //   StartAt: 'RejectFive',
                 //   States: {
@@ -124,13 +132,71 @@ export const workflowTestData: WorkflowStateData = {
           States: {
             Approve: {
               Type: 'Pass',
-              End: true,
+              Next: 'ApproveTypes',
               Comment: 'Approve',
               Parameters: {
                 taskType: 'pass',
               },
             },
-          },
+            ApproveTypes: {
+              Type: 'Parallel',
+              End: true,
+              Parameters: {
+                taskType: 'sendEmail',
+                taskIcon: 'email-icon',
+              },
+              Comment: 'Approve types',
+              Branches: [
+                {
+                  StartAt: 'ApproveTypeOne',
+                  States: {
+                    ApproveTypeOne: {
+                      Type: 'Pass',
+                      Next: 'ApproveSubType',
+                      Comment: 'Approve Type One',
+                      Parameters: {
+                        taskType: 'pass',
+                      },
+                    },
+                    ApproveSubType: {
+                      Type: 'Task',
+                      End: true,
+                      Comment: 'Approve Sub Type',
+                      Parameters: {
+                        taskType: 'pass',
+                      },
+                    }
+                  },
+                },
+                {
+                  StartAt: 'ApproveTypeTwo',
+                  States: {
+                    ApproveTypeTwo: {
+                      Type: 'Pass',
+                      End: true,
+                      Comment: 'Approve Type Two',
+                      Parameters: {
+                        taskType: 'pass',
+                      },
+                    },
+                  },
+                },
+                // {
+                //   StartAt: 'ApproveTypeThree',
+                //   States: {
+                //     ApproveTypeThree: {
+                //       Type: 'Pass',
+                //       End: true,
+                //       Comment: 'Approve Type Three',
+                //       Parameters: {
+                //         taskType: 'pass',
+                //       },
+                //     },
+                //   },
+                // }
+              ],
+            },
+          }
         },
         {
           StartAt: 'Test',
