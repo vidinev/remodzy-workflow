@@ -41,8 +41,7 @@ export const curveRoundPartSize = 14;
 const margins = {
   verticalMargin: 76,
   horizontalMargin: 80,
-  // Set branch margin depending on state item size (can be reworked to more accurate sizing)
-  branchesMargin: 0.33 * stateItemSize.width,
+  branchesMargin: 0,
   stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2,
 };
 

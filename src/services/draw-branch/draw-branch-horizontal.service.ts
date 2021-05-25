@@ -63,8 +63,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       if (stateGroup.isBranchRoot()) {
         const { x: rightmostLeft } = stateGroup.getRightMostItemCoordsUnderChildren();
         const { y: rightmostTop } = stateGroup.getCenterRightCoords();
-        const nextState = this.getStateGroupById(this.states, stateGroup.data.Next || '');
-        const left = rightmostLeft + (nextState ? passStateOffset : passStateOffset * 2);
+        const left = rightmostLeft + passStateOffset - strokeWidth * 2;
         const connectPoint = new ConnectPoint(left, rightmostTop);
         stateGroup.setConnectPoint(connectPoint);
         this.canvas.add(connectPoint);
@@ -96,7 +95,6 @@ export class DrawBranchHorizontalService extends DrawBranchService {
         this.drawStartCurveTieLine(sideState, startCoords);
         this.drawEndCurveTieLine(curveLineStructure, sideState, rightmostCoords, nextStateCoords, strokeWidth / 2);
       });
-
       middleItems.forEach((sideState: SideState) => {
         this.drawStartCurveTieLine(sideState, startCoords);
         this.drawStraightBranchItemLine(curveLineStructure, sideState, nextStateCoords);
@@ -117,13 +115,18 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       rightmostCoords,
     )?.getCenterRightCoords();
     if (branchRightMost && nextStateCoords?.x && nextStateCoords?.y) {
+      let additionalX = 0;
+      const endOfBranch = rightmostCoords.x === sideState.state.getCenterRightCoords()?.x;
+      if (endOfBranch && sideState.state.data.Type === StateTypesEnum.Pass && !curveLineStructure.nextState) {
+        additionalX = passStateOffset;
+      }
       const tieLine = new BezierCurveTieLine(
         {
-          x: nextStateCoords.x + (curveLineStructure.nextState ? 0 : passStateOffset),
+          x: nextStateCoords.x + additionalX,
           y: nextStateCoords.y,
         },
         {
-          x: rightmostCoords.x + (curveLineStructure.nextState ? 0 : passStateOffset),
+          x: rightmostCoords.x + additionalX,
           y: branchRightMost?.y,
         },
         true,

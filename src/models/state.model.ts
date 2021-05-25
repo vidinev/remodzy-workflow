@@ -191,19 +191,14 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return states;
   },
 
-  getRightMostItemCoordsUnderChildren(): PointCoords {
+  getRightMostItemCoordsUnderChildren(passStateAsFullState: boolean = false): PointCoords {
     const coordsService = new CoordsService();
-    return coordsService.getCenterRightCoords(this.getChildrenStates());
+    return coordsService.getCenterRightCoords(this.getChildrenStates(), passStateAsFullState);
   },
 
-  getLeftMostItemUnderChildren(): IStateGroup {
-    let leftmostItem: IStateGroup = {} as IStateGroup;
-    this.getChildrenStates().forEach((state: IStateGroup) => {
-      if ((leftmostItem?.getLeft?.() || 0) === 0 || state.getLeft() < (leftmostItem?.getLeft?.() || 0)) {
-        leftmostItem = state;
-      }
-    });
-    return leftmostItem;
+  getLeftMostItemCoordsUnderChildren(passStateAsFullState: boolean = false): PointCoords {
+    const coordsService = new CoordsService();
+    return coordsService.getCenterLeftCoords(this.getChildrenStates(), passStateAsFullState);
   },
 
   getCenterBottomCoordsUnderChildren(): PointCoords {

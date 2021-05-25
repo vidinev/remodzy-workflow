@@ -1,6 +1,6 @@
 import { DrawBranchService } from './draw-branch.service';
 import { WorkflowData } from '../workflow-data.service';
-import { Canvas, Group, Object as CanvasObject } from 'fabric/fabric-impl';
+import { Canvas, Group } from 'fabric/fabric-impl';
 import { PointCoords } from '../../interfaces/point-coords.interface';
 import { dropAreaSize, marginSize, stateItemSize, tieLineSize } from '../../configs/size.config';
 import { IStateGroup } from '../../models/interfaces/state.interface';
@@ -68,9 +68,10 @@ export class DrawBranchVerticalService extends DrawBranchService {
     let widthForBranches = 0;
     let leftOffset = 0;
     branchesConfiguration.forEach((branchConfiguration, i: number) => {
-      const widthWithMargin = i === branchesConfiguration.length - 1
-        ? branchConfiguration.width
-        : branchConfiguration.width + marginSize.branchesMargin;
+      const widthWithMargin =
+        i === branchesConfiguration.length - 1
+          ? branchConfiguration.width
+          : branchConfiguration.width + marginSize.branchesMargin;
       const indexNumber = i + 1;
       if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
         leftOffset += widthWithMargin;
@@ -99,15 +100,9 @@ export class DrawBranchVerticalService extends DrawBranchService {
     let widthOfBranch = stateItemSize.width;
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
-        let allItems: CanvasObject[] = [];
-        state.getBranchItems().forEach((branchItem: BranchItems) => {
-          allItems = [...allItems, ...branchItem.getAllItems()];
-        });
-        const newGroup = new fabric.Group(allItems);
-        if ((newGroup.width || 0) > widthOfBranch) {
-          widthOfBranch = newGroup.width || 0;
-        }
-        newGroup.destroy();
+        const rightMost = state.getRightMostItemCoordsUnderChildren(true);
+        const leftMost = state.getLeftMostItemCoordsUnderChildren(true);
+        widthOfBranch = rightMost.x - leftMost.x;
       }
     });
     return widthOfBranch;

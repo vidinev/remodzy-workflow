@@ -1,5 +1,7 @@
 import { IStateGroup } from '../models/interfaces/state.interface';
 import { PointCoords } from '../interfaces/point-coords.interface';
+import { StateTypesEnum } from '../configs/state-types.enum';
+import { passStateItemSize, stateItemSize } from '../configs/size.config';
 
 export class CoordsService {
   getCenterBottomCoords(states: IStateGroup[]) {
@@ -20,11 +22,11 @@ export class CoordsService {
     return centerBottomCoords;
   }
 
-  getCenterRightCoords(states: IStateGroup[]): PointCoords {
+  getCenterRightCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
     let rightmostItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
       const currentRight = (rightmostItem.left || 0) + (rightmostItem.width || 0);
-      const right = state.left + state.width;
+      const right = state.getLeft() + state.width;
       if (right > currentRight) {
         rightmostItem = state;
       }
@@ -41,6 +43,40 @@ export class CoordsService {
     if (tiePoint) {
       return tiePoint.getCenterRightCoords();
     }
+    if (rightmostItem.data.Type === StateTypesEnum.Pass && passStateAsFullState) {
+      return {
+        ...centerRightCoords,
+        x: centerRightCoords.x + (stateItemSize.width - passStateItemSize.width) / 2,
+      };
+    }
     return centerRightCoords;
+  }
+
+  getCenterLeftCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
+    let leftmostItem: IStateGroup = {} as IStateGroup;
+    states.forEach((state: IStateGroup) => {
+      if ((leftmostItem?.getLeft?.() || 0) === 0 || state.getLeft() < (leftmostItem?.getLeft?.() || 0)) {
+        leftmostItem = state;
+      }
+    });
+    const centerLeftCoords = leftmostItem.getCenterLeftCoords();
+    const tiePoint = leftmostItem.getLeftTiePoint();
+    const connectPoint = leftmostItem.getConnectPoint();
+    if (connectPoint) {
+      return {
+        x: connectPoint.left || 0,
+        y: connectPoint.top || 0,
+      };
+    }
+    if (tiePoint) {
+      return tiePoint.getCenterLeftCoords();
+    }
+    if (leftmostItem.data.Type === StateTypesEnum.Pass && passStateAsFullState) {
+      return {
+        ...centerLeftCoords,
+        x: centerLeftCoords.x - (stateItemSize.width - passStateItemSize.width) / 2,
+      };
+    }
+    return centerLeftCoords;
   }
 }

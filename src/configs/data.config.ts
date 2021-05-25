@@ -55,10 +55,18 @@ export const workflowTestData: WorkflowStateData = {
                   States: {
                     RejectOne: {
                       Type: 'Pass',
-                      End: true,
+                      Next: 'TestingSubState1',
                       Comment: 'Reject One',
                       Parameters: {
                         taskType: 'pass',
+                      },
+                    },
+                    TestingSubState1: {
+                      Type: 'Task',
+                      End: true,
+                      Comment: 'Testing Sub State1',
+                      Parameters: {
+                        taskType: 'task',
                       },
                     },
                   },
@@ -68,10 +76,18 @@ export const workflowTestData: WorkflowStateData = {
                   States: {
                     RejectTwo: {
                       Type: 'Pass',
-                      End: true,
+                      Next: 'TestingSubState2',
                       Comment: 'Reject Two',
                       Parameters: {
                         taskType: 'pass',
+                      },
+                    },
+                    TestingSubState2: {
+                      Type: 'Task',
+                      End: true,
+                      Comment: 'Testing Sub State2',
+                      Parameters: {
+                        taskType: 'task',
                       },
                     },
                   },
@@ -94,7 +110,7 @@ export const workflowTestData: WorkflowStateData = {
                       Parameters: {
                         taskType: 'task',
                       },
-                    }
+                    },
                   },
                 },
                 // {
@@ -165,7 +181,7 @@ export const workflowTestData: WorkflowStateData = {
                       Parameters: {
                         taskType: 'pass',
                       },
-                    }
+                    },
                   },
                 },
                 {
@@ -196,7 +212,7 @@ export const workflowTestData: WorkflowStateData = {
                 // }
               ],
             },
-          }
+          },
         },
         {
           StartAt: 'Test',

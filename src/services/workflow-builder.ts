@@ -13,8 +13,8 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix issue with current horizontal data
- * Accurate margin calculation for vertical
+ * Fix margin calculation for large inheritance, check one more level margin
+ * Fix getRightMost item for horizontal
  * Fix margins for > 2 levels horizontal
  * Add more test cases
  * Auto scale canvas
