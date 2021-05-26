@@ -51,7 +51,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
       positionX += widthWithMargin / 2;
       const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
-        x: positionX,
+        x: positionX - stateItemSize.width / 2,
       });
       positionX += widthWithMargin / 2;
       const states = drawBranchService.drawBranch();
@@ -81,7 +81,8 @@ export class DrawBranchVerticalService extends DrawBranchService {
       }
       return (widthForBranches += widthWithMargin);
     });
-    return isEvenBranches ? position.x - widthForBranches / 2 : position.x - leftOffset;
+    const initialStartPosition = isEvenBranches ? position.x - widthForBranches / 2 : position.x - leftOffset;
+    return initialStartPosition + stateItemSize.width / 2;
   }
 
   protected calculateBranchWidth(branch: WorkflowData) {

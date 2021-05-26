@@ -43,16 +43,16 @@ export class CoordsService {
     if (tiePoint) {
       return tiePoint.getCenterRightCoords();
     }
-    if (rightmostItem.data.Type === StateTypesEnum.Pass && passStateAsFullState) {
+    if (passStateAsFullState && rightmostItem.data.Type === StateTypesEnum.Pass) {
       return {
         ...centerRightCoords,
-        x: centerRightCoords.x + (stateItemSize.width - passStateItemSize.width) / 2,
+        x: centerRightCoords.x + (stateItemSize.width - passStateItemSize.width),
       };
     }
     return centerRightCoords;
   }
 
-  getCenterLeftCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
+  getCenterLeftCoords(states: IStateGroup[]): PointCoords {
     let leftmostItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
       if ((leftmostItem?.getLeft?.() || 0) === 0 || state.getLeft() < (leftmostItem?.getLeft?.() || 0)) {
@@ -70,12 +70,6 @@ export class CoordsService {
     }
     if (tiePoint) {
       return tiePoint.getCenterLeftCoords();
-    }
-    if (leftmostItem.data.Type === StateTypesEnum.Pass && passStateAsFullState) {
-      return {
-        ...centerLeftCoords,
-        x: centerLeftCoords.x - (stateItemSize.width - passStateItemSize.width) / 2,
-      };
     }
     return centerLeftCoords;
   }
