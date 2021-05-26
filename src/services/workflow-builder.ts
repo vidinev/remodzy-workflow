@@ -13,7 +13,6 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix margin calculation for large inheritance, check one more level margin
  * Fix getRightMost item for horizontal
  * Fix margins for > 2 levels horizontal
  * Add more test cases

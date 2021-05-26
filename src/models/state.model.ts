@@ -196,9 +196,9 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return coordsService.getCenterRightCoords(this.getChildrenStates(), passStateAsFullState);
   },
 
-  getLeftMostItemCoordsUnderChildren(passStateAsFullState: boolean = false): PointCoords {
+  getLeftMostItemCoordsUnderChildren(): PointCoords {
     const coordsService = new CoordsService();
-    return coordsService.getCenterLeftCoords(this.getChildrenStates(), passStateAsFullState);
+    return coordsService.getCenterLeftCoords(this.getChildrenStates());
   },
 
   getCenterBottomCoordsUnderChildren(): PointCoords {

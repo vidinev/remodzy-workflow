@@ -2,8 +2,8 @@ import { MathService } from '../services/math.service';
 import { MarginSize } from '../interfaces/margin-size.interface';
 
 export const canvasSize = {
-  width: 3000,
-  height: 1600,
+  width: 3600,
+  height: 1900,
 };
 
 export const strokeWidth = 1.5;
@@ -41,7 +41,7 @@ export const curveRoundPartSize = 14;
 const margins = {
   verticalMargin: 76,
   horizontalMargin: 80,
-  branchesMargin: 0,
+  branchesMargin: 40,
   stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2,
 };
 

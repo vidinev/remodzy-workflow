@@ -83,9 +83,53 @@ export const workflowTestData: WorkflowStateData = {
                       },
                     },
                     TestingSubState2: {
+                      Type: 'Parallel',
+                      Next: 'TestingSubStateEnd',
+                      Comment: 'Testing Sub State2',
+                      Parameters: {
+                        taskType: 'task',
+                      },
+                      Branches: [
+                        {
+                          StartAt: 'TestingSubLevel',
+                          States: {
+                            TestingSubLevel: {
+                              Type: 'Pass',
+                              Next: 'FirstTest',
+                              Comment: 'Testing Sub Level',
+                              Parameters: {
+                                taskType: 'pass',
+                              },
+                            },
+                            FirstTest: {
+                              Type: 'Task',
+                              End: true,
+                              Comment: 'First Test',
+                              Parameters: {
+                                taskType: 'pass',
+                              },
+                            },
+                          },
+                        },
+                        {
+                          StartAt: 'TestingSubLevel2',
+                          States: {
+                            TestingSubLevel2: {
+                              Type: 'Pass',
+                              End: true,
+                              Comment: 'Testing Sub Level 2',
+                              Parameters: {
+                                taskType: 'pass',
+                              },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                    TestingSubStateEnd: {
                       Type: 'Task',
                       End: true,
-                      Comment: 'Testing Sub State2',
+                      Comment: 'Testing Sub State End',
                       Parameters: {
                         taskType: 'task',
                       },

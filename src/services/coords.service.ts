@@ -7,7 +7,7 @@ export class CoordsService {
   getCenterBottomCoords(states: IStateGroup[]) {
     let lowerItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
-      if ((state.getTop() || 0) > (lowerItem?.getTop?.() || 0)) {
+      if (CoordsService.getBottomY(state) > (CoordsService.getBottomY(lowerItem) || 0)) {
         lowerItem = state;
       }
     });
@@ -72,5 +72,13 @@ export class CoordsService {
       return tiePoint.getCenterLeftCoords();
     }
     return centerLeftCoords;
+  }
+
+  private static getBottomY(state: IStateGroup) {
+    let currentY = state.getCenterBottomCoords?.()?.y || 0;
+    if (state.isBranchRoot?.()) {
+      currentY = state.getCenterBottomCoordsUnderChildren()?.y || currentY;
+    }
+    return currentY;
   }
 }

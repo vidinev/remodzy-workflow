@@ -102,7 +102,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
         const rightMost = state.getRightMostItemCoordsUnderChildren(true);
-        const leftMost = state.getLeftMostItemCoordsUnderChildren(true);
+        const leftMost = state.getLeftMostItemCoordsUnderChildren();
         widthOfBranch = rightMost.x - leftMost.x;
       }
     });
