@@ -63,7 +63,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       if (stateGroup.isBranchRoot()) {
         const { x: rightmostLeft } = stateGroup.getRightMostItemCoordsUnderChildren();
         const { y: rightmostTop } = stateGroup.getCenterRightCoords();
-        const left = rightmostLeft + passStateOffset - strokeWidth * 2;
+        const left = rightmostLeft + passStateOffset * 2 - strokeWidth * 2;
         const connectPoint = new ConnectPoint(left, rightmostTop);
         stateGroup.setConnectPoint(connectPoint);
         this.canvas.add(connectPoint);

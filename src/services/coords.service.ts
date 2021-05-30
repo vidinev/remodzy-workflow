@@ -25,9 +25,7 @@ export class CoordsService {
   getCenterRightCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
     let rightmostItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
-      const currentRight = (rightmostItem.left || 0) + (rightmostItem.width || 0);
-      const right = state.getLeft() + state.width;
-      if (right > currentRight) {
+      if (CoordsService.getRightX(state) > CoordsService.getRightX(rightmostItem)) {
         rightmostItem = state;
       }
     });
@@ -72,6 +70,14 @@ export class CoordsService {
       return tiePoint.getCenterLeftCoords();
     }
     return centerLeftCoords;
+  }
+
+  private static getRightX(state: IStateGroup) {
+    let currentX = (state.getLeft?.() || 0) + (state.width || 0);
+    if (state.isBranchRoot?.()) {
+      currentX = state.getRightMostItemCoordsUnderChildren()?.x || currentX;
+    }
+    return currentX;
   }
 
   private static getBottomY(state: IStateGroup) {
