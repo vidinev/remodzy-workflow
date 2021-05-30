@@ -26,6 +26,7 @@ import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
  *
  * Discuss using Pass state in workflow
  * Support using simple state (Non Pass type) for root of the branch ?
+ * http://jsfiddle.net/maCmB/1/
  */
 
 export class RemodzyWorkflowBuilder {
