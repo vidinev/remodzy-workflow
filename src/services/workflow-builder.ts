@@ -13,7 +13,7 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix getRightMost item for horizontal
+ * Fix passStateItemSize width, should be configurable
  * Fix margins for > 2 levels horizontal
  * Add more test cases
  * Auto scale canvas
