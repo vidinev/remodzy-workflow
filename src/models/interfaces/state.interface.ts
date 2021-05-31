@@ -19,6 +19,7 @@ export interface IStateGroup extends Group {
   isBranchRoot: () => boolean;
   isMainRoot: () => boolean;
   isInMainBranch: () => boolean;
+  alignCenter: () => void;
   setBranchItems: (branchItems: BranchItems[]) => void;
   getBranchItems: () => BranchItems[];
   getChildrenStates: () => IStateGroup[];

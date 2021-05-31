@@ -206,6 +206,14 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return coordsService.getCenterBottomCoords(this.getChildrenStates());
   },
 
+  alignCenter() {
+    switch (this.data.Type) {
+      case StateTypesEnum.Pass:
+        const left = this.originLeft + passStateOffset;
+        this.set({ left });
+    }
+  },
+
   _getConfig(type: string) {
     switch (type) {
       case StateTypesEnum.Pass:
@@ -225,15 +233,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   },
 
   _getOptions(type: string, options: IObjectOptions) {
-    switch (type) {
-      case StateTypesEnum.Pass:
-        return {
-          ...options,
-          left: (options.left || 0) + passStateOffset,
-        };
-      default:
-        return options;
-    }
+    return options;
   },
 
   _render: function(ctx: CanvasRenderingContext2D) {

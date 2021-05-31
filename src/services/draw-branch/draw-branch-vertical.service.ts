@@ -42,6 +42,12 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return stateGroup;
   }
 
+  protected getRootStateGroup(stateData: WorkflowState, left: number, top: number, workflowData?: WorkflowData) {
+    const state = super.getRootStateGroup(stateData, left, top, workflowData);
+    state.alignCenter();
+    return state;
+  }
+
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
     let branchSubItems: BranchItems[] = [];
     let positionX = this.getBranchDrawStartPosition(branchesConfiguration, position);

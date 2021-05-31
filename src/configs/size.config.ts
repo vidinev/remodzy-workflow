@@ -16,8 +16,7 @@ export const stateItemSize = {
 };
 
 export const passStateItemSize = {
-  // TODO make configurable
-  width: 280,
+  width: 160,
   height: 36,
   fontSize: stateItemSize.fontSize,
   dragDropAngle: stateItemSize.dragDropAngle,

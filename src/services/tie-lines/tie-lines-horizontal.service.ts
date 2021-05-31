@@ -3,7 +3,6 @@ import { TieLinesService } from './tie-lines.service';
 import { IStateGroup } from '../../models/interfaces/state.interface';
 import { TieLineStructure } from '../../interfaces/tie-lines-structure.interface';
 import { StateTypesEnum } from '../../configs/state-types.enum';
-import { passStateOffset } from '../../configs/size.config';
 
 export class TieLinesHorizontalService extends TieLinesService {
   constructor(canvas: Canvas) {
@@ -20,10 +19,6 @@ export class TieLinesHorizontalService extends TieLinesService {
         let startCoords = tieStart?.getCenterRightCoords();
         if (canvasObject.data.Type === StateTypesEnum.Pass && !tieStart) {
           startCoords = canvasObject.getCenterRightCoords();
-          startCoords = {
-            ...startCoords,
-            x: startCoords.x + passStateOffset,
-          };
         }
 
         if (startCoords && !canvasObject.isBranchRoot()) {
