@@ -110,6 +110,7 @@ export class DrawBranchService {
         return {
           data,
           width: this.calculateBranchWidth(data),
+          height: this.calculateBranchHeight(data)
         };
       });
       const branchesItems: BranchItems[] = this.drawBranches(branchesConfiguration, position).filter(Boolean);
@@ -127,6 +128,10 @@ export class DrawBranchService {
 
   protected calculateBranchWidth(branch: WorkflowData): number {
     return stateItemSize.width;
+  }
+
+  protected calculateBranchHeight(branch: WorkflowData): number {
+    return stateItemSize.height;
   }
 
   protected drawTiePoint(stateId: string, pointCoords: PointCoords): ITiePointCircle {

@@ -182,6 +182,31 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     return branchSubItems;
   }
 
+  protected calculateBranchHeight(branch: WorkflowData): number {
+    const virtualCanvas = new fabric.Canvas(null);
+    const drawBranchService = new DrawBranchHorizontalService(branch, virtualCanvas, {
+      y: 0,
+      x: 0,
+    });
+    const states = drawBranchService.drawBranch();
+    const height = this.getStatesHeight(states);
+    virtualCanvas.dispose();
+    return height;
+  }
+
+  protected getStatesHeight(states: IStateGroup[]) {
+    let heightOfBranch = stateItemSize.height;
+    states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot()) {
+        // TODO calculate branch height
+        // const rightMost = state.getRightMostItemCoordsUnderChildren(true);
+        // const leftMost = state.getLeftMostItemCoordsUnderChildren();
+        // widthOfBranch = rightMost.x - leftMost.x;
+      }
+    });
+    return heightOfBranch;
+  }
+
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
     const drawPositionRight = branchesItemsGroup
       ? (branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0) + marginSize.horizontalMargin
