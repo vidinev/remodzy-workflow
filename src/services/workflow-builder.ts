@@ -13,8 +13,8 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix margins for > 2 levels horizontal
- * Add more test cases
+ * Fix horizontal test data issues (curve lines)
+ * Add ~5 test data as array
  * Auto scale canvas
  * Fix  drag and drop, and sorting between levels
  *

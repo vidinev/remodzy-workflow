@@ -24,6 +24,7 @@ export interface IStateGroup extends Group {
   getBranchItems: () => BranchItems[];
   getChildrenStates: () => IStateGroup[];
   getCenterBottomCoordsUnderChildren: () => PointCoords;
+  getCenterTopCoordsAboveChildren: () => PointCoords;
   getRightMostItemCoordsUnderChildren: (passStateAsFullState?: boolean) => PointCoords;
   getLeftMostItemCoordsUnderChildren: (passStateAsFullState?: boolean) => PointCoords;
   getCenterTopCoords: () => PointCoords;

@@ -206,6 +206,11 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     return coordsService.getCenterBottomCoords(this.getChildrenStates());
   },
 
+  getCenterTopCoordsAboveChildren(): PointCoords {
+    const coordsService = new CoordsService();
+    return coordsService.getCenterTopCoords(this.getChildrenStates());
+  },
+
   alignCenter() {
     switch (this.data.Type) {
       case StateTypesEnum.Pass:

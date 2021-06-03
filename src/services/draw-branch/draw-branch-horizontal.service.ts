@@ -166,15 +166,16 @@ export class DrawBranchHorizontalService extends DrawBranchService {
 
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
     let branchSubItems: BranchItems[] = [];
-    const heightForBranches =
-      branchesConfiguration.length * (stateItemSize.height + marginSize.verticalMargin) - marginSize.verticalMargin;
-    const startY = position.y - Math.ceil(heightForBranches / 2) + Math.ceil(stateItemSize.height / 2);
+    let positionY = this.getBranchDrawStartPosition(branchesConfiguration, position.y, 'height');
     for (let i = 0; i < branchesConfiguration.length; i++) {
       const branchWorkflowData = branchesConfiguration[i].data;
+      const heightWithMargin = branchesConfiguration[i].height + marginSize.branchesMargin;
+      positionY += heightWithMargin / 2;
       const drawBranchService = new DrawBranchHorizontalService(branchWorkflowData, this.canvas, {
-        y: startY + (stateItemSize.height + marginSize.verticalMargin) * i,
+        y: positionY - stateItemSize.height / 2,
         x: position.x + stateItemSize.width + marginSize.horizontalMargin,
       });
+      positionY += heightWithMargin / 2;
       const states = drawBranchService.drawBranch();
       const connectPoints = states.map((state: IStateGroup) => state.getConnectPoint()).filter(Boolean);
       branchSubItems.push(new BranchItems(states, [], connectPoints));
@@ -198,10 +199,9 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     let heightOfBranch = stateItemSize.height;
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
-        // TODO calculate branch height
-        // const rightMost = state.getRightMostItemCoordsUnderChildren(true);
-        // const leftMost = state.getLeftMostItemCoordsUnderChildren();
-        // widthOfBranch = rightMost.x - leftMost.x;
+        const topPoint = state.getCenterTopCoordsAboveChildren();
+        const bottomPoint = state.getCenterBottomCoordsUnderChildren();
+        heightOfBranch = bottomPoint.y - topPoint.y;
       }
     });
     return heightOfBranch;
@@ -243,9 +243,5 @@ export class DrawBranchHorizontalService extends DrawBranchService {
         );
       }
     });
-  }
-
-  protected getStateGroupById(states: IStateGroup[], stateId: string) {
-    return states.find((state: IStateGroup) => state.data.stateId === stateId);
   }
 }

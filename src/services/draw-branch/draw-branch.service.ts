@@ -68,6 +68,32 @@ export class DrawBranchService {
     return [];
   }
 
+  protected getBranchDrawStartPosition(branchesConfiguration: BranchConfiguration[],
+                                       positionPoint: number,
+                                       branchDimension: 'width'|'height') {
+    const isEvenBranches = branchesConfiguration.length % 2 === 0;
+    const middleBranchIndex = Math.ceil(branchesConfiguration.length / 2);
+
+    let sizeForBranches = 0;
+    let offset = 0;
+    branchesConfiguration.forEach((branchConfiguration: BranchConfiguration, i: number) => {
+      const sizeWithMargin =
+        i === branchesConfiguration.length - 1
+          ? branchConfiguration[branchDimension]
+          : branchConfiguration[branchDimension] + marginSize.branchesMargin;
+      const indexNumber = i + 1;
+      if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
+        offset += sizeWithMargin;
+      }
+      if (!isEvenBranches && indexNumber === middleBranchIndex) {
+        offset += sizeWithMargin / 2;
+      }
+      return (sizeForBranches += sizeWithMargin);
+    });
+    const initialStartPosition = isEvenBranches ? positionPoint - sizeForBranches / 2 : positionPoint - offset;
+    return initialStartPosition + stateItemSize[branchDimension] / 2;
+  }
+
   protected drawStates(): IStateGroup[] {
     const states: IStateGroup[] = [];
     let currentStateData = this.workflowData.getStartState();
