@@ -56,7 +56,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       if (stateGroup.isBranchRoot()) {
         const { x: rightmostLeft } = stateGroup.getRightMostItemCoordsUnderChildren();
         const { y: rightmostTop } = stateGroup.getCenterRightCoords();
-        const left = rightmostLeft + strokeWidth * 2;
+        const left = rightmostLeft + marginSize.horizontalMargin + strokeWidth * 2;
         const connectPoint = new ConnectPoint(left, rightmostTop);
         stateGroup.setConnectPoint(connectPoint);
         this.canvas.add(connectPoint);
@@ -90,9 +90,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       });
       middleItems.forEach((sideState: SideState) => {
         this.drawStartCurveTieLine(sideState, startCoords);
-        if (!sideState.state.isBranchRoot() && !sideState.state.data.Next) {
-          this.drawStraightBranchItemLine(curveLineStructure, sideState, nextStateCoords);
-        }
+        this.drawStraightBranchItemLine(curveLineStructure, sideState, nextStateCoords);
       });
     });
   }
@@ -109,13 +107,14 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       rightmostCoords,
     )?.getCenterRightCoords();
     if (branchRightMost && nextStateCoords?.x && nextStateCoords?.y) {
-      let additionalX = 0;
+      let rightmostX = nextStateCoords.x;
       if (!curveLineStructure.nextState) {
-        additionalX = marginSize.horizontalMargin;
+        const { left = 0 } = curveLineStructure.rootState.getConnectPoint();
+        rightmostX = left;
       }
       const tieLine = new BezierCurveTieLine(
         {
-          x: nextStateCoords.x + additionalX,
+          x: rightmostX,
           y: nextStateCoords.y,
         },
         {
@@ -146,15 +145,14 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     const branchItems = curveLineStructure.rootState.getBranchItems();
     const currentBranchItem = branchItems?.length ? branchItems[sideState.branchIndex] : null;
     const branchRightMost = currentBranchItem?.getCenterRightCoords();
+    if (rightmostCoords && branchRightMost?.x === rightmostCoords.x) {
+      this.drawConnectPointTieLine(curveLineStructure, rightmostCoords);
+    }
     if (rightmostCoords && branchRightMost?.x !== rightmostCoords.x) {
       let rightmostX = rightmostCoords?.x;
-      if (!curveLineStructure.nextState) {
-        const { left = 0 } = curveLineStructure.rootState.getConnectPoint();
-        rightmostX = left;
-      }
-
+      this.drawConnectPointTieLine(curveLineStructure, rightmostCoords);
       const bottomOfBranchTieLine = new TieLine([
-        (branchRightMost?.x || 0) + tieLineSize.margin,
+        (branchRightMost?.x || 0),
         branchRightMost?.y,
         rightmostX,
         branchRightMost?.y,
@@ -162,6 +160,22 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       this.canvas.add(bottomOfBranchTieLine);
     }
     return currentBranchItem;
+  }
+
+  protected drawConnectPointTieLine(curveLineStructure: CurveTieLinesStructure,
+                                    rightmostCoords?: PointCoords) {
+    if (!curveLineStructure.nextState) {
+      const { left = 0, top } = curveLineStructure.rootState.getConnectPoint();
+      if (top === rightmostCoords?.y && rightmostCoords?.x) {
+        const connectPointTieLine = new TieLine([
+          rightmostCoords?.x,
+          top,
+          left,
+          top,
+        ]);
+        this.canvas.add(connectPointTieLine);
+      }
+    }
   }
 
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
