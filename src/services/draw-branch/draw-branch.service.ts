@@ -33,6 +33,28 @@ export class DrawBranchService {
   protected drawPosition: DrawPositionService = new DrawPositionService(this.position);
   protected states: IStateGroup[] = [];
 
+  static getMiddleBranchIndex(branchesConfiguration: BranchConfiguration[]) {
+    return Math.ceil(branchesConfiguration.length / 2);
+  }
+
+  static isEvenBranches(branchesConfiguration: BranchConfiguration[]) {
+    return branchesConfiguration.length % 2 === 0;
+  }
+
+  static isMiddleBranch(branchesConfiguration: BranchConfiguration[], indexNumber: number) {
+    return (
+      !DrawBranchService.isEvenBranches(branchesConfiguration) &&
+      indexNumber === DrawBranchService.getMiddleBranchIndex(branchesConfiguration)
+    );
+  }
+
+  static isLeftBranch(branchesConfiguration: BranchConfiguration[], indexNumber: number) {
+    const middleBranchIndex = DrawBranchService.getMiddleBranchIndex(branchesConfiguration);
+    return DrawBranchService.isEvenBranches(branchesConfiguration)
+      ? indexNumber <= middleBranchIndex
+      : indexNumber < middleBranchIndex;
+  }
+
   constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
     if (startPosition) {
       this.position = { ...startPosition };
@@ -68,12 +90,12 @@ export class DrawBranchService {
     return [];
   }
 
-  protected getBranchDrawStartPosition(branchesConfiguration: BranchConfiguration[],
-                                       positionPoint: number,
-                                       branchDimension: 'width'|'height') {
-    const isEvenBranches = branchesConfiguration.length % 2 === 0;
-    const middleBranchIndex = Math.ceil(branchesConfiguration.length / 2);
-
+  protected getBranchDrawStartPosition(
+    branchesConfiguration: BranchConfiguration[],
+    positionPoint: number,
+    branchDimension: 'width' | 'height',
+  ) {
+    const isEvenBranches = DrawBranchService.isEvenBranches(branchesConfiguration);
     let sizeForBranches = 0;
     let offset = 0;
     branchesConfiguration.forEach((branchConfiguration: BranchConfiguration, i: number) => {
@@ -82,15 +104,17 @@ export class DrawBranchService {
           ? branchConfiguration[branchDimension]
           : branchConfiguration[branchDimension] + marginSize.branchesMargin;
       const indexNumber = i + 1;
-      if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
+      if (DrawBranchService.isLeftBranch(branchesConfiguration, indexNumber)) {
         offset += sizeWithMargin;
       }
-      if (!isEvenBranches && indexNumber === middleBranchIndex) {
+      if (DrawBranchService.isMiddleBranch(branchesConfiguration, indexNumber)) {
         offset += sizeWithMargin / 2;
       }
       return (sizeForBranches += sizeWithMargin);
     });
-    const initialStartPosition = isEvenBranches ? positionPoint - sizeForBranches / 2 : positionPoint - offset;
+    const initialStartPosition = isEvenBranches
+      ? positionPoint - sizeForBranches / 2 - marginSize.branchesMargin / 2
+      : positionPoint - offset;
     return initialStartPosition + stateItemSize[branchDimension] / 2;
   }
 
@@ -136,7 +160,7 @@ export class DrawBranchService {
         return {
           data,
           width: this.calculateBranchWidth(data),
-          height: this.calculateBranchHeight(data)
+          height: this.calculateBranchHeight(data),
         };
       });
       const branchesItems: BranchItems[] = this.drawBranches(branchesConfiguration, position).filter(Boolean);

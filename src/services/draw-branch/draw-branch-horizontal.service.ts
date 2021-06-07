@@ -72,14 +72,12 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       startCoords.x = startCoords.x + tieLineSize.margin;
       const { leftSide = [], rightSide = [], middleItems = [] } = curveLineStructure;
       const rightmostCoords = curveLineStructure.rootState.getRightMostItemCoordsUnderChildren();
-
       if (!curveLineStructure.nextState) {
         nextStateCoords = {
           x: rightmostCoords.x,
           y: startCoords.y,
         };
       }
-
       leftSide.forEach((sideState: SideState) => {
         this.drawStartCurveTieLine(sideState, startCoords);
         this.drawEndCurveTieLine(curveLineStructure, sideState, rightmostCoords, nextStateCoords);
@@ -152,7 +150,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       let rightmostX = rightmostCoords?.x;
       this.drawConnectPointTieLine(curveLineStructure, rightmostCoords);
       const bottomOfBranchTieLine = new TieLine([
-        (branchRightMost?.x || 0),
+        branchRightMost?.x || 0,
         branchRightMost?.y,
         rightmostX,
         branchRightMost?.y,
@@ -162,17 +160,11 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     return currentBranchItem;
   }
 
-  protected drawConnectPointTieLine(curveLineStructure: CurveTieLinesStructure,
-                                    rightmostCoords?: PointCoords) {
+  protected drawConnectPointTieLine(curveLineStructure: CurveTieLinesStructure, rightmostCoords?: PointCoords) {
     if (!curveLineStructure.nextState) {
       const { left = 0, top } = curveLineStructure.rootState.getConnectPoint();
       if (top === rightmostCoords?.y && rightmostCoords?.x) {
-        const connectPointTieLine = new TieLine([
-          rightmostCoords?.x,
-          top,
-          left,
-          top,
-        ]);
+        const connectPointTieLine = new TieLine([rightmostCoords?.x, top, left, top]);
         this.canvas.add(connectPointTieLine);
       }
     }
@@ -182,11 +174,6 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     let branchSubItems: BranchItems[] = [];
     let positionY = this.getBranchDrawStartPosition(branchesConfiguration, position.y, 'height');
     for (let i = 0; i < branchesConfiguration.length; i++) {
-      if (i === 0) {
-        positionY -= stateItemSize.height / 2;
-      } else {
-        positionY +=  stateItemSize.height / 2;
-      }
       const branchWorkflowData = branchesConfiguration[i].data;
       const heightWithMargin = branchesConfiguration[i].height + marginSize.branchesMargin;
       positionY += heightWithMargin / 2;

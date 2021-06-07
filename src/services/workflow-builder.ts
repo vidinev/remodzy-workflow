@@ -13,7 +13,6 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix centering (workflowTestData5 vertical), (workflowTestData3 horizontal)
  * Organize testing data
  * Readme file
  * Auto scale canvas
