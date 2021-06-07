@@ -13,7 +13,6 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Organize testing data
  * Readme file
  * Auto scale canvas
  * Fix  drag and drop, and sorting between levels
