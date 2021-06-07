@@ -23,10 +23,10 @@ export interface IStateGroup extends Group {
   setBranchItems: (branchItems: BranchItems[]) => void;
   getBranchItems: () => BranchItems[];
   getChildrenStates: () => IStateGroup[];
-  getCenterBottomCoordsUnderChildren: () => PointCoords;
+  getCenterBottomCoordsUnderChildren: (passStateAsFullState?: boolean) => PointCoords;
   getCenterTopCoordsAboveChildren: () => PointCoords;
   getRightMostItemCoordsUnderChildren: (passStateAsFullState?: boolean) => PointCoords;
-  getLeftMostItemCoordsUnderChildren: (passStateAsFullState?: boolean) => PointCoords;
+  getLeftMostItemCoordsUnderChildren: () => PointCoords;
   getCenterTopCoords: () => PointCoords;
   getCenterBottomCoords: () => PointCoords;
   getCenterRightCoords: () => PointCoords;

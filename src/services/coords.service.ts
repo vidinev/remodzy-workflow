@@ -4,7 +4,7 @@ import { StateTypesEnum } from '../configs/state-types.enum';
 import { passStateItemSize, stateItemSize } from '../configs/size.config';
 
 export class CoordsService {
-  getCenterBottomCoords(states: IStateGroup[]) {
+  getCenterBottomCoords(states: IStateGroup[], passStateAsFullState: boolean = false) {
     let lowerItem: IStateGroup = { } as IStateGroup;
     lowerItem = states[0];
     states.forEach((state: IStateGroup) => {
@@ -18,6 +18,12 @@ export class CoordsService {
       return {
         ...centerBottomCoords,
         y: dropArea.getTop() + (dropArea.height || 0),
+      };
+    }
+    if (passStateAsFullState && lowerItem.data.Type === StateTypesEnum.Pass) {
+      return {
+        ...centerBottomCoords,
+        y: centerBottomCoords.y + (stateItemSize.height - passStateItemSize.height) / 2,
       };
     }
     return centerBottomCoords;

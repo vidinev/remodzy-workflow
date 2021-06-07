@@ -182,6 +182,11 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     let branchSubItems: BranchItems[] = [];
     let positionY = this.getBranchDrawStartPosition(branchesConfiguration, position.y, 'height');
     for (let i = 0; i < branchesConfiguration.length; i++) {
+      if (i === 0) {
+        positionY -= stateItemSize.height / 2;
+      } else {
+        positionY +=  stateItemSize.height / 2;
+      }
       const branchWorkflowData = branchesConfiguration[i].data;
       const heightWithMargin = branchesConfiguration[i].height + marginSize.branchesMargin;
       positionY += heightWithMargin / 2;
@@ -214,7 +219,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
         const topPoint = state.getCenterTopCoordsAboveChildren();
-        const bottomPoint = state.getCenterBottomCoordsUnderChildren();
+        const bottomPoint = state.getCenterBottomCoordsUnderChildren(true);
         heightOfBranch = bottomPoint.y - topPoint.y;
       }
     });
