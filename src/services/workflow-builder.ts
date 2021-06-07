@@ -13,8 +13,9 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 
 /*
- * Fix centering for 2,4,6 items (horizontal)
- * Add ~5 test data as array
+ * Fix centering (workflowTestData5 vertical), (workflowTestData3 horizontal)
+ * Organize testing data
+ * Readme file
  * Auto scale canvas
  * Fix  drag and drop, and sorting between levels
  *
