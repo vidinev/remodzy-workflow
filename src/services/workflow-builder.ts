@@ -55,8 +55,11 @@ export class RemodzyWorkflowBuilder {
       ...this.workflowSettings,
       ...workflowSettings,
     };
+
+    this.getCanvasSize();
     const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, this.canvas);
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
+
     this.setupCanvasEvents();
     this.initialize().then(() => {
       this.canvasEvents.setupDropAreaEvents();
@@ -65,7 +68,20 @@ export class RemodzyWorkflowBuilder {
 
   public async initialize() {
     await this.manropeFont.load();
+    console.time('b');
     this.drawBranchService.drawBranch();
+    console.timeEnd('b');
+  }
+
+  private getCanvasSize() {
+    const virtualCanvas = new fabric.Canvas(null);
+    const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, virtualCanvas);
+    const service = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
+    service.drawBranch();
+    const width = service.getFullWidth();
+    const height = service.getFullHeight();
+    console.log(this.canvas);
+    this.canvas.setDimensions({ width: width * 2, height: height + 200 });
   }
 
   private setupCanvasEvents() {

@@ -19,7 +19,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
     if (!startPosition) {
       this.position = {
-        x: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
+        x: Math.round(this.canvas.getWidth()! / 2 - stateItemSize.width / 2),
         y: marginSize.verticalMargin,
       };
     }
@@ -34,6 +34,10 @@ export class DrawBranchVerticalService extends DrawBranchService {
     this.drawCurveTieLines();
     this.drawTieLines();
     return this.states;
+  }
+
+  public getFullWidth() {
+    return this.getStatesWidth(this.states);
   }
 
   public drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {

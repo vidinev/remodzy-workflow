@@ -66,6 +66,14 @@ export class DrawBranchService {
     return this.states;
   }
 
+  public getFullWidth() {
+    return 0;
+  }
+
+  public getFullHeight() {
+    return this.position.y;
+  }
+
   public drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {
     return this.getRootStateGroup(stateData, position.x, position.y, workflowData);
   }

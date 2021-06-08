@@ -2,8 +2,8 @@ import { MathService } from '../services/math.service';
 import { MarginSize } from '../interfaces/margin-size.interface';
 
 export const canvasSize = {
-  width: 4200,
-  height: 1900,
+  width: 300,
+  height: 200,
 };
 
 export const strokeWidth = 1.5;
