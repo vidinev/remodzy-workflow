@@ -12,10 +12,16 @@ import { TieLine } from '../../models/tie-line.model';
 import { DrawPositionService } from '../draw-position.service';
 import { TieLinesVerticalService } from '../tie-lines/tie-lines-vertical.service';
 import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
+import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
+import { defaultDrawOptions } from './default-draw-options';
 
 export class DrawBranchVerticalService extends DrawBranchService {
-  constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
-    super(workflowData, canvas, startPosition);
+
+  constructor(protected workflowData: WorkflowData,
+              protected canvas: Canvas,
+              protected options: DrawBranchOptions = defaultDrawOptions,
+              protected startPosition?: PointCoords) {
+    super(workflowData, canvas, options, startPosition);
 
     if (!startPosition) {
       this.position = {
@@ -29,10 +35,12 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   public drawBranch(): IStateGroup[] {
     this.drawStates();
-    this.drawTiePoints();
     this.drawDropAreas();
-    this.drawCurveTieLines();
-    this.drawTieLines();
+    if (!this.options.draft) {
+      this.drawTiePoints();
+      this.drawCurveTieLines();
+      this.drawTieLines();
+    }
     return this.states;
   }
 
@@ -59,7 +67,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
       const branchWorkflowData = branchesConfiguration[i].data;
       const widthWithMargin = branchesConfiguration[i].width + marginSize.branchesMargin;
       positionX += widthWithMargin / 2;
-      const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, {
+      const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, this.options, {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
         x: positionX - stateItemSize.width / 2,
       });
@@ -73,7 +81,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   protected calculateBranchWidth(branch: WorkflowData) {
     const virtualCanvas = new fabric.Canvas(null);
-    const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, {
+    const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, { draft: true }, {
       y: 0,
       x: 0,
     });

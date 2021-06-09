@@ -8,9 +8,10 @@ export const DropAreaGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.dropArea,
   _active: false,
 
-  initialize: function(options: IObjectOptions = {}) {
+  initialize: function(options: IObjectOptions = {}, draft: boolean) {
     const dropArea = new fabric.Circle(dropAreaRoundConfig);
-    this.callSuper('initialize', [dropArea, ...this.drawPlus()], {
+    let items = draft ? [dropArea] : [dropArea, ...this.drawPlus()];
+    this.callSuper('initialize', items, {
       ...options,
       selectable: false,
       hoverCursor: 'default',

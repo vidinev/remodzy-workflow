@@ -4,6 +4,6 @@ import * as data from './configs/test-data';
 
 const builder = new RemodzyWorkflowBuilder({
   elementId: 'main-canvas',
-  data: data.inheritanceInside,
+  data: data.dataLargeInheritance,
   direction: RemodzyWfDirection.vertical,
 });

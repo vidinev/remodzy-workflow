@@ -2,6 +2,8 @@ import { IObjectOptions } from 'fabric/fabric-impl';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { WorkflowState } from '../interfaces/state-language.interface';
 import {
+  draftPassRectConfig,
+  draftRectConfig,
   passStateRectConfig,
   passStateTextConfig,
   stateRectConfig,
@@ -33,13 +35,19 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     options: IObjectOptions = {},
     isStart: boolean,
     parentStateId: string,
+    draft: boolean
   ) {
-    const rectConfig = this._getConfig(stateData.Type);
+    const rectConfig = this._getConfig(stateData.Type, draft);
     const stateContainerObject = new fabric.Rect(rectConfig);
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
-    const stateTextObject = new fabric.Textbox(stateText, this._getTextConfig(stateData.Type));
+    const items: any[] = [
+      stateContainerObject
+    ];
+    if (!draft) {
+      items.push(new fabric.Textbox(stateText, this._getTextConfig(stateData.Type)))
+    }
 
-    this.callSuper('initialize', [stateContainerObject, stateTextObject], {
+    this.callSuper('initialize', items, {
       hasControls: false,
       hasBorders: false,
       ...this._getOptions(stateData.Type, options),
@@ -219,12 +227,12 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     }
   },
 
-  _getConfig(type: string) {
+  _getConfig(type: string, draft: boolean) {
     switch (type) {
       case StateTypesEnum.Pass:
-        return passStateRectConfig;
+        return draft ? draftPassRectConfig : passStateRectConfig;
       default:
-        return stateRectConfig;
+        return draft ? draftRectConfig : stateRectConfig;
     }
   },
 

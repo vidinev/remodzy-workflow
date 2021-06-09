@@ -26,6 +26,8 @@ import { DropAreaGroup } from '../../models/drop-area.model';
 import { SideState } from '../../interfaces/state-items-by-side.interface';
 import { TieLine } from '../../models/tie-line.model';
 import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
+import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
+import { defaultDrawOptions } from './default-draw-options';
 
 export class DrawBranchService {
   protected position: PointCoords = { x: 0, y: 0 };
@@ -55,7 +57,10 @@ export class DrawBranchService {
       : indexNumber < middleBranchIndex;
   }
 
-  constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
+  constructor(protected workflowData: WorkflowData,
+              protected canvas: Canvas,
+              protected options: DrawBranchOptions = defaultDrawOptions,
+              protected startPosition?: PointCoords) {
     if (startPosition) {
       this.position = { ...startPosition };
     }
@@ -67,7 +72,7 @@ export class DrawBranchService {
   }
 
   public getFullWidth() {
-    return 0;
+    return this.position.x;
   }
 
   public getFullHeight() {
@@ -91,6 +96,7 @@ export class DrawBranchService {
       },
       isStart,
       workflowData?.getParentStateId(),
+      this.options.draft
     );
   }
 
@@ -236,7 +242,7 @@ export class DrawBranchService {
       data: {
         stateId,
       },
-    });
+    }, this.options.draft);
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.moveToCenter();
     return dropAreaGroup;
