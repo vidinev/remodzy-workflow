@@ -31,6 +31,7 @@ export class RemodzyWorkflowBuilder {
   private readonly canvasConfig: ICanvasOptions = {
     ...canvasSize,
     selection: false,
+    imageSmoothingEnabled: false,
     backgroundColor: remodzyColors.canvasBg,
   };
   private readonly workflowSettings: Partial<RemodzyWFSettings> = {
@@ -77,7 +78,7 @@ export class RemodzyWorkflowBuilder {
     service.drawBranch();
     const width = service.getFullWidth();
     const height = service.getFullHeight();
-    this.canvas.setDimensions({ width: width * 2, height: height * 2 });
+    this.canvas.setDimensions({ width: width * 1.5, height: height });
   }
 
   private setupCanvasEvents() {

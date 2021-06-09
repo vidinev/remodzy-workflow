@@ -71,7 +71,7 @@ export class CoordsService {
   getCenterLeftCoords(states: IStateGroup[]): PointCoords {
     let leftmostItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
-      if ((leftmostItem?.getLeft?.() || 0) === 0 || state.getLeft() < (leftmostItem?.getLeft?.() || 0)) {
+      if (CoordsService.getLeftX(state) < CoordsService.getLeftX(leftmostItem)) {
         leftmostItem = state;
       }
     });
@@ -87,7 +87,18 @@ export class CoordsService {
     if (tiePoint) {
       return tiePoint.getCenterLeftCoords();
     }
-    return centerLeftCoords;
+    return {
+      ...centerLeftCoords,
+      x: CoordsService.getLeftX(leftmostItem),
+    };
+  }
+
+  private static getLeftX(state: IStateGroup) {
+    let currentX = state.getLeft?.() || 0;
+    if (state.isBranchRoot?.()) {
+      currentX = state.getLeftMostItemCoordsUnderChildren()?.x || currentX;
+    }
+    return currentX;
   }
 
   private static getRightX(state: IStateGroup) {
