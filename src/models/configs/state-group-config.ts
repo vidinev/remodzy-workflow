@@ -43,6 +43,7 @@ export const stateTextConfig: ITextboxOptions = {
   selectable: false,
   fontFamily: 'Manrope',
   fontWeight: 400,
+  strokeWidth: .1,
   textAlign: 'center',
   fill: remodzyColors.rectTextColor,
 };
