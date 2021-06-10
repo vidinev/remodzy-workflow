@@ -26,6 +26,9 @@ import { DropAreaGroup } from '../../models/drop-area.model';
 import { SideState } from '../../interfaces/state-items-by-side.interface';
 import { TieLine } from '../../models/tie-line.model';
 import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
+import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
+import { defaultDrawOptions } from './default-draw-options';
+import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
 
 export class DrawBranchService {
   protected position: PointCoords = { x: 0, y: 0 };
@@ -55,7 +58,10 @@ export class DrawBranchService {
       : indexNumber < middleBranchIndex;
   }
 
-  constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
+  constructor(protected workflowData: WorkflowData,
+              protected canvas: Canvas,
+              protected options: DrawBranchOptions = defaultDrawOptions,
+              protected startPosition?: PointCoords) {
     if (startPosition) {
       this.position = { ...startPosition };
     }
@@ -68,6 +74,16 @@ export class DrawBranchService {
 
   public drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {
     return this.getRootStateGroup(stateData, position.x, position.y, workflowData);
+  }
+
+  public getBranchDimensions(): WorkflowDimensions {
+    return {
+      width: stateItemSize.width,
+      height: stateItemSize.height,
+      leftSideWidth: stateItemSize.width / 2,
+      rightSideWidth: stateItemSize.width / 2,
+      startPoint: { x: 0, y: 0 }
+    };
   }
 
   protected getRootStateGroup(stateData: WorkflowState, left: number, top: number, workflowData?: WorkflowData) {
@@ -83,6 +99,7 @@ export class DrawBranchService {
       },
       isStart,
       workflowData?.getParentStateId(),
+      this.options.draft
     );
   }
 
@@ -228,7 +245,7 @@ export class DrawBranchService {
       data: {
         stateId,
       },
-    });
+    }, this.options.draft);
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.moveToCenter();
     return dropAreaGroup;

@@ -1,6 +1,6 @@
 import { WorkflowStateData } from '../../interfaces/state-language.interface';
 
-export const dataSimple: WorkflowStateData = {
+export const simple: WorkflowStateData = {
   StartAt: 'StartEvent',
   States: {
     StartEvent: {

@@ -16,12 +16,24 @@ export const stateRectConfig: IRectOptions = {
   } as Shadow,
 };
 
+export const draftRectConfig: IRectOptions = {
+  width: stateItemSize.width,
+  height: stateItemSize.height,
+  selectable: false,
+}
+
 export const passStateRectConfig: IRectOptions = {
   ...stateRectConfig,
   width: passStateItemSize.width,
   height: passStateItemSize.height,
   rx: 8,
   ry: 8
+}
+
+export const draftPassRectConfig: IRectOptions = {
+  width: passStateItemSize.width,
+  height: passStateItemSize.height,
+  selectable: false,
 }
 
 export const stateTextConfig: ITextboxOptions = {
@@ -31,6 +43,7 @@ export const stateTextConfig: ITextboxOptions = {
   selectable: false,
   fontFamily: 'Manrope',
   fontWeight: 400,
+  strokeWidth: .1,
   textAlign: 'center',
   fill: remodzyColors.rectTextColor,
 };

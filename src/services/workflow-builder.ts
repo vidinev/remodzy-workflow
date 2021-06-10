@@ -11,9 +11,10 @@ import { remodzyColors } from '../configs/colors.config';
 import { DrawBranchService } from './draw-branch/draw-branch.service';
 import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.service';
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
+import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.interface';
 
 /*
- * Auto scale canvas
+ * Test with overflow container
  * Fix  drag and drop, and sorting between levels
  *
  * Fix 2 drop area highlight at the same time
@@ -31,6 +32,7 @@ export class RemodzyWorkflowBuilder {
   private readonly canvasConfig: ICanvasOptions = {
     ...canvasSize,
     selection: false,
+    imageSmoothingEnabled: false,
     backgroundColor: remodzyColors.canvasBg,
   };
   private readonly workflowSettings: Partial<RemodzyWFSettings> = {
@@ -55,7 +57,19 @@ export class RemodzyWorkflowBuilder {
       ...this.workflowSettings,
       ...workflowSettings,
     };
-    const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, this.canvas);
+
+    const canvasDimensions = this.getCanvasDimensions();
+    this.canvas.setDimensions({
+      width: canvasDimensions.width,
+      height: canvasDimensions.height
+    });
+
+    const drawBranchFactory = new DrawBranchFactoryService(
+      this.workflowData,
+      this.canvas,
+      { draft: false },
+      canvasDimensions
+    );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();
     this.initialize().then(() => {
@@ -66,6 +80,14 @@ export class RemodzyWorkflowBuilder {
   public async initialize() {
     await this.manropeFont.load();
     this.drawBranchService.drawBranch();
+  }
+
+  private getCanvasDimensions(): WorkflowDimensions {
+    const virtualCanvas = new fabric.Canvas(null);
+    const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, virtualCanvas, { draft: true });
+    const service = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
+    service.drawBranch();
+    return service.getBranchDimensions();
   }
 
   private setupCanvasEvents() {

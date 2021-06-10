@@ -12,14 +12,21 @@ import { TieLine } from '../../models/tie-line.model';
 import { DrawPositionService } from '../draw-position.service';
 import { TieLinesVerticalService } from '../tie-lines/tie-lines-vertical.service';
 import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
+import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
+import { defaultDrawOptions } from './default-draw-options';
+import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
 
 export class DrawBranchVerticalService extends DrawBranchService {
-  constructor(protected workflowData: WorkflowData, protected canvas: Canvas, protected startPosition?: PointCoords) {
-    super(workflowData, canvas, startPosition);
+
+  constructor(protected workflowData: WorkflowData,
+              protected canvas: Canvas,
+              protected options: DrawBranchOptions = defaultDrawOptions,
+              protected startPosition?: PointCoords) {
+    super(workflowData, canvas, options, startPosition);
 
     if (!startPosition) {
       this.position = {
-        x: Math.round(this.canvas.width! / 2 - stateItemSize.width / 2),
+        x: Math.round(this.canvas.getWidth()! / 2 - stateItemSize.width / 2),
         y: marginSize.verticalMargin,
       };
     }
@@ -29,10 +36,12 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   public drawBranch(): IStateGroup[] {
     this.drawStates();
-    this.drawTiePoints();
     this.drawDropAreas();
-    this.drawCurveTieLines();
-    this.drawTieLines();
+    if (!this.options.draft) {
+      this.drawTiePoints();
+      this.drawCurveTieLines();
+      this.drawTieLines();
+    }
     return this.states;
   }
 
@@ -40,6 +49,31 @@ export class DrawBranchVerticalService extends DrawBranchService {
     const stateGroup = this.getRootStateGroup(stateData, position.x, position.y, workflowData);
     this.canvas.add(stateGroup);
     return stateGroup;
+  }
+
+  public getBranchDimensions(): WorkflowDimensions {
+    let widthOfBranch = stateItemSize.width;
+    const defaultCoords = { x: 0, y: 0 };
+    let rightMost = defaultCoords
+    let leftMost = defaultCoords;
+    let stateCenterTop = defaultCoords;
+    this.states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot()) {
+        rightMost = state.getRightMostItemCoordsUnderChildren(true);
+        leftMost = state.getLeftMostItemCoordsUnderChildren();
+        widthOfBranch = rightMost.x - leftMost.x;
+      }
+      if (state.data.stateId === this.workflowData.getStartStateId()) {
+        stateCenterTop = state.getCenterTopCoords();
+      }
+    });
+    return {
+      width: widthOfBranch + marginSize.horizontalMargin * 2,
+      height: this.position.y + marginSize.verticalMargin * 2,
+      leftSideWidth: stateCenterTop.x - leftMost.x,
+      rightSideWidth: rightMost.x - stateCenterTop.x,
+      startPoint: stateCenterTop
+    };
   }
 
   protected getRootStateGroup(stateData: WorkflowState, left: number, top: number, workflowData?: WorkflowData) {
@@ -55,7 +89,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
       const branchWorkflowData = branchesConfiguration[i].data;
       const widthWithMargin = branchesConfiguration[i].width + marginSize.branchesMargin;
       positionX += widthWithMargin / 2;
-      const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, {
+      const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, this.options, {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
         x: positionX - stateItemSize.width / 2,
       });
@@ -69,7 +103,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   protected calculateBranchWidth(branch: WorkflowData) {
     const virtualCanvas = new fabric.Canvas(null);
-    const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, {
+    const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, { draft: true }, {
       y: 0,
       x: 0,
     });

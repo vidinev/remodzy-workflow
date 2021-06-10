@@ -5,7 +5,7 @@ import { passStateItemSize, stateItemSize } from '../configs/size.config';
 
 export class CoordsService {
   getCenterBottomCoords(states: IStateGroup[], passStateAsFullState: boolean = false) {
-    let lowerItem: IStateGroup = { } as IStateGroup;
+    let lowerItem: IStateGroup = {} as IStateGroup;
     lowerItem = states[0];
     states.forEach((state: IStateGroup) => {
       if (CoordsService.getBottomY(state) > (CoordsService.getBottomY(lowerItem) || 0)) {
@@ -30,26 +30,30 @@ export class CoordsService {
   }
 
   getCenterTopCoords(states: IStateGroup[]) {
-    let topItem: IStateGroup = { } as IStateGroup;
+    let topItem: IStateGroup = {} as IStateGroup;
     topItem = states[0];
     states.forEach((state: IStateGroup) => {
       if (CoordsService.getTopY(state) < (CoordsService.getTopY(topItem) || 0)) {
         topItem = state;
       }
     });
-    return topItem.getCenterTopCoords();
+    const centerTopCoords = topItem.getCenterTopCoords();
+    return {
+      ...centerTopCoords,
+      y: CoordsService.getTopY(topItem),
+    };
   }
 
   getCenterRightCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
-    let rightmostItem: IStateGroup = { } as IStateGroup;
+    let rightmostItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
       if (CoordsService.getRightX(state) > CoordsService.getRightX(rightmostItem)) {
         rightmostItem = state;
       }
     });
-    const centerRightCoords = rightmostItem.getCenterRightCoords();
-    const tiePoint = rightmostItem.getRightTiePoint();
-    const connectPoint = rightmostItem.getConnectPoint();
+    const centerRightCoords = rightmostItem.getCenterRightCoords?.() || { x: 0, y: 0 };
+    const tiePoint = rightmostItem.getRightTiePoint?.();
+    const connectPoint = rightmostItem.getConnectPoint?.();
     if (connectPoint) {
       return {
         x: connectPoint.left || 0,
@@ -69,9 +73,9 @@ export class CoordsService {
   }
 
   getCenterLeftCoords(states: IStateGroup[]): PointCoords {
-    let leftmostItem: IStateGroup = { } as IStateGroup;
+    let leftmostItem: IStateGroup = {} as IStateGroup;
     states.forEach((state: IStateGroup) => {
-      if ((leftmostItem?.getLeft?.() || 0) === 0 || state.getLeft() < (leftmostItem?.getLeft?.() || 0)) {
+      if (CoordsService.getLeftX(state) < CoordsService.getLeftX(leftmostItem)) {
         leftmostItem = state;
       }
     });
@@ -87,7 +91,18 @@ export class CoordsService {
     if (tiePoint) {
       return tiePoint.getCenterLeftCoords();
     }
-    return centerLeftCoords;
+    return {
+      ...centerLeftCoords,
+      x: CoordsService.getLeftX(leftmostItem),
+    };
+  }
+
+  private static getLeftX(state: IStateGroup) {
+    let currentX = state.getLeft?.() || 0;
+    if (state.isBranchRoot?.()) {
+      currentX = state.getLeftMostItemCoordsUnderChildren()?.x || currentX;
+    }
+    return currentX;
   }
 
   private static getRightX(state: IStateGroup) {
