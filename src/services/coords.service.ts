@@ -37,7 +37,11 @@ export class CoordsService {
         topItem = state;
       }
     });
-    return topItem.getCenterTopCoords();
+    const centerTopCoords = topItem.getCenterTopCoords();
+    return {
+      ...centerTopCoords,
+      y: CoordsService.getTopY(topItem),
+    };
   }
 
   getCenterRightCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {

@@ -14,6 +14,7 @@ import { TieLinesVerticalService } from '../tie-lines/tie-lines-vertical.service
 import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
 import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
 import { defaultDrawOptions } from './default-draw-options';
+import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
 
 export class DrawBranchVerticalService extends DrawBranchService {
 
@@ -44,14 +45,35 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return this.states;
   }
 
-  public getFullWidth() {
-    return this.getStatesWidth(this.states);
-  }
-
   public drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {
     const stateGroup = this.getRootStateGroup(stateData, position.x, position.y, workflowData);
     this.canvas.add(stateGroup);
     return stateGroup;
+  }
+
+  public getBranchDimensions(): WorkflowDimensions {
+    let widthOfBranch = stateItemSize.width;
+    const defaultCoords = { x: 0, y: 0 };
+    let rightMost = defaultCoords
+    let leftMost = defaultCoords;
+    let stateCenterTop = defaultCoords;
+    this.states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot()) {
+        rightMost = state.getRightMostItemCoordsUnderChildren(true);
+        leftMost = state.getLeftMostItemCoordsUnderChildren();
+        widthOfBranch = rightMost.x - leftMost.x;
+      }
+      if (state.data.stateId === this.workflowData.getStartStateId()) {
+        stateCenterTop = state.getCenterTopCoords();
+      }
+    });
+    return {
+      width: widthOfBranch + marginSize.horizontalMargin * 2,
+      height: this.position.y + marginSize.verticalMargin * 2,
+      leftSideWidth: stateCenterTop.x - leftMost.x,
+      rightSideWidth: rightMost.x - stateCenterTop.x,
+      startPoint: stateCenterTop
+    };
   }
 
   protected getRootStateGroup(stateData: WorkflowState, left: number, top: number, workflowData?: WorkflowData) {

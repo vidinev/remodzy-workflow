@@ -11,9 +11,10 @@ import { remodzyColors } from '../configs/colors.config';
 import { DrawBranchService } from './draw-branch/draw-branch.service';
 import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.service';
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
+import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.interface';
 
 /*
- * Auto scale canvas
+ * Test with overflow container
  * Fix  drag and drop, and sorting between levels
  *
  * Fix 2 drop area highlight at the same time
@@ -57,8 +58,18 @@ export class RemodzyWorkflowBuilder {
       ...workflowSettings,
     };
 
-    this.setCanvasSize();
-    const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, this.canvas, { draft: false });
+    const canvasDimensions = this.getCanvasDimensions();
+    this.canvas.setDimensions({
+      width: canvasDimensions.width,
+      height: canvasDimensions.height
+    });
+
+    const drawBranchFactory = new DrawBranchFactoryService(
+      this.workflowData,
+      this.canvas,
+      { draft: false },
+      canvasDimensions
+    );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();
     this.initialize().then(() => {
@@ -71,14 +82,12 @@ export class RemodzyWorkflowBuilder {
     this.drawBranchService.drawBranch();
   }
 
-  private setCanvasSize() {
+  private getCanvasDimensions(): WorkflowDimensions {
     const virtualCanvas = new fabric.Canvas(null);
     const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, virtualCanvas, { draft: true });
     const service = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     service.drawBranch();
-    const width = service.getFullWidth();
-    const height = service.getFullHeight();
-    this.canvas.setDimensions({ width: width * 1.5, height: height });
+    return service.getBranchDimensions();
   }
 
   private setupCanvasEvents() {

@@ -18,6 +18,7 @@ import { ConnectPoint } from 'src/models/connect-point.model';
 import { BranchConfiguration } from '../../interfaces/branch-configuration.interface';
 import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
 import { defaultDrawOptions } from './default-draw-options';
+import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
 
 export class DrawBranchHorizontalService extends DrawBranchService {
   constructor(protected workflowData: WorkflowData,
@@ -56,8 +57,29 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     return stateGroup;
   }
 
-  public getFullHeight() {
-    return this.getStatesHeight(this.states);
+  public getBranchDimensions(): WorkflowDimensions {
+    let heightOfBranch = stateItemSize.height;
+    const defaultCoords = { x: 0, y: 0 };
+    let topPoint = defaultCoords
+    let bottomPoint = defaultCoords
+    let stateCenterLeft = defaultCoords;
+    this.states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot()) {
+        topPoint = state.getCenterTopCoordsAboveChildren();
+        bottomPoint = state.getCenterBottomCoordsUnderChildren(true);
+        heightOfBranch = bottomPoint.y - topPoint.y;
+      }
+      if (state.data.stateId === this.workflowData.getStartStateId()) {
+        stateCenterLeft = state.getCenterLeftCoords();
+      }
+    });
+    return {
+      width: this.position.x + marginSize.horizontalMargin + stateItemSize.width,
+      height: heightOfBranch + marginSize.verticalMargin * 2,
+      leftSideWidth: stateCenterLeft.y - topPoint.y,
+      rightSideWidth: bottomPoint.y - stateCenterLeft.y,
+      startPoint: stateCenterLeft
+    };
   }
 
   protected drawCurveConnectPoints() {

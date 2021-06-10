@@ -1,6 +1,6 @@
 import { WorkflowStateData } from '../../interfaces/state-language.interface';
 
-export const data4Parallel: WorkflowStateData = {
+export const parallel4: WorkflowStateData = {
   StartAt: 'StartEvent',
   States: {
     StartEvent: {

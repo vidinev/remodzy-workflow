@@ -1,6 +1,6 @@
 import { WorkflowStateData } from '../../interfaces/state-language.interface';
 
-export const dataAverageInheritance: WorkflowStateData = {
+export const averageInheritance: WorkflowStateData = {
   StartAt: 'StartEvent',
   States: {
     StartEvent: {
