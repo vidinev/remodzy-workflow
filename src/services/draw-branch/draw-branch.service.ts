@@ -88,14 +88,16 @@ export class DrawBranchService {
 
   protected getRootStateGroup(stateData: WorkflowState, left: number, top: number, workflowData?: WorkflowData) {
     const isStart = stateData.Parameters?.stateId === workflowData?.getStartStateId();
+    const isMainStart = workflowData?.isMainRoot() && isStart;
     const isEnd = stateData.Parameters?.stateId === this.workflowData.getEndStateId();
+    const isMainEnd = workflowData?.isMainRoot() && isEnd;
     return new StateGroup(
       stateData,
       {
         left,
         top,
-        hoverCursor: isStart || isEnd ? 'default' : 'pointer',
-        selectable: !(isStart || isEnd),
+        hoverCursor: (isMainStart || isMainEnd) ? 'default' : 'pointer',
+        selectable: !(isMainStart || isMainEnd),
       },
       isStart,
       workflowData?.getParentStateId(),
