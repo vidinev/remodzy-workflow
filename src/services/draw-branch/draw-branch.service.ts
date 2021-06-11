@@ -58,10 +58,12 @@ export class DrawBranchService {
       : indexNumber < middleBranchIndex;
   }
 
-  constructor(protected workflowData: WorkflowData,
-              protected canvas: Canvas,
-              protected options: DrawBranchOptions = defaultDrawOptions,
-              protected startPosition?: PointCoords) {
+  constructor(
+    protected workflowData: WorkflowData,
+    protected canvas: Canvas,
+    protected options: DrawBranchOptions = defaultDrawOptions,
+    protected startPosition?: PointCoords,
+  ) {
     if (startPosition) {
       this.position = { ...startPosition };
     }
@@ -82,8 +84,22 @@ export class DrawBranchService {
       height: stateItemSize.height,
       leftSideWidth: stateItemSize.width / 2,
       rightSideWidth: stateItemSize.width / 2,
-      startPoint: { x: 0, y: 0 }
+      startPoint: { x: 0, y: 0 },
     };
+  }
+
+  public getDropAreas(states: IStateGroup[] = this.states): IDropAreaGroup[] {
+    let dropAreas: IDropAreaGroup[] = [];
+    states.forEach((state: IStateGroup) => {
+      const dropArea = state.getDropArea();
+      if (state.isBranchRoot()) {
+        dropAreas = [...dropAreas, ...this.getDropAreas(state.getChildrenStates())];
+      }
+      if (dropArea) {
+        dropAreas.push(dropArea);
+      }
+    });
+    return dropAreas;
   }
 
   protected getRootStateGroup(stateData: WorkflowState, left: number, top: number, workflowData?: WorkflowData) {
@@ -96,12 +112,12 @@ export class DrawBranchService {
       {
         left,
         top,
-        hoverCursor: (isMainStart || isMainEnd) ? 'default' : 'pointer',
+        hoverCursor: isMainStart || isMainEnd ? 'default' : 'pointer',
         selectable: !(isMainStart || isMainEnd),
       },
       isStart,
       workflowData?.getParentStateId(),
-      this.options.draft
+      this.options.draft,
     );
   }
 
@@ -241,13 +257,16 @@ export class DrawBranchService {
   }
 
   protected drawDropArea(stateId: string, position: PointCoords): IDropAreaGroup {
-    const dropAreaGroup = new DropAreaGroup({
-      left: position.x,
-      top: position.y,
-      data: {
-        stateId,
+    const dropAreaGroup = new DropAreaGroup(
+      {
+        left: position.x,
+        top: position.y,
+        data: {
+          stateId,
+        },
       },
-    }, this.options.draft);
+      this.options.draft,
+    );
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.moveToCenter();
     return dropAreaGroup;

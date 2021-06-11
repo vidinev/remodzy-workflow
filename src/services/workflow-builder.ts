@@ -61,19 +61,21 @@ export class RemodzyWorkflowBuilder {
     const canvasDimensions = this.getCanvasDimensions();
     this.canvas.setDimensions({
       width: canvasDimensions.width,
-      height: canvasDimensions.height
+      height: canvasDimensions.height,
     });
 
     const drawBranchFactory = new DrawBranchFactoryService(
       this.workflowData,
       this.canvas,
       { draft: false },
-      canvasDimensions
+      canvasDimensions,
     );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();
     this.initialize().then(() => {
-      this.canvasEvents.setupDropAreaEvents();
+      const dropAreas = this.drawBranchService.getDropAreas();
+      console.log(dropAreas);
+      this.canvasEvents.setupDropAreaEvents(dropAreas);
     });
   }
 
@@ -108,8 +110,8 @@ export class RemodzyWorkflowBuilder {
 
   private drawStateCloneUnderMovingObject(movingState: IStateGroup) {
     const stateGroup = this.drawBranchService.drawStateRoot(movingState.getStateData(), {
-      y: movingState.top,
-      x: movingState.left,
+      y: movingState.getTop(),
+      x: movingState.getLeft(),
     });
     stateGroup.sendToBack();
   }

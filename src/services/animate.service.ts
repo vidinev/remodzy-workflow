@@ -21,7 +21,6 @@ export class AnimateService {
         onChange: (value) => {
           if (event.target) {
             event.target.rotate(value);
-            this.canvas.renderAll();
           }
         },
         easing: fabric.util.ease.easeOutSine,
@@ -34,7 +33,6 @@ export class AnimateService {
         onChange: (value) => {
           if (event.target) {
             event.target.setOptions({ opacity: value });
-            this.canvas.renderAll();
           }
         },
       } as IUtilAnimationOptions);
