@@ -1,4 +1,4 @@
-import { Canvas, IEvent, Object } from 'fabric/fabric-impl';
+import { Canvas, IEvent, Object, Polygon } from 'fabric/fabric-impl';
 import { dropAreaSize, leftAngleOffset, stateItemSize, topAngleOffset } from '../configs/size.config';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
@@ -15,6 +15,7 @@ export class CanvasEventsService {
   private dragLeftDelta: number;
   private canvas: Canvas;
   private activeDropArea: IDropAreaGroup | null = null;
+  private dropAreasAndPolygons: { area: IDropAreaGroup, polygon: Polygon }[] = [];
 
   static isDragEventAllowed(target?: Object) {
     return target && target.type === ObjectTypes.state && target.selectable;
@@ -27,56 +28,31 @@ export class CanvasEventsService {
     this.dragLeftDelta = 0;
   }
 
-  setupDropAreaEvents(dropAreas: IDropAreaGroup[]) {
+  initialize(dropAreas: IDropAreaGroup[]) {
+    this.dropAreasAndPolygons = this.prepareDropAreaPolygons(dropAreas);
+    this.currentDragTop = 0;
+    this.dragTopDelta = 0;
+    this.dragLeftDelta = 0;
+  }
+
+  setupDropAreaEvents() {
+    let timeout: number;
     this.canvas.on('object:moving', (event: IEvent) => {
-      this.activeDropArea = null;
-      const left = (event.target?.left || 0) + this.dragLeftDelta;
-      const top = (event.target?.top || 0) + this.dragTopDelta;
-      const right = (event.target?.width || 0) + left;
-      const bottom = (event.target?.height || 0) + top;
-
-      const points = [
-        {
-          x: left + leftAngleOffset,
-          y: top - topAngleOffset,
-        },
-        {
-          x: right + leftAngleOffset,
-          y: top + topAngleOffset,
-        },
-        {
-          x: right - leftAngleOffset / 2,
-          y: bottom + topAngleOffset,
-        },
-        {
-          x: left - leftAngleOffset / 2,
-          y: bottom - topAngleOffset,
-        },
-      ];
-
-      // const polygon = new fabric.Polygon(points, {
-      //   left,
-      //   top,
-      //   objectCaching: false,
-      //   transparentCorners: false,
-      //   visible: false,
-      // });
-
-      for (let i = 0; i < dropAreas.length; i++) {
-        const hasIntersect = false;
-
-        const a = fabric.Intersection.intersectPolygonRectangle(
-          points.map((point) => new fabric.Point(point.x, point.y)),
-          dropAreas[i].getLeft(),
-          dropAreas[i].getTop() + dropAreaSize.height,
-        );
-        console.log(a);
-        dropAreas[i].toggleActive(hasIntersect);
-        if (hasIntersect) {
-          this.activeDropArea = dropAreas[i];
-          break;
-        }
+      if (timeout) {
+        window.cancelAnimationFrame(timeout);
       }
+      timeout = window.requestAnimationFrame(() => {
+        this.activeDropArea = null;
+        const statePolygon = this.getStatePolygon(event?.target as IStateGroup);
+        for (let i = 0; i < this.dropAreasAndPolygons.length; i++) {
+          const hasIntersect = statePolygon.intersectsWithObject(this.dropAreasAndPolygons[i].polygon);
+          this.dropAreasAndPolygons[i].area.toggleActive(hasIntersect);
+          if (hasIntersect) {
+            this.activeDropArea = this.dropAreasAndPolygons[i].area as IDropAreaGroup;
+            break;
+          }
+        }
+      });
     });
   }
 
@@ -108,6 +84,70 @@ export class CanvasEventsService {
       }
     });
     this.setupDragOverflowEvents();
+  }
+
+  private prepareDropAreaPolygons(dropAreas: IDropAreaGroup[]): { area: IDropAreaGroup, polygon: Polygon }[] {
+    return dropAreas.map((dropArea: IDropAreaGroup) => {
+      const dropAreaLeft = dropArea.getLeft();
+      const dropAreaTop = dropArea.getTop();
+      const dropAreaPoints = [{
+        x: dropAreaLeft,
+        y: dropAreaTop
+      }, {
+        x: dropAreaLeft + dropAreaSize.width,
+        y: dropAreaTop
+      }, {
+        x: dropAreaLeft + dropAreaSize.width,
+        y: dropAreaTop + dropAreaSize.height
+      }, {
+        x: dropAreaLeft,
+        y: dropAreaTop + dropAreaSize.height
+      }];
+      return {
+        area: dropArea,
+        polygon: new fabric.Polygon(dropAreaPoints, {
+          left: dropAreaLeft,
+          top: dropAreaTop,
+          objectCaching: false,
+          transparentCorners: false,
+          visible: false,
+        })
+      }
+    });
+  }
+
+  private getStatePolygon(state?: IStateGroup): Polygon {
+    const left = (state?.left || 0) + this.dragLeftDelta;
+    const top = (state?.top || 0) + this.dragTopDelta;
+    const right = (state?.width || 0) + left;
+    const bottom = (state?.height || 0) + top;
+
+    const statePoints = [
+      {
+        x: left + leftAngleOffset,
+        y: top - topAngleOffset,
+      },
+      {
+        x: right + leftAngleOffset,
+        y: top + topAngleOffset,
+      },
+      {
+        x: right - leftAngleOffset / 2,
+        y: bottom + topAngleOffset,
+      },
+      {
+        x: left - leftAngleOffset / 2,
+        y: bottom - topAngleOffset,
+      },
+    ];
+
+    return new fabric.Polygon(statePoints, {
+      left,
+      top,
+      objectCaching: false,
+      transparentCorners: false,
+      visible: false,
+    });
   }
 
   private setupDragOverflowEvents() {

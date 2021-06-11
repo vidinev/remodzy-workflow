@@ -14,10 +14,11 @@ import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.interface';
 
 /*
+ * Improve draw performance
+ * Fix debounce (fast state moving when sort)
+ * Fix 2 drop area highlight at the same time
  * Test with overflow container
  * Fix  drag and drop, and sorting between levels
- *
- * Fix 2 drop area highlight at the same time
 
  * Merge all js files into one
  * Test lib basic functionality
@@ -74,8 +75,7 @@ export class RemodzyWorkflowBuilder {
     this.setupCanvasEvents();
     this.initialize().then(() => {
       const dropAreas = this.drawBranchService.getDropAreas();
-      console.log(dropAreas);
-      this.canvasEvents.setupDropAreaEvents(dropAreas);
+      this.canvasEvents.initialize(dropAreas);
     });
   }
 
@@ -93,6 +93,7 @@ export class RemodzyWorkflowBuilder {
   }
 
   private setupCanvasEvents() {
+    this.canvasEvents.setupDropAreaEvents();
     this.canvasEvents.setupDragDropEvents({
       dragStartCallback: (event: IEvent) => {
         if (event.target) {
@@ -100,9 +101,9 @@ export class RemodzyWorkflowBuilder {
           this.animate.animateDragDrop(event, 1);
         }
       },
-      dropCallback: (event: IEvent, dropArea: IDropAreaGroup) => {
+      dropCallback: async (event: IEvent, dropArea: IDropAreaGroup) => {
         if (event.target?.data.stateId) {
-          this.sortObjectsAfterDragAndDrop(dropArea, event.target.data.stateId);
+          await this.sortObjectsAfterDragAndDrop(dropArea, event.target.data.stateId);
         }
       },
     });
@@ -116,15 +117,34 @@ export class RemodzyWorkflowBuilder {
     stateGroup.sendToBack();
   }
 
-  private sortObjectsAfterDragAndDrop(dropArea: IDropAreaGroup, id: string) {
+  private async sortObjectsAfterDragAndDrop(dropArea: IDropAreaGroup, id: string) {
+    await this.tick();
     this.workflowData.sortStates(id, dropArea.data.stateId);
+    const tieLinesFactory = new TieLinesFactoryService(this.canvas);
+    this.tieLines = tieLinesFactory.getTieLinesService(this.workflowSettings.direction);
+    await this.tick();
+    const canvasDimensions = this.getCanvasDimensions();
+    this.canvas.setDimensions({
+      width: canvasDimensions.width,
+      height: canvasDimensions.height,
+    });
+    const drawBranchFactory = new DrawBranchFactoryService(
+      this.workflowData,
+      this.canvas,
+      { draft: false },
+      canvasDimensions,
+    );
+    this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
+    await this.tick();
     this.canvas.clear();
     this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => {
-      const tieLinesFactory = new TieLinesFactoryService(this.canvas);
-      this.tieLines = tieLinesFactory.getTieLinesService(this.workflowSettings.direction);
-      const drawBranchFactory = new DrawBranchFactoryService(this.workflowData, this.canvas);
-      this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
       this.drawBranchService.drawBranch();
+      const dropAreas = this.drawBranchService.getDropAreas();
+      this.canvasEvents.initialize(dropAreas);
     });
+  }
+
+  private tick() {
+    return new Promise(resolve => setTimeout(resolve));
   }
 }
