@@ -7,5 +7,6 @@ export const tieLineConfig: ILineOptions = {
   fill: remodzyColors.tieLineColor,
   stroke: remodzyColors.tieLineColor,
   selectable: false,
+  objectCaching: false,
   evented: false,
 };

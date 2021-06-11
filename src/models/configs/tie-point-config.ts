@@ -10,4 +10,5 @@ export const tiePointConfig: ICircleOptions = {
   selectable: false,
   evented: false,
   hoverCursor: 'default',
+  objectCaching: false,
 };

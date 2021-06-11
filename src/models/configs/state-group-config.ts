@@ -9,6 +9,7 @@ export const stateRectConfig: IRectOptions = {
   rx: 12,
   ry: 12,
   selectable: false,
+  objectCaching: false,
   shadow: {
     color: 'rgba(0, 0, 0, .005)',
     blur: 10,
@@ -20,21 +21,24 @@ export const draftRectConfig: IRectOptions = {
   width: stateItemSize.width,
   height: stateItemSize.height,
   selectable: false,
-}
+  objectCaching: false,
+};
 
 export const passStateRectConfig: IRectOptions = {
   ...stateRectConfig,
   width: passStateItemSize.width,
   height: passStateItemSize.height,
   rx: 8,
-  ry: 8
-}
+  ry: 8,
+  objectCaching: false,
+};
 
 export const draftPassRectConfig: IRectOptions = {
   width: passStateItemSize.width,
   height: passStateItemSize.height,
   selectable: false,
-}
+  objectCaching: false,
+};
 
 export const stateTextConfig: ITextboxOptions = {
   width: stateItemSize.width,
@@ -43,13 +47,15 @@ export const stateTextConfig: ITextboxOptions = {
   selectable: false,
   fontFamily: 'Manrope',
   fontWeight: 400,
-  strokeWidth: .1,
+  strokeWidth: 0.1,
   textAlign: 'center',
   fill: remodzyColors.rectTextColor,
+  objectCaching: false,
 };
 
 export const passStateTextConfig: ITextboxOptions = {
   ...stateTextConfig,
   width: passStateItemSize.width,
   top: Math.round(passStateItemSize.height / 2 - passStateItemSize.fontSize / 2),
-}
+  objectCaching: false,
+};

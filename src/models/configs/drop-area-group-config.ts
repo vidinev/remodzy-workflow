@@ -8,6 +8,7 @@ export const dropAreaPlusConfig: ILineOptions = {
   strokeWidth,
   selectable: false,
   evented: false,
+  objectCaching: false,
 };
 
 export const dropAreaRoundConfig: ICircleOptions = {
@@ -17,6 +18,7 @@ export const dropAreaRoundConfig: ICircleOptions = {
   strokeWidth,
   selectable: false,
   hoverCursor: 'default',
+  objectCaching: false,
 };
 
 export const dropAreaPlusSize = 10;

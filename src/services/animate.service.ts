@@ -9,7 +9,7 @@ export class AnimateService {
   }
 
   animateDragDrop(event: IEvent, dir: number) {
-    const duration = 80;
+    const duration = 50;
     const opacityDelta = 0.5;
     const angleDelta = dir ? stateItemSize.dragDropAngle : -stateItemSize.dragDropAngle;
     if (event.target) {
