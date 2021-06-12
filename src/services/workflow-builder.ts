@@ -83,6 +83,7 @@ export class RemodzyWorkflowBuilder {
   public async initialize() {
     await this.manropeFont.load();
     this.drawBranchService.drawBranch();
+    this.canvas.requestRenderAll();
   }
 
   private getCanvasDimensions(): WorkflowDimensions {
