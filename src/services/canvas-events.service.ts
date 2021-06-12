@@ -41,7 +41,7 @@ export class CanvasEventsService {
       if (timeout) {
         window.cancelAnimationFrame(timeout);
       }
-      timeout = window.requestAnimationFrame(() => {
+      fabric.util.requestAnimFrame(() => {
         this.activeDropArea = null;
         const statePolygon = this.getStatePolygon(event?.target as IStateGroup);
         for (let i = 0; i < this.dropAreasAndPolygons.length; i++) {

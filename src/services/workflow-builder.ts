@@ -34,6 +34,7 @@ export class RemodzyWorkflowBuilder {
     ...canvasSize,
     selection: false,
     imageSmoothingEnabled: false,
+    renderOnAddRemove: false,
     backgroundColor: remodzyColors.canvasBg,
   };
   private readonly workflowSettings: Partial<RemodzyWFSettings> = {
@@ -118,7 +119,6 @@ export class RemodzyWorkflowBuilder {
   }
 
   private async sortObjectsAfterDragAndDrop(dropArea: IDropAreaGroup, id: string) {
-    await this.tick();
     this.workflowData.sortStates(id, dropArea.data.stateId);
     const tieLinesFactory = new TieLinesFactoryService(this.canvas);
     this.tieLines = tieLinesFactory.getTieLinesService(this.workflowSettings.direction);
@@ -139,6 +139,7 @@ export class RemodzyWorkflowBuilder {
     this.canvas.clear();
     this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => {
       this.drawBranchService.drawBranch();
+      this.canvas.requestRenderAll();
       const dropAreas = this.drawBranchService.getDropAreas();
       this.canvasEvents.initialize(dropAreas);
     });

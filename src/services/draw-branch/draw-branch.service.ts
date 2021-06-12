@@ -112,13 +112,21 @@ export class DrawBranchService {
       {
         left,
         top,
-        hoverCursor: isMainStart || isMainEnd ? 'default' : 'pointer',
-        selectable: !(isMainStart || isMainEnd),
+        hoverCursor: this.getCursor(isMainStart, isMainEnd),
+        selectable: this.isSelectable(isMainStart, isMainEnd),
       },
       isStart,
       workflowData?.getParentStateId(),
       this.options.draft,
     );
+  }
+
+  protected isSelectable(isMainStart: boolean = false, isMainEnd: boolean = false): boolean {
+    return !(isMainStart || isMainEnd);
+  }
+
+  protected getCursor(isMainStart: boolean = false, isMainEnd: boolean = false): string {
+    return isMainStart || isMainEnd ? 'default' : 'pointer';
   }
 
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
