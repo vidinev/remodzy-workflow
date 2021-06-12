@@ -23,7 +23,7 @@ export const passStateItemSize = {
 };
 
 export const dropAreaSize = {
-  width: 248,
+  width: 32,
   height: 32,
   fontSize: 13,
 };

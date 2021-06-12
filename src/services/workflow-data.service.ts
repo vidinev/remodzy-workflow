@@ -73,7 +73,6 @@ export class WorkflowData {
 
   sortStates(movedStateId: string, stateBeforeNewPositionId: string) {
     const statesDraft = WorkflowData.getStatesDraft(this.data.States);
-
     const stateBeforeNewPosition = statesDraft[stateBeforeNewPositionId];
     const stateAfterNewPosition = statesDraft[stateBeforeNewPosition.Next!];
     const movedState = statesDraft[movedStateId];

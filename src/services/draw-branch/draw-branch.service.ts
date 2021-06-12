@@ -58,10 +58,12 @@ export class DrawBranchService {
       : indexNumber < middleBranchIndex;
   }
 
-  constructor(protected workflowData: WorkflowData,
-              protected canvas: Canvas,
-              protected options: DrawBranchOptions = defaultDrawOptions,
-              protected startPosition?: PointCoords) {
+  constructor(
+    protected workflowData: WorkflowData,
+    protected canvas: Canvas,
+    protected options: DrawBranchOptions = defaultDrawOptions,
+    protected startPosition?: PointCoords,
+  ) {
     if (startPosition) {
       this.position = { ...startPosition };
     }
@@ -82,8 +84,22 @@ export class DrawBranchService {
       height: stateItemSize.height,
       leftSideWidth: stateItemSize.width / 2,
       rightSideWidth: stateItemSize.width / 2,
-      startPoint: { x: 0, y: 0 }
+      startPoint: { x: 0, y: 0 },
     };
+  }
+
+  public getDropAreas(states: IStateGroup[] = this.states): IDropAreaGroup[] {
+    let dropAreas: IDropAreaGroup[] = [];
+    states.forEach((state: IStateGroup) => {
+      const dropArea = state.getDropArea();
+      if (state.isBranchRoot()) {
+        dropAreas = [...dropAreas, ...this.getDropAreas(state.getChildrenStates())];
+      }
+      if (dropArea) {
+        dropAreas.push(dropArea);
+      }
+    });
+    return dropAreas;
   }
 
   protected getRootStateGroup(stateData: WorkflowState, left: number, top: number, workflowData?: WorkflowData) {
@@ -96,13 +112,21 @@ export class DrawBranchService {
       {
         left,
         top,
-        hoverCursor: (isMainStart || isMainEnd) ? 'default' : 'pointer',
-        selectable: !(isMainStart || isMainEnd),
+        hoverCursor: this.getCursor(isMainStart, isMainEnd),
+        selectable: this.isSelectable(isMainStart, isMainEnd),
       },
       isStart,
       workflowData?.getParentStateId(),
-      this.options.draft
+      this.options.draft,
     );
+  }
+
+  protected isSelectable(isMainStart: boolean = false, isMainEnd: boolean = false): boolean {
+    return !(isMainStart || isMainEnd);
+  }
+
+  protected getCursor(isMainStart: boolean = false, isMainEnd: boolean = false): string {
+    return isMainStart || isMainEnd ? 'default' : 'pointer';
   }
 
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
@@ -241,13 +265,16 @@ export class DrawBranchService {
   }
 
   protected drawDropArea(stateId: string, position: PointCoords): IDropAreaGroup {
-    const dropAreaGroup = new DropAreaGroup({
-      left: position.x,
-      top: position.y,
-      data: {
-        stateId,
+    const dropAreaGroup = new DropAreaGroup(
+      {
+        left: position.x,
+        top: position.y,
+        data: {
+          stateId,
+        },
       },
-    }, this.options.draft);
+      this.options.draft,
+    );
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.moveToCenter();
     return dropAreaGroup;

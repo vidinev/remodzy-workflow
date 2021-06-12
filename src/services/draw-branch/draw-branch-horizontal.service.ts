@@ -82,6 +82,14 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     };
   }
 
+  protected isSelectable(): boolean {
+    return false;
+  }
+
+  protected getCursor(): string {
+    return 'default';
+  }
+
   protected drawCurveConnectPoints() {
     this.states.forEach((stateGroup: IStateGroup) => {
       if (stateGroup.isBranchRoot()) {
