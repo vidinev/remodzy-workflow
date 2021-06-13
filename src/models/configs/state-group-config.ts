@@ -22,6 +22,7 @@ export const draftRectConfig: IRectOptions = {
   height: stateItemSize.height,
   selectable: false,
   objectCaching: false,
+  visible: false
 };
 
 export const passStateRectConfig: IRectOptions = {
@@ -38,6 +39,7 @@ export const draftPassRectConfig: IRectOptions = {
   height: passStateItemSize.height,
   selectable: false,
   objectCaching: false,
+  visible: false
 };
 
 export const stateTextConfig: ITextboxOptions = {
