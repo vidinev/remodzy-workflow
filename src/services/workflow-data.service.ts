@@ -1,25 +1,15 @@
 import { WorkflowState, WorkflowStateData } from '../interfaces/state-language.interface';
+import cloneDeep from 'lodash.clonedeep';
 
 export class WorkflowData {
   private data: WorkflowStateData;
+  private dataDraft: WorkflowStateData;
   private readonly endStateId: string;
-
-  private static getStatesDraft(States: { [key: string]: WorkflowState }) {
-    const statesDraft = { ...States };
-    for (let key in statesDraft) {
-      if (statesDraft.hasOwnProperty(key)) {
-        statesDraft[key] = {
-          ...statesDraft[key],
-        };
-      }
-    }
-    return statesDraft;
-  }
 
   private static prepareWorkFlowData(workflowStateData: WorkflowStateData): WorkflowStateData {
     const data = {
       ...workflowStateData,
-      States: WorkflowData.getStatesDraft(workflowStateData.States),
+      States: cloneDeep(workflowStateData.States),
     };
 
     for (let key in data.States) {
@@ -40,6 +30,7 @@ export class WorkflowData {
 
   constructor(workflowStateData: WorkflowStateData, private parentStateId?: string) {
     this.data = WorkflowData.prepareWorkFlowData(workflowStateData);
+    this.dataDraft = cloneDeep(this.data)
     this.endStateId = Object.keys(this.data.States).find((key: string) => this.data.States[key].End) || '';
   }
 
@@ -68,27 +59,57 @@ export class WorkflowData {
   }
 
   sortStates(movedStateId: string, stateBeforeNewPositionId: string) {
-    const statesDraft = WorkflowData.getStatesDraft(this.data.States);
-    const stateBeforeNewPosition = statesDraft[stateBeforeNewPositionId];
-    const stateAfterNewPosition = statesDraft[stateBeforeNewPosition.Next!];
-    const movedState = statesDraft[movedStateId];
-
-    const stateBeforeMovedKey = Object.keys(statesDraft).find((key: string) => {
-      return statesDraft[key].Next === movedStateId;
-    });
-    const stateBeforeMoved = stateBeforeMovedKey ? statesDraft[stateBeforeMovedKey] : statesDraft[movedStateId];
-    if (movedStateId === stateBeforeNewPosition.Next || movedStateId === stateBeforeNewPositionId) {
+    const stateBeforeNewPosition = this.searchStateDeep(this.dataDraft.States, stateBeforeNewPositionId);
+    if (!stateBeforeNewPosition) {
       return;
     }
+    const movedState = this.searchStateDeep(this.dataDraft.States, movedStateId);
+    if (!movedState) {
+      return;
+    }
+    const stateBeforeMovedKey = Object.keys(this.dataDraft.States).find((key: string) => {
+      return this.dataDraft.States[key].Next === movedStateId;
+    });
+    let stateBeforeMoved = null;
+    if (stateBeforeMovedKey) {
+      stateBeforeMoved = this.searchStateDeep(this.dataDraft.States, stateBeforeMovedKey);
+    }
 
-    const stateAfterMoved = movedState.Next;
-    stateBeforeNewPosition.Next = movedStateId;
-    movedState.Next = stateAfterNewPosition.Parameters.stateId;
-    stateBeforeMoved.Next = stateAfterMoved;
+    if (stateBeforeNewPosition.Next) {
+      const stateAfterNewPosition = this.searchStateDeep(this.dataDraft.States, stateBeforeNewPosition.Next);
+      if (movedStateId === stateBeforeNewPosition?.Next || movedStateId === stateBeforeNewPositionId) {
+        return;
+      }
+      if (stateAfterNewPosition && stateBeforeMoved) {
+        const stateAfterMoved = movedState.Next;
+        stateBeforeNewPosition.Next = movedStateId;
+        movedState.Next = stateAfterNewPosition.Parameters.stateId;
+        stateBeforeMoved.Next = stateAfterMoved;
+      }
+    } else {
+      // TODO no next state
+    }
 
     this.data = {
       ...this.data,
-      States: statesDraft,
+      States: this.dataDraft.States,
     };
+  }
+
+  private searchStateDeep(states: { [key: string]: WorkflowState }, id: string): WorkflowState | null {
+    if (states[id]) {
+      return states[id];
+    }
+    for (let key in states) {
+      if (states.hasOwnProperty(key) && states[key].Branches) {
+        for (let branch of (states[key].Branches || [])) {
+          let state = this.searchStateDeep(branch.States, id);
+          if (state) {
+            return state;
+          }
+        }
+      }
+    }
+    return null;
   }
 }
