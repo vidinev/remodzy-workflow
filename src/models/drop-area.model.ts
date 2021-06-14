@@ -13,6 +13,8 @@ export const DropAreaGroup = fabric.util.createClass(fabric.Group, {
     let items = draft ? [dropArea] : [dropArea, ...this.drawPlus()];
     this.callSuper('initialize', items, {
       ...options,
+      left: Math.floor(options.left || 0),
+      top: Math.floor(options.top || 0),
       selectable: false,
       hoverCursor: 'default',
     });

@@ -1,9 +1,9 @@
 import { Canvas, IEvent, Object, Polygon } from 'fabric/fabric-impl';
+import debounce from 'lodash.debounce';
 import { dropAreaSize, leftAngleOffset, stateItemSize, topAngleOffset } from '../configs/size.config';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { IStateGroup } from '../models/interfaces/state.interface';
-import { tick } from './tick.service';
 
 interface DragDropCallbacks {
   dragStartCallback: (event: IEvent) => void;
@@ -78,6 +78,14 @@ export class CanvasEventsService {
         this.canvas.remove(activeObject);
       }
     });
+    this.canvas.on('after:render', debounce(() => {
+      this.dropAreasAndPolygons.forEach(({ area }: any) => {
+        if (area.isActive()) {
+          area.toggleActive(false);
+          this.canvas.renderAll();
+        }
+      });
+    }, 100));
     this.canvas.on('object:moved', (event: IEvent) => {
       this.currentDragTop = 0;
       this.canvas.remove(this.canvas.getActiveObject());
@@ -86,14 +94,6 @@ export class CanvasEventsService {
         this.activeDropArea.toggleActive(false);
         this.activeDropArea = null;
       }
-      window.requestAnimationFrame(async () => {
-        await tick();
-        this.dropAreasAndPolygons.forEach(({ area }: { area: IDropAreaGroup }) => {
-          if (area.isActive()) {
-            area.toggleActive(false);
-          }
-        });
-      });
     });
     this.setupDragOverflowEvents();
   }

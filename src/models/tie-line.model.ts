@@ -7,7 +7,7 @@ export const TieLine = fabric.util.createClass(fabric.Line, {
   _active: false,
 
   initialize: function([fromX, fromY, toX, toY]: number[], options: IObjectOptions = {}) {
-    this.callSuper('initialize', [fromX, fromY, toX, toY], {
+    this.callSuper('initialize', [fromX, fromY, toX, toY].map((position: number) => Math.floor(position)), {
       ...tieLineConfig,
       ...options,
     });

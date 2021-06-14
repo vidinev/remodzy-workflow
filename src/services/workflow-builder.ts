@@ -15,7 +15,6 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Improve draw performance
  * Test with overflow container
  * Fix  drag and drop, and sorting between levels
  * Implement zoom

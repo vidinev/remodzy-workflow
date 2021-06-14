@@ -50,7 +50,9 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     this.callSuper('initialize', items, {
       hasControls: false,
       hasBorders: false,
-      ...this._getOptions(stateData.Type, options),
+      ...options,
+      left: Math.floor(options.left || 0),
+      top: Math.floor(options.top || 0),
       data: {
         ...stateData,
         Branches: stateData.Branches || null,
