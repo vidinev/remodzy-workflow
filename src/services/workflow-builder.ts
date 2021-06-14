@@ -12,13 +12,13 @@ import { DrawBranchService } from './draw-branch/draw-branch.service';
 import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.service';
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.interface';
+import { tick } from './tick.service';
 
 /*
  * Improve draw performance
- * Fix debounce (fast state moving when sort)
- * Fix 2 drop area highlight at the same time
  * Test with overflow container
  * Fix  drag and drop, and sorting between levels
+ * Implement zoom
 
  * Merge all js files into one
  * Test lib basic functionality
@@ -123,7 +123,7 @@ export class RemodzyWorkflowBuilder {
     this.workflowData.sortStates(id, dropArea.data.stateId);
     const tieLinesFactory = new TieLinesFactoryService(this.canvas);
     this.tieLines = tieLinesFactory.getTieLinesService(this.workflowSettings.direction);
-    await this.tick();
+    await tick();
     const canvasDimensions = this.getCanvasDimensions();
     this.canvas.setDimensions({
       width: canvasDimensions.width,
@@ -136,7 +136,7 @@ export class RemodzyWorkflowBuilder {
       canvasDimensions,
     );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
-    await this.tick();
+    await tick();
     this.canvas.clear();
     this.canvas.setBackgroundColor(remodzyColors.canvasBg, () => {
       this.drawBranchService.drawBranch();
@@ -144,9 +144,5 @@ export class RemodzyWorkflowBuilder {
       const dropAreas = this.drawBranchService.getDropAreas();
       this.canvasEvents.initialize(dropAreas);
     });
-  }
-
-  private tick() {
-    return new Promise(resolve => setTimeout(resolve));
   }
 }

@@ -3,6 +3,7 @@ import { dropAreaSize, leftAngleOffset, stateItemSize, topAngleOffset } from '..
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { IStateGroup } from '../models/interfaces/state.interface';
+import { tick } from './tick.service';
 
 interface DragDropCallbacks {
   dragStartCallback: (event: IEvent) => void;
@@ -41,14 +42,17 @@ export class CanvasEventsService {
       if (timeout) {
         window.cancelAnimationFrame(timeout);
       }
-      fabric.util.requestAnimFrame(() => {
+      timeout = window.requestAnimationFrame(() => {
+        if (this.activeDropArea) {
+          this.activeDropArea.toggleActive(false);
+        }
         this.activeDropArea = null;
         const statePolygon = this.getStatePolygon(event?.target as IStateGroup);
         for (let i = 0; i < this.dropAreasAndPolygons.length; i++) {
           const hasIntersect = statePolygon.intersectsWithObject(this.dropAreasAndPolygons[i].polygon);
-          this.dropAreasAndPolygons[i].area.toggleActive(hasIntersect);
           if (hasIntersect) {
             this.activeDropArea = this.dropAreasAndPolygons[i].area as IDropAreaGroup;
+            this.activeDropArea.toggleActive(true);
             break;
           }
         }
@@ -82,6 +86,14 @@ export class CanvasEventsService {
         this.activeDropArea.toggleActive(false);
         this.activeDropArea = null;
       }
+      window.requestAnimationFrame(async () => {
+        await tick();
+        this.dropAreasAndPolygons.forEach(({ area }: { area: IDropAreaGroup }) => {
+          if (area.isActive()) {
+            area.toggleActive(false);
+          }
+        });
+      });
     });
     this.setupDragOverflowEvents();
   }

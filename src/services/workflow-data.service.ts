@@ -43,10 +43,6 @@ export class WorkflowData {
     this.endStateId = Object.keys(this.data.States).find((key: string) => this.data.States[key].End) || '';
   }
 
-  getData(): WorkflowStateData {
-    return this.data;
-  }
-
   getStateById(stateId: string) {
     return this.data.States[stateId];
   }
