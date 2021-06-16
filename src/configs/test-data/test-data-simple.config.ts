@@ -35,11 +35,20 @@ export const simple: WorkflowStateData = {
           States: {
             Reject: {
               Type: 'Pass',
-              End: true,
+              Next: 'RejectLol',
               Comment: 'Reject',
               Parameters: {
                 taskType: 'pass',
               },
+            },
+            RejectLol: {
+              Type: 'Task',
+              End: true,
+              Parameters: {
+                taskType: 'sendEmail',
+                taskIcon: 'email-icon',
+              },
+              Comment: 'Reject Lol',
             },
           },
         },

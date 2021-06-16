@@ -58,7 +58,24 @@ export class WorkflowData {
     return this.parentStateId || null;
   }
 
-  sortStates(movedStateId: string, stateBeforeNewPositionId: string) {
+  sortStates(activeStateId: string, stateBeforeDropId: string) {
+    const stareBeforeDrop = this.searchStateDeep(this.dataDraft.States, stateBeforeDropId);
+    if (!stareBeforeDrop) {
+      return;
+    }
+    const activeState = this.searchStateDeep(this.dataDraft.States, activeStateId);
+    if (!activeState) {
+      return;
+    }
+
+    // TODO 1) Remove active position (and all children items from the workflow Data)
+    // TODO search deep
+    // const stateBeforeOldActiveStatePositionId = Object.keys(this.dataDraft.States).find((key: string) => {
+    //   return this.dataDraft.States[key].Next === activeState;
+    // });
+  }
+
+  sortStates1(movedStateId: string, stateBeforeNewPositionId: string) {
     const stateBeforeNewPosition = this.searchStateDeep(this.dataDraft.States, stateBeforeNewPositionId);
     if (!stateBeforeNewPosition) {
       return;
