@@ -1,6 +1,8 @@
 import { WorkflowState, WorkflowStateData } from '../interfaces/state-language.interface';
 import cloneDeep from 'lodash.clonedeep';
 
+type WorkflowStates = { [key: string]: WorkflowState };
+
 export class WorkflowData {
   private data: WorkflowStateData;
   private dataDraft: WorkflowStateData;
@@ -30,7 +32,7 @@ export class WorkflowData {
 
   constructor(workflowStateData: WorkflowStateData, private parentStateId?: string) {
     this.data = WorkflowData.prepareWorkFlowData(workflowStateData);
-    this.dataDraft = cloneDeep(this.data)
+    this.dataDraft = cloneDeep(this.data);
     this.endStateId = Object.keys(this.data.States).find((key: string) => this.data.States[key].End) || '';
   }
 
@@ -59,28 +61,60 @@ export class WorkflowData {
   }
 
   sortStates(activeStateId: string, stateBeforeDropId: string) {
-    const stareBeforeDrop = this.searchStateDeep(this.dataDraft.States, stateBeforeDropId);
-    if (!stareBeforeDrop) {
+    const stateBeforeDrop = this.searchStateDeep(stateBeforeDropId);
+    if (!stateBeforeDrop) {
       return;
     }
-    const activeState = this.searchStateDeep(this.dataDraft.States, activeStateId);
+    const activeState = this.searchStateDeep(activeStateId);
     if (!activeState) {
       return;
     }
+    const stateBeforeActive = this.searchPreviousStateDeep(activeStateId);
+    if (!stateBeforeActive) {
+      return;
+    }
 
-    // TODO 1) Remove active position (and all children items from the workflow Data)
-    // TODO search deep
-    // const stateBeforeOldActiveStatePositionId = Object.keys(this.dataDraft.States).find((key: string) => {
-    //   return this.dataDraft.States[key].Next === activeState;
-    // });
+    this.insertStateAfterState(stateBeforeDrop, activeState);
+    this.removeStateFromOldPosition(activeState, stateBeforeActive);
+    // TODO function that builds new worlfow data;
+
+  }
+
+  private insertStateAfterState(state: WorkflowState, activeState: WorkflowState) {
+    const stateBranch = state.Parameters.stateId ? this.findStateBranch(state.Parameters.stateId) : null;
+    if (stateBranch && activeState.Parameters.stateId) {
+      stateBranch[activeState.Parameters.stateId] = activeState;
+      if (state.End) {
+        state.End = false;
+        state.Next = activeState.Parameters.stateId;
+        delete activeState.Next;
+        activeState.End = true;
+      } else if (state.Next) {
+        activeState.Next = state.Next;
+        state.Next = activeState.Parameters.stateId;
+      }
+    }
+  }
+
+  private removeStateFromOldPosition(activeState: WorkflowState, stateBeforeActive: WorkflowState) {
+    const stateBranch = activeState.Parameters.stateId ? this.findStateBranch(activeState.Parameters.stateId) : null;
+    if (stateBranch && activeState.Parameters.stateId && stateBeforeActive) {
+      delete stateBranch[activeState.Parameters.stateId];
+      if (activeState.End) {
+        stateBeforeActive.End = true;
+        delete stateBeforeActive.Next;
+      } else if (activeState.Next) {
+        stateBeforeActive.Next = activeState.Next;
+      }
+    }
   }
 
   sortStates1(movedStateId: string, stateBeforeNewPositionId: string) {
-    const stateBeforeNewPosition = this.searchStateDeep(this.dataDraft.States, stateBeforeNewPositionId);
+    const stateBeforeNewPosition = this.searchStateDeep(stateBeforeNewPositionId);
     if (!stateBeforeNewPosition) {
       return;
     }
-    const movedState = this.searchStateDeep(this.dataDraft.States, movedStateId);
+    const movedState = this.searchStateDeep(movedStateId);
     if (!movedState) {
       return;
     }
@@ -89,11 +123,11 @@ export class WorkflowData {
     });
     let stateBeforeMoved = null;
     if (stateBeforeMovedKey) {
-      stateBeforeMoved = this.searchStateDeep(this.dataDraft.States, stateBeforeMovedKey);
+      stateBeforeMoved = this.searchStateDeep(stateBeforeMovedKey);
     }
 
     if (stateBeforeNewPosition.Next) {
-      const stateAfterNewPosition = this.searchStateDeep(this.dataDraft.States, stateBeforeNewPosition.Next);
+      const stateAfterNewPosition = this.searchStateDeep(stateBeforeNewPosition.Next);
       if (movedStateId === stateBeforeNewPosition?.Next || movedStateId === stateBeforeNewPositionId) {
         return;
       }
@@ -113,14 +147,49 @@ export class WorkflowData {
     };
   }
 
-  private searchStateDeep(states: { [key: string]: WorkflowState }, id: string): WorkflowState | null {
+
+  private findStateBranch(id: string, states: WorkflowStates = this.dataDraft.States): WorkflowStates | null {
+    if (states[id]) {
+      return states;
+    }
+    for (let key in states) {
+      if (states.hasOwnProperty(key) && states[key].BranchesData) {
+        for (let branch of (states[key].BranchesData || [])) {
+          let states = this.findStateBranch(id, branch.dataDraft.States);
+          if (states) {
+            return states;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private searchPreviousStateDeep(id: string, states: WorkflowStates = this.dataDraft.States): WorkflowState | null {
+    for (let key in states) {
+      if (states[key].Next === id && states.hasOwnProperty(key)) {
+        return states[key];
+      }
+      if (states.hasOwnProperty(key) && states[key].BranchesData) {
+        for (let branch of (states[key].BranchesData || [])) {
+          let state = this.searchPreviousStateDeep(id, branch.dataDraft.States);
+          if (state) {
+            return state;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private searchStateDeep(id: string, states: WorkflowStates = this.dataDraft.States): WorkflowState | null {
     if (states[id]) {
       return states[id];
     }
     for (let key in states) {
-      if (states.hasOwnProperty(key) && states[key].Branches) {
-        for (let branch of (states[key].Branches || [])) {
-          let state = this.searchStateDeep(branch.States, id);
+      if (states.hasOwnProperty(key) && states[key].BranchesData) {
+        for (let branch of (states[key].BranchesData || [])) {
+          let state = this.searchStateDeep(id, branch.dataDraft.States);
           if (state) {
             return state;
           }
