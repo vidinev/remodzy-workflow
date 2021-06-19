@@ -15,7 +15,7 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Test with overflow container
+ * Fix drop area inactive in few seconds after hover
  * Fix  drag and drop, and sorting between levels
  * Implement zoom
 

@@ -30,9 +30,28 @@ export class WorkflowData {
     return data;
   }
 
+  private static getNewDataStructureFromDraft(workflowStateData: WorkflowStateData): WorkflowData {
+    const data = workflowStateData;
+    for (let key in data.States) {
+      if (data.States.hasOwnProperty(key)) {
+        if (data.States[key].BranchesData) {
+          data.States[key].Branches = (data.States[key].BranchesData || [])
+            .map((branch: WorkflowData) => {
+              const dataStructure = this.getNewDataStructureFromDraft(branch.dataDraft);
+              return {
+                StartAt: branch.getStartStateId(),
+                States: dataStructure.dataDraft.States,
+              } as WorkflowStateData;
+            });
+        }
+      }
+    }
+    return new WorkflowData(data);
+  }
+
   constructor(workflowStateData: WorkflowStateData, private parentStateId?: string) {
     this.data = WorkflowData.prepareWorkFlowData(workflowStateData);
-    this.dataDraft = cloneDeep(this.data);
+    this.dataDraft = this.data;
     this.endStateId = Object.keys(this.data.States).find((key: string) => this.data.States[key].End) || '';
   }
 
@@ -61,6 +80,7 @@ export class WorkflowData {
   }
 
   sortStates(activeStateId: string, stateBeforeDropId: string) {
+    this.dataDraft = cloneDeep(this.data);
     const stateBeforeDrop = this.searchStateDeep(stateBeforeDropId);
     if (!stateBeforeDrop) {
       return;
@@ -74,10 +94,11 @@ export class WorkflowData {
       return;
     }
 
+    const activeStateDraft = cloneDeep(activeState);
     this.insertStateAfterState(stateBeforeDrop, activeState);
-    this.removeStateFromOldPosition(activeState, stateBeforeActive);
-    // TODO function that builds new worlfow data;
-
+    this.removeStateFromOldPosition(activeStateDraft, stateBeforeActive);
+    const result = WorkflowData.getNewDataStructureFromDraft(this.dataDraft);
+    this.data = result.data;
   }
 
   private insertStateAfterState(state: WorkflowState, activeState: WorkflowState) {
