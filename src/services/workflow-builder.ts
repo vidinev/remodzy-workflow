@@ -16,7 +16,8 @@ import { tick } from './tick.service';
 
 /*
  * Fix drop area inactive in few seconds after hover
- * Fix  drag and drop, and sorting between levels
+ * Fix sorting cases https://www.loom.com/share/7bb1ad688b5e42a78adb91aaaa61d2fa
+ * Disable pass state drag
  * Implement zoom
 
  * Merge all js files into one
