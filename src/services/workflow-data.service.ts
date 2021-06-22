@@ -35,14 +35,13 @@ export class WorkflowData {
     for (let key in data.States) {
       if (data.States.hasOwnProperty(key)) {
         if (data.States[key].BranchesData) {
-          data.States[key].Branches = (data.States[key].BranchesData || [])
-            .map((branch: WorkflowData) => {
-              const dataStructure = this.getNewDataStructureFromDraft(branch.dataDraft);
-              return {
-                StartAt: branch.getStartStateId(),
-                States: dataStructure.dataDraft.States,
-              } as WorkflowStateData;
-            });
+          data.States[key].Branches = (data.States[key].BranchesData || []).map((branch: WorkflowData) => {
+            const dataStructure = this.getNewDataStructureFromDraft(branch.dataDraft);
+            return {
+              StartAt: branch.getStartStateId(),
+              States: dataStructure.dataDraft.States,
+            } as WorkflowStateData;
+          });
         }
       }
     }
@@ -95,8 +94,8 @@ export class WorkflowData {
     }
 
     const activeStateDraft = cloneDeep(activeState);
-    this.insertStateAfterState(stateBeforeDrop, activeState);
     this.removeStateFromOldPosition(activeStateDraft, stateBeforeActive);
+    this.insertStateAfterState(stateBeforeDrop, activeStateDraft);
     const result = WorkflowData.getNewDataStructureFromDraft(this.dataDraft);
     this.data = result.data;
   }
@@ -113,6 +112,7 @@ export class WorkflowData {
       } else if (state.Next) {
         activeState.Next = state.Next;
         state.Next = activeState.Parameters.stateId;
+        activeState.End = false;
       }
     }
   }
@@ -168,14 +168,13 @@ export class WorkflowData {
     };
   }
 
-
   private findStateBranch(id: string, states: WorkflowStates = this.dataDraft.States): WorkflowStates | null {
     if (states[id]) {
       return states;
     }
     for (let key in states) {
       if (states.hasOwnProperty(key) && states[key].BranchesData) {
-        for (let branch of (states[key].BranchesData || [])) {
+        for (let branch of states[key].BranchesData || []) {
           let states = this.findStateBranch(id, branch.dataDraft.States);
           if (states) {
             return states;
@@ -192,7 +191,7 @@ export class WorkflowData {
         return states[key];
       }
       if (states.hasOwnProperty(key) && states[key].BranchesData) {
-        for (let branch of (states[key].BranchesData || [])) {
+        for (let branch of states[key].BranchesData || []) {
           let state = this.searchPreviousStateDeep(id, branch.dataDraft.States);
           if (state) {
             return state;
@@ -209,7 +208,7 @@ export class WorkflowData {
     }
     for (let key in states) {
       if (states.hasOwnProperty(key) && states[key].BranchesData) {
-        for (let branch of (states[key].BranchesData || [])) {
+        for (let branch of states[key].BranchesData || []) {
           let state = this.searchStateDeep(id, branch.dataDraft.States);
           if (state) {
             return state;
