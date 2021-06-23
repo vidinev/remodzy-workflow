@@ -46,11 +46,21 @@ export class CoordsService {
 
   getCenterRightCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
     let rightmostItem: IStateGroup = {} as IStateGroup;
+    let allStates: IStateGroup[] = [];
     states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot?.()) {
+        allStates.push(...state.getChildrenStates());
+      } else {
+        allStates.push(state);
+      }
+    });
+
+    allStates.forEach((state: IStateGroup) => {
       if (CoordsService.getRightX(state) > CoordsService.getRightX(rightmostItem)) {
         rightmostItem = state;
       }
     });
+
     const centerRightCoords = rightmostItem.getCenterRightCoords?.() || { x: 0, y: 0 };
     const tiePoint = rightmostItem.getRightTiePoint?.();
     const connectPoint = rightmostItem.getConnectPoint?.();
@@ -107,11 +117,7 @@ export class CoordsService {
   }
 
   private static getRightX(state: IStateGroup) {
-    let currentX = (state.getLeft?.() || 0) + (state.width || 0);
-    if (state.isBranchRoot?.()) {
-      currentX = state.getRightMostItemCoordsUnderChildren()?.x || currentX;
-    }
-    return currentX;
+    return (state.getLeft?.() || 0) + (state.width || 0);
   }
 
   private static getTopY(state: IStateGroup) {
