@@ -15,6 +15,7 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
+ * Rework get center coords to new logic
  * Fix canvas size after sorting https://imgur.com/e8ZK5sQ
  * Implement zoom
 
