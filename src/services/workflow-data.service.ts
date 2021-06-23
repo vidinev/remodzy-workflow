@@ -93,6 +93,13 @@ export class WorkflowData {
       return;
     }
 
+    if (
+      activeState.Parameters.stateId === stateBeforeDropId ||
+      activeState.Parameters.stateId === stateBeforeDrop.Next
+    ) {
+      return;
+    }
+
     const activeStateDraft = cloneDeep(activeState);
     this.removeStateFromOldPosition(activeStateDraft, stateBeforeActive);
     this.insertStateAfterState(stateBeforeDrop, activeStateDraft);
@@ -128,44 +135,6 @@ export class WorkflowData {
         stateBeforeActive.Next = activeState.Next;
       }
     }
-  }
-
-  sortStates1(movedStateId: string, stateBeforeNewPositionId: string) {
-    const stateBeforeNewPosition = this.searchStateDeep(stateBeforeNewPositionId);
-    if (!stateBeforeNewPosition) {
-      return;
-    }
-    const movedState = this.searchStateDeep(movedStateId);
-    if (!movedState) {
-      return;
-    }
-    const stateBeforeMovedKey = Object.keys(this.dataDraft.States).find((key: string) => {
-      return this.dataDraft.States[key].Next === movedStateId;
-    });
-    let stateBeforeMoved = null;
-    if (stateBeforeMovedKey) {
-      stateBeforeMoved = this.searchStateDeep(stateBeforeMovedKey);
-    }
-
-    if (stateBeforeNewPosition.Next) {
-      const stateAfterNewPosition = this.searchStateDeep(stateBeforeNewPosition.Next);
-      if (movedStateId === stateBeforeNewPosition?.Next || movedStateId === stateBeforeNewPositionId) {
-        return;
-      }
-      if (stateAfterNewPosition && stateBeforeMoved) {
-        const stateAfterMoved = movedState.Next;
-        stateBeforeNewPosition.Next = movedStateId;
-        movedState.Next = stateAfterNewPosition.Parameters.stateId;
-        stateBeforeMoved.Next = stateAfterMoved;
-      }
-    } else {
-      // TODO no next state
-    }
-
-    this.data = {
-      ...this.data,
-      States: this.dataDraft.States,
-    };
   }
 
   private findStateBranch(id: string, states: WorkflowStates = this.dataDraft.States): WorkflowStates | null {
