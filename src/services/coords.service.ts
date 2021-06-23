@@ -74,6 +74,7 @@ export class CoordsService {
 
   getCenterLeftCoords(states: IStateGroup[]): PointCoords {
     let leftmostItem: IStateGroup = {} as IStateGroup;
+    leftmostItem = states[0];
     states.forEach((state: IStateGroup) => {
       if (CoordsService.getLeftX(state) < CoordsService.getLeftX(leftmostItem)) {
         leftmostItem = state;
