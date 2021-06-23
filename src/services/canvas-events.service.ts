@@ -16,7 +16,7 @@ export class CanvasEventsService {
   private dragLeftDelta: number;
   private canvas: Canvas;
   private activeDropArea: IDropAreaGroup | null = null;
-  private dropAreasAndPolygons: { area: IDropAreaGroup, polygon: Polygon }[] = [];
+  private dropAreasAndPolygons: { area: IDropAreaGroup; polygon: Polygon }[] = [];
 
   static isDragEventAllowed(target?: Object) {
     return target && target.type === ObjectTypes.state && target.selectable;
@@ -78,14 +78,19 @@ export class CanvasEventsService {
         this.canvas.remove(activeObject);
       }
     });
-    this.canvas.on('after:render', debounce(() => {
-      this.dropAreasAndPolygons.forEach(({ area }: any) => {
-        if (area.isActive()) {
-          area.toggleActive(false);
-          this.canvas.renderAll();
-        }
-      });
-    }, 100));
+    this.canvas.on(
+      'after:render',
+      debounce(() => {
+        this.dropAreasAndPolygons.forEach(({ area }: any) => {
+          if (area.isActive()) {
+            if (!this.canvas.getActiveObject()) {
+              area.toggleActive(false);
+              this.canvas.renderAll();
+            }
+          }
+        });
+      }, 100),
+    );
     this.canvas.on('object:moved', (event: IEvent) => {
       this.currentDragTop = 0;
       this.canvas.remove(this.canvas.getActiveObject());
@@ -98,23 +103,28 @@ export class CanvasEventsService {
     this.setupDragOverflowEvents();
   }
 
-  private prepareDropAreaPolygons(dropAreas: IDropAreaGroup[]): { area: IDropAreaGroup, polygon: Polygon }[] {
+  private prepareDropAreaPolygons(dropAreas: IDropAreaGroup[]): { area: IDropAreaGroup; polygon: Polygon }[] {
     return dropAreas.map((dropArea: IDropAreaGroup) => {
       const dropAreaLeft = dropArea.getLeft();
       const dropAreaTop = dropArea.getTop();
-      const dropAreaPoints = [{
-        x: dropAreaLeft,
-        y: dropAreaTop
-      }, {
-        x: dropAreaLeft + dropAreaSize.width,
-        y: dropAreaTop
-      }, {
-        x: dropAreaLeft + dropAreaSize.width,
-        y: dropAreaTop + dropAreaSize.height
-      }, {
-        x: dropAreaLeft,
-        y: dropAreaTop + dropAreaSize.height
-      }];
+      const dropAreaPoints = [
+        {
+          x: dropAreaLeft,
+          y: dropAreaTop,
+        },
+        {
+          x: dropAreaLeft + dropAreaSize.width,
+          y: dropAreaTop,
+        },
+        {
+          x: dropAreaLeft + dropAreaSize.width,
+          y: dropAreaTop + dropAreaSize.height,
+        },
+        {
+          x: dropAreaLeft,
+          y: dropAreaTop + dropAreaSize.height,
+        },
+      ];
       return {
         area: dropArea,
         polygon: new fabric.Polygon(dropAreaPoints, {
@@ -123,8 +133,8 @@ export class CanvasEventsService {
           objectCaching: false,
           transparentCorners: false,
           visible: false,
-        })
-      }
+        }),
+      };
     });
   }
 

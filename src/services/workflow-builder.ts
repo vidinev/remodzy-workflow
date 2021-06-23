@@ -15,7 +15,6 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Fix drop area inactive in few seconds after hover
  * Fix sorting cases https://www.loom.com/share/7bb1ad688b5e42a78adb91aaaa61d2fa
  * Disable pass state drag
  * Implement zoom
