@@ -29,6 +29,7 @@ import { BranchConfiguration } from '../../interfaces/branch-configuration.inter
 import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
 import { defaultDrawOptions } from './default-draw-options';
 import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
+import { StateTypesEnum } from '../../configs/state-types.enum';
 
 export class DrawBranchService {
   protected position: PointCoords = { x: 0, y: 0 };
@@ -107,13 +108,14 @@ export class DrawBranchService {
     const isMainStart = workflowData?.isMainRoot() && isStart;
     const isEnd = stateData.Parameters?.stateId === this.workflowData.getEndStateId();
     const isMainEnd = workflowData?.isMainRoot() && isEnd;
+    const isSelectable = stateData.Type !== StateTypesEnum.Pass && this.isSelectable(isMainStart, isMainEnd);
     return new StateGroup(
       stateData,
       {
         left,
         top,
-        hoverCursor: this.getCursor(isMainStart, isMainEnd),
-        selectable: this.isSelectable(isMainStart, isMainEnd),
+        hoverCursor: this.getCursor(isSelectable),
+        selectable: isSelectable,
       },
       isStart,
       workflowData?.getParentStateId(),
@@ -125,8 +127,8 @@ export class DrawBranchService {
     return !(isMainStart || isMainEnd);
   }
 
-  protected getCursor(isMainStart: boolean = false, isMainEnd: boolean = false): string {
-    return isMainStart || isMainEnd ? 'default' : 'pointer';
+  protected getCursor(isSelectable: boolean): string {
+    return isSelectable ? 'pointer' : 'default';
   }
 
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {

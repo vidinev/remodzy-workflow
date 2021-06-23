@@ -16,7 +16,6 @@ import { tick } from './tick.service';
 
 /*
  * Fix canvas size after sorting https://imgur.com/e8ZK5sQ
- * Disable pass state drag
  * Implement zoom
 
  * Merge all js files into one
