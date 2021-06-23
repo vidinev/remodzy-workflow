@@ -100,6 +100,11 @@ export class WorkflowData {
       return;
     }
 
+    const isDropUnderActiveState = this.isChildrenOfBranch(activeState, stateBeforeDrop);
+    if (isDropUnderActiveState) {
+      return;
+    }
+
     const activeStateDraft = cloneDeep(activeState);
     this.removeStateFromOldPosition(activeStateDraft, stateBeforeActive);
     this.insertStateAfterState(stateBeforeDrop, activeStateDraft);
@@ -152,6 +157,18 @@ export class WorkflowData {
       }
     }
     return null;
+  }
+
+  private isChildrenOfBranch(branchRootState: WorkflowState, childrenState: WorkflowState) {
+    if (branchRootState.BranchesData && branchRootState.BranchesData.length && childrenState.Parameters.stateId) {
+      for (let branch of branchRootState.BranchesData || []) {
+        let state = this.searchStateDeep(childrenState.Parameters.stateId, branch.dataDraft.States);
+        if (state) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private searchPreviousStateDeep(id: string, states: WorkflowStates = this.dataDraft.States): WorkflowState | null {
