@@ -21,6 +21,7 @@ import { tick } from './tick.service';
 
  * Merge all js files into one
  * Test lib basic functionality
+ * es5 -> es modules
  *
  * Discuss using Pass state in workflow
  * Support using simple state (Non Pass type) for root of the branch ?
