@@ -52,13 +52,13 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return stateGroup;
   }
 
-  public getBranchDimensions(): WorkflowDimensions {
+  public getBranchDimensions(states: IStateGroup[] = this.states): WorkflowDimensions {
     let widthOfBranch = stateItemSize.width;
     const defaultCoords = { x: 0, y: 0 };
-    let rightMost = defaultCoords
+    let rightMost = defaultCoords;
     let leftMost = defaultCoords;
     let stateCenterTop = defaultCoords;
-    this.states.forEach((state: IStateGroup) => {
+    states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
         rightMost = state.getRightMostItemCoordsUnderChildren(true);
         leftMost = state.getLeftMostItemCoordsUnderChildren();
@@ -102,28 +102,16 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return branchSubItems;
   }
 
-  protected calculateBranchWidth(branch: WorkflowData) {
+  protected calculateBranchDimensions(branch: WorkflowData): WorkflowDimensions {
     const virtualCanvas = new fabric.Canvas(null);
     const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, { draft: true }, {
       y: 0,
       x: 0,
     });
     const states = drawBranchService.drawBranch();
-    const width = this.getStatesWidth(states);
+    const dimensions = this.getBranchDimensions(states);
     virtualCanvas.dispose();
-    return width;
-  }
-
-  protected getStatesWidth(states: IStateGroup[]) {
-    let widthOfBranch = stateItemSize.width;
-    states.forEach((state: IStateGroup) => {
-      if (state.isBranchRoot()) {
-        const rightMost = state.getRightMostItemCoordsUnderChildren(true);
-        const leftMost = state.getLeftMostItemCoordsUnderChildren();
-        widthOfBranch = rightMost.x - leftMost.x;
-      }
-    });
-    return widthOfBranch;
+    return dimensions;
   }
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
