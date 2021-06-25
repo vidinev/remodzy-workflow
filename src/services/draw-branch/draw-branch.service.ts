@@ -279,6 +279,7 @@ export class DrawBranchService {
     );
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.moveToCenter();
+    dropAreaGroup.cacheCoords();
     return dropAreaGroup;
   }
 

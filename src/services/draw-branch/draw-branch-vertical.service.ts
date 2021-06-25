@@ -47,6 +47,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
 
   public drawStateRoot(stateData: WorkflowState, position: PointCoords, workflowData?: WorkflowData): IStateGroup {
     const stateGroup = this.getRootStateGroup(stateData, position.x, position.y, workflowData);
+    stateGroup.cacheCoords();
     this.canvas.add(stateGroup);
     return stateGroup;
   }

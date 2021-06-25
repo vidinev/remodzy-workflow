@@ -15,9 +15,9 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
+ * Fix horizontal draw, probably use bottom
  * Use CoordsService.getAllStates for all (fix get bottom drop area)
- * Fix horizontal flow with new coords service
- * Fix move everything to right
+ * Fix move everything to right (with calc for very large inheritance)
  * Implement zoom
 
  * Merge all js files into one
@@ -71,7 +71,7 @@ export class RemodzyWorkflowBuilder {
       this.workflowData,
       this.canvas,
       { draft: false },
-      canvasDimensions,
+      canvasDimensions
     );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();

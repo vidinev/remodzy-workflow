@@ -9,8 +9,6 @@ import { IConnectPoint } from './connect-point.interface';
 export interface IStateGroup extends Group {
   data: WorkflowState & { stateId: string; parentStateId: string | null; Start: boolean };
   top: number;
-  originTop: number;
-  originLeft: number;
   left: number;
   height: number;
   width: number;
@@ -31,6 +29,7 @@ export interface IStateGroup extends Group {
   getCenterBottomCoords: () => PointCoords;
   getCenterRightCoords: () => PointCoords;
   getCenterLeftCoords: () => PointCoords;
+  cacheCoords(): void;
   getStateData: () => WorkflowState;
   setDropArea: (dropArea: IDropAreaGroup) => void;
   getDropArea: () => IDropAreaGroup;
