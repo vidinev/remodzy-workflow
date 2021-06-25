@@ -15,8 +15,9 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Rework get center coords to new logic
- * Fix canvas size after sorting https://imgur.com/e8ZK5sQ
+ * Use CoordsService.getAllStates for all (fix get bottom drop area)
+ * Fix horizontal flow with new coords service
+ * Fix move everything to right
  * Implement zoom
 
  * Merge all js files into one

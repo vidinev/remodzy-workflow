@@ -32,7 +32,7 @@ export class CoordsService {
   getCenterTopCoords(states: IStateGroup[]) {
     let topItem: IStateGroup = {} as IStateGroup;
     topItem = states[0];
-    states.forEach((state: IStateGroup) => {
+    CoordsService.getAllStates(states).forEach((state: IStateGroup) => {
       if (CoordsService.getTopY(state) < (CoordsService.getTopY(topItem) || 0)) {
         topItem = state;
       }
@@ -46,16 +46,7 @@ export class CoordsService {
 
   getCenterRightCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
     let rightmostItem: IStateGroup = {} as IStateGroup;
-    let allStates: IStateGroup[] = [];
-    states.forEach((state: IStateGroup) => {
-      if (state.isBranchRoot?.()) {
-        allStates.push(...state.getChildrenStates());
-      } else {
-        allStates.push(state);
-      }
-    });
-
-    allStates.forEach((state: IStateGroup) => {
+    CoordsService.getAllStates(states).forEach((state: IStateGroup) => {
       if (CoordsService.getRightX(state) > CoordsService.getRightX(rightmostItem)) {
         rightmostItem = state;
       }
@@ -85,7 +76,7 @@ export class CoordsService {
   getCenterLeftCoords(states: IStateGroup[]): PointCoords {
     let leftmostItem: IStateGroup = {} as IStateGroup;
     leftmostItem = states[0];
-    states.forEach((state: IStateGroup) => {
+    CoordsService.getAllStates(states).forEach((state: IStateGroup) => {
       if (CoordsService.getLeftX(state) < CoordsService.getLeftX(leftmostItem)) {
         leftmostItem = state;
       }
@@ -108,12 +99,21 @@ export class CoordsService {
     };
   }
 
+  private static getAllStates(states: IStateGroup[]): IStateGroup[] {
+    let allStates: IStateGroup[] = [];
+    states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot?.()) {
+        allStates.push(...state.getChildrenStates());
+      } else {
+        allStates.push(state);
+      }
+    });
+    return allStates;
+  }
+
+
   private static getLeftX(state: IStateGroup) {
-    let currentX = state.getLeft?.() || 0;
-    if (state.isBranchRoot?.()) {
-      currentX = state.getLeftMostItemCoordsUnderChildren()?.x || currentX;
-    }
-    return currentX;
+    return state.getLeft?.() || 0;
   }
 
   private static getRightX(state: IStateGroup) {
@@ -121,11 +121,7 @@ export class CoordsService {
   }
 
   private static getTopY(state: IStateGroup) {
-    let currentY = state.getCenterTopCoords?.()?.y || 0;
-    if (state.isBranchRoot?.()) {
-      currentY = state.getCenterTopCoordsAboveChildren()?.y || currentY;
-    }
-    return currentY;
+    return state.getCenterTopCoords?.()?.y || 0;
   }
 
   private static getBottomY(state: IStateGroup) {
