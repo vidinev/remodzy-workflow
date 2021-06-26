@@ -52,12 +52,17 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return stateGroup;
   }
 
-  public getBranchDimensions(states: IStateGroup[] = this.states): WorkflowDimensions {
+  public getBranchDimensions(states: IStateGroup[] = this.states,
+                             i: number = 0,
+                             branchesLength: number = 0): WorkflowDimensions {
     let widthOfBranch = stateItemSize.width;
     const defaultCoords = { x: 0, y: 0 };
     let rightMost = defaultCoords;
     let leftMost = defaultCoords;
     let stateCenterTop = defaultCoords;
+    const isEvenBranches = branchesLength % 2 === 0;
+    const middleBranchIndex = Math.ceil(branchesLength / 2);
+    const indexNumber = i + 1;
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
         const rootStateBranchRightMost = state.getRightMostItemCoordsUnderChildren(true);
@@ -73,6 +78,17 @@ export class DrawBranchVerticalService extends DrawBranchService {
         stateCenterTop = state.getCenterTopCoords();
       }
     });
+    const leftSideWidth = stateCenterTop.x - leftMost.x;
+    const rightSideWidth = rightMost.x - stateCenterTop.x;
+    if (states !== this.states && rightSideWidth !== 0) {
+      const ratio = leftSideWidth / rightSideWidth;
+      if (ratio > 1.25 && (indexNumber > middleBranchIndex)) {
+        widthOfBranch *= 1.5;
+      }
+      if (ratio < .4 && (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber <= middleBranchIndex)) {
+        widthOfBranch *= 1.5;
+      }
+    }
     return {
       width: widthOfBranch + marginSize.horizontalMargin * 2,
       height: this.position.y + marginSize.verticalMargin * 2,
@@ -107,14 +123,15 @@ export class DrawBranchVerticalService extends DrawBranchService {
     return branchSubItems;
   }
 
-  protected calculateBranchDimensions(branch: WorkflowData): WorkflowDimensions {
+  protected calculateBranchDimensions(branch: WorkflowData, i: number, branchesLength: number): WorkflowDimensions {
     const virtualCanvas = new fabric.Canvas(null);
     const drawBranchService = new DrawBranchVerticalService(branch, virtualCanvas, { draft: true }, {
       y: 0,
       x: 0,
     });
     const states = drawBranchService.drawBranch();
-    const dimensions = this.getBranchDimensions(states);
+
+    const dimensions = this.getBranchDimensions(states, i, branchesLength);
     virtualCanvas.dispose();
     return dimensions;
   }

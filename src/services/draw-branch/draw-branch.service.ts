@@ -201,8 +201,8 @@ export class DrawBranchService {
     let branchesItemsGroup;
     const rootState = this.drawStateRoot(stateData, position, workflowData);
     if (stateData.BranchesData?.length) {
-      const branchesConfiguration: BranchConfiguration[] = stateData.BranchesData.map((data: WorkflowData) => {
-        const dimensions = this.calculateBranchDimensions(data);
+      const branchesConfiguration: BranchConfiguration[] = stateData.BranchesData.map((data: WorkflowData, i: number) => {
+        const dimensions = this.calculateBranchDimensions(data, i, stateData.BranchesData?.length || 0);
         return {
           data,
           ...dimensions,
@@ -221,7 +221,7 @@ export class DrawBranchService {
 
   protected drawTiePoints(): void {}
 
-  protected calculateBranchDimensions(branch: WorkflowData): WorkflowDimensions {
+  protected calculateBranchDimensions(branch: WorkflowData, i: number, branchesLength: number): WorkflowDimensions {
     return this.getBranchDimensions();
   }
 
