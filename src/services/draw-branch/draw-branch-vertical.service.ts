@@ -82,10 +82,9 @@ export class DrawBranchVerticalService extends DrawBranchService {
     const rightSideWidth = rightMost.x - stateCenterTop.x;
     if (states !== this.states && rightSideWidth !== 0) {
       const ratio = leftSideWidth / rightSideWidth;
-      if (ratio > 1.25 && (indexNumber > middleBranchIndex)) {
+      if (ratio > 1.25 && (indexNumber >= middleBranchIndex)) {
         widthOfBranch *= 1.5;
-      }
-      if (ratio < .4 && (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber <= middleBranchIndex)) {
+      } else if (ratio < .4 && indexNumber < middleBranchIndex) {
         widthOfBranch *= 1.5;
       }
     }
