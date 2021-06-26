@@ -60,7 +60,6 @@ export class DrawBranchVerticalService extends DrawBranchService {
     let rightMost = defaultCoords;
     let leftMost = defaultCoords;
     let stateCenterTop = defaultCoords;
-    const isEvenBranches = branchesLength % 2 === 0;
     const middleBranchIndex = Math.ceil(branchesLength / 2);
     const indexNumber = i + 1;
     states.forEach((state: IStateGroup) => {
@@ -84,7 +83,7 @@ export class DrawBranchVerticalService extends DrawBranchService {
       const ratio = leftSideWidth / rightSideWidth;
       if (ratio > 1.25 && (indexNumber >= middleBranchIndex)) {
         widthOfBranch *= 1.5;
-      } else if (ratio < .4 && indexNumber < middleBranchIndex) {
+      } else if (ratio < .4 && indexNumber <= middleBranchIndex) {
         widthOfBranch *= 1.5;
       }
     }

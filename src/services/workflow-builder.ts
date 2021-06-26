@@ -15,7 +15,6 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Fix move everything to right (drop inside)
  * Fix horizontal draw, probably use bottom
  * Implement zoom
 
