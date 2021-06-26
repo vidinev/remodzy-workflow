@@ -15,9 +15,8 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
+ * Fix move everything to right (drop inside)
  * Fix horizontal draw, probably use bottom
- * Use CoordsService.getAllStates for all (fix get bottom drop area)
- * Fix move everything to right (with calc for very large inheritance)
  * Implement zoom
 
  * Merge all js files into one
