@@ -93,11 +93,13 @@ export class CanvasEventsService {
     );
     this.canvas.on('object:moved', (event: IEvent) => {
       this.currentDragTop = 0;
-      this.canvas.remove(this.canvas.getActiveObject());
-      if (this.activeDropArea) {
-        callbacks.dropCallback(event, this.activeDropArea);
-        this.activeDropArea.toggleActive(false);
-        this.activeDropArea = null;
+      if (CanvasEventsService.isDragEventAllowed(event.target)) {
+        this.canvas.remove(this.canvas.getActiveObject());
+        if (this.activeDropArea) {
+          callbacks.dropCallback(event, this.activeDropArea);
+          this.activeDropArea.toggleActive(false);
+          this.activeDropArea = null;
+        }
       }
     });
     this.setupDragOverflowEvents();

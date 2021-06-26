@@ -60,9 +60,14 @@ export class DrawBranchVerticalService extends DrawBranchService {
     let stateCenterTop = defaultCoords;
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
-        rightMost = state.getRightMostItemCoordsUnderChildren(true);
-        leftMost = state.getLeftMostItemCoordsUnderChildren();
-        widthOfBranch = rightMost.x - leftMost.x;
+        const rootStateBranchRightMost = state.getRightMostItemCoordsUnderChildren(true);
+        const rootStateBranchLeftMost = state.getLeftMostItemCoordsUnderChildren();
+        const rootStateBranchWidth = rootStateBranchRightMost.x - rootStateBranchLeftMost.x;
+        if (rootStateBranchWidth > widthOfBranch) {
+          widthOfBranch = rootStateBranchWidth;
+          leftMost = rootStateBranchLeftMost;
+          rightMost = rootStateBranchRightMost;
+        }
       }
       if (state.data.stateId === this.workflowData.getStartStateId()) {
         stateCenterTop = state.getCenterTopCoords();
