@@ -234,7 +234,8 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getRightMostItemCoordsUnderChildren(passStateAsFullState: boolean = false): PointCoords {
     const coordsService = new CoordsService();
-    return coordsService.getCenterRightCoords(this.getChildrenStates(), passStateAsFullState);
+    const connectPoint = this.getConnectPoint?.();
+    return coordsService.getCenterRightCoords(this.getChildrenStates(), passStateAsFullState, connectPoint);
   },
 
   getLeftMostItemCoordsUnderChildren(): PointCoords {

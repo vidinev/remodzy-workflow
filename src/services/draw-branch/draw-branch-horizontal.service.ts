@@ -53,6 +53,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       top += Math.ceil((stateItemSize.height - passStateItemSize.height) / 2);
     }
     const stateGroup = this.getRootStateGroup(stateData, left, top, workflowData);
+    stateGroup.cacheCoords();
     this.canvas.add(stateGroup);
     return stateGroup;
   }
@@ -95,9 +96,10 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       if (stateGroup.isBranchRoot()) {
         const { x: rightmostLeft } = stateGroup.getRightMostItemCoordsUnderChildren();
         const { y: rightmostTop } = stateGroup.getCenterRightCoords();
-        const left = rightmostLeft + marginSize.horizontalMargin + strokeWidth * 2;
+        const left = rightmostLeft + strokeWidth * 2;
         const connectPoint = new ConnectPoint(left, rightmostTop);
         stateGroup.setConnectPoint(connectPoint);
+        connectPoint.cacheCoords();
         this.canvas.add(connectPoint);
       }
     });
@@ -147,7 +149,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       let rightmostX = nextStateCoords.x;
       if (!curveLineStructure.nextState) {
         const { left = 0 } = curveLineStructure.rootState.getConnectPoint();
-        rightmostX = left;
+        rightmostX = left + marginSize.horizontalMargin;
       }
       const tieLine = new BezierCurveTieLine(
         {
