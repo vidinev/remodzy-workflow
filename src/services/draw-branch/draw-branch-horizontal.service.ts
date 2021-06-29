@@ -58,17 +58,22 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     return stateGroup;
   }
 
-  public getBranchDimensions(): WorkflowDimensions {
+  public getBranchDimensions(states: IStateGroup[] = this.states): WorkflowDimensions {
     let heightOfBranch = stateItemSize.height;
     const defaultCoords = { x: 0, y: 0 };
-    let topPoint = defaultCoords
-    let bottomPoint = defaultCoords
+    let topPoint = defaultCoords;
+    let bottomPoint = defaultCoords;
     let stateCenterLeft = defaultCoords;
     this.states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
-        topPoint = state.getCenterTopCoordsAboveChildren();
-        bottomPoint = state.getCenterBottomCoordsUnderChildren(true);
-        heightOfBranch = bottomPoint.y - topPoint.y;
+        const rootStateTopPoint = state.getCenterTopCoordsAboveChildren();
+        const rootStateBottomPoint = state.getCenterBottomCoordsUnderChildren(true);
+        const rootStateBranchHeight = rootStateBottomPoint.y - rootStateTopPoint.y;
+        if (rootStateBranchHeight > heightOfBranch) {
+          heightOfBranch = rootStateBranchHeight;
+          topPoint = rootStateTopPoint;
+          bottomPoint = rootStateBottomPoint;
+        }
       }
       if (state.data.stateId === this.workflowData.getStartStateId()) {
         stateCenterLeft = state.getCenterLeftCoords();
@@ -230,28 +235,17 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     return branchSubItems;
   }
 
-  protected calculateBranchHeight(branch: WorkflowData): number {
+  protected calculateBranchDimensions(branch: WorkflowData, i: number, branchesLength: number): WorkflowDimensions {
     const virtualCanvas = new fabric.Canvas(null);
     const drawBranchService = new DrawBranchHorizontalService(branch, virtualCanvas, { draft: true }, {
       y: 0,
       x: 0,
     });
     const states = drawBranchService.drawBranch();
-    const height = this.getStatesHeight(states);
-    virtualCanvas.dispose();
-    return height;
-  }
 
-  protected getStatesHeight(states: IStateGroup[]) {
-    let heightOfBranch = stateItemSize.height;
-    states.forEach((state: IStateGroup) => {
-      if (state.isBranchRoot()) {
-        const topPoint = state.getCenterTopCoordsAboveChildren();
-        const bottomPoint = state.getCenterBottomCoordsUnderChildren(true);
-        heightOfBranch = bottomPoint.y - topPoint.y;
-      }
-    });
-    return heightOfBranch;
+    const dimensions = this.getBranchDimensions(states);
+    virtualCanvas.dispose();
+    return dimensions;
   }
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
