@@ -3,6 +3,7 @@ import { remodzyColors } from '../configs/colors.config';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { dropAreaPlusConfig, dropAreaPlusSize, dropAreaRoundConfig } from './configs/drop-area-group-config';
+import { UtilsService } from '../services/utils.service';
 
 export const DropAreaGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.dropArea,
@@ -18,31 +19,56 @@ export const DropAreaGroup = fabric.util.createClass(fabric.Group, {
       selectable: false,
       hoverCursor: 'default',
     });
-    this.set({
-      originLeft: options.left,
-      originTop: options.top,
-    });
   },
 
   getTop(): number {
-    return this.originTop || this.top || 0;
+    if (this.absoluteTop) {
+      return this.absoluteTop;
+    }
+    this.absoluteTop = UtilsService.getAbsolute(this, 'top');
+    return this.absoluteTop;
   },
 
   getLeft(): number {
-    return this.originLeft || this.left || 0;
+    if (this.absoluteLeft) {
+      return this.absoluteLeft;
+    }
+    this.absoluteLeft = UtilsService.getAbsolute(this, 'left');
+    return this.absoluteLeft;
   },
 
   getCenterTopCoords(): PointCoords {
-    return {
+    if (this.centerTopCoords) {
+      return this.centerTopCoords;
+    }
+    this.centerTopCoords = {
       x: this.getLeft() + this.width / 2,
       y: this.getTop(),
     };
+    return this.centerTopCoords;
   },
 
   getCenterBottomCoords(): PointCoords {
-    return {
+    if (this.centerBottomCoords) {
+      return this.centerBottomCoords;
+    }
+    this.centerBottomCoords = {
       x: this.getLeft() + this.width / 2,
       y: this.getTop() + this.height,
+    };
+    return this.centerBottomCoords;
+  },
+
+  cacheCoords() {
+    this.absoluteTop = UtilsService.getAbsolute(this, 'top');
+    this.absoluteLeft = UtilsService.getAbsolute(this, 'left');
+    this.centerBottomCoords = {
+      x: this.getLeft() + this.width / 2,
+      y: this.getTop() + this.height,
+    };
+    this.centerTopCoords = {
+      x: this.getLeft() + this.width / 2,
+      y: this.getTop(),
     };
   },
 
@@ -52,8 +78,6 @@ export const DropAreaGroup = fabric.util.createClass(fabric.Group, {
     this.set({
       left,
       top,
-      originLeft: left,
-      originTop: top,
     });
   },
 

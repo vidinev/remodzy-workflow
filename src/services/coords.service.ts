@@ -2,6 +2,7 @@ import { IStateGroup } from '../models/interfaces/state.interface';
 import { PointCoords } from '../interfaces/point-coords.interface';
 import { StateTypesEnum } from '../configs/state-types.enum';
 import { passStateItemSize, stateItemSize } from '../configs/size.config';
+import { IConnectPoint } from '../models/interfaces/connect-point.interface';
 
 export class CoordsService {
   getCenterBottomCoords(states: IStateGroup[], passStateAsFullState: boolean = false) {
@@ -32,7 +33,7 @@ export class CoordsService {
   getCenterTopCoords(states: IStateGroup[]) {
     let topItem: IStateGroup = {} as IStateGroup;
     topItem = states[0];
-    states.forEach((state: IStateGroup) => {
+    CoordsService.getAllStates(states).forEach((state: IStateGroup) => {
       if (CoordsService.getTopY(state) < (CoordsService.getTopY(topItem) || 0)) {
         topItem = state;
       }
@@ -44,37 +45,32 @@ export class CoordsService {
     };
   }
 
-  getCenterRightCoords(states: IStateGroup[], passStateAsFullState: boolean = false): PointCoords {
+  getCenterRightCoords(states: IStateGroup[],
+                       passStateAsFullState: boolean = false,
+                       connectPoint: IConnectPoint | null = null): PointCoords {
     let rightmostItem: IStateGroup = {} as IStateGroup;
-    states.forEach((state: IStateGroup) => {
-      if (CoordsService.getRightX(state) > CoordsService.getRightX(rightmostItem)) {
+    let rightMostCoords = { x: 0, y: 0 };
+    CoordsService.getAllStates(states).forEach((state: IStateGroup) => {
+      const currentStateRightCoords = CoordsService.getRightCoords(state, passStateAsFullState);
+      const rightMostStateRightCoords = CoordsService.getRightCoords(rightmostItem, passStateAsFullState);
+      if (currentStateRightCoords.x > rightMostStateRightCoords.x) {
         rightmostItem = state;
+        rightMostCoords = currentStateRightCoords;
       }
     });
-    const centerRightCoords = rightmostItem.getCenterRightCoords?.() || { x: 0, y: 0 };
-    const tiePoint = rightmostItem.getRightTiePoint?.();
-    const connectPoint = rightmostItem.getConnectPoint?.();
-    if (connectPoint) {
-      return {
-        x: connectPoint.left || 0,
-        y: connectPoint.top || 0,
+    if (connectPoint && connectPoint.getLeft() > rightMostCoords.x) {
+      rightMostCoords = {
+        x: connectPoint.getLeft(),
+        y: connectPoint.getTop()
       };
     }
-    if (tiePoint) {
-      return tiePoint.getCenterRightCoords();
-    }
-    if (passStateAsFullState && rightmostItem.data.Type === StateTypesEnum.Pass) {
-      return {
-        ...centerRightCoords,
-        x: centerRightCoords.x + (stateItemSize.width - passStateItemSize.width),
-      };
-    }
-    return centerRightCoords;
+    return rightMostCoords;
   }
 
   getCenterLeftCoords(states: IStateGroup[]): PointCoords {
     let leftmostItem: IStateGroup = {} as IStateGroup;
-    states.forEach((state: IStateGroup) => {
+    leftmostItem = states[0];
+    CoordsService.getAllStates(states).forEach((state: IStateGroup) => {
       if (CoordsService.getLeftX(state) < CoordsService.getLeftX(leftmostItem)) {
         leftmostItem = state;
       }
@@ -97,24 +93,47 @@ export class CoordsService {
     };
   }
 
-  private static getLeftX(state: IStateGroup) {
-    let currentX = state.getLeft?.() || 0;
-    if (state.isBranchRoot?.()) {
-      currentX = state.getLeftMostItemCoordsUnderChildren()?.x || currentX;
-    }
-    return currentX;
+  private static getAllStates(states: IStateGroup[]): IStateGroup[] {
+    let allStates: IStateGroup[] = [];
+    states.forEach((state: IStateGroup) => {
+      if (state.isBranchRoot?.()) {
+        allStates.push(...state.getChildrenStates());
+      } else {
+        allStates.push(state);
+      }
+    });
+    return allStates;
   }
 
-  private static getRightX(state: IStateGroup) {
-    let currentX = (state.getLeft?.() || 0) + (state.width || 0);
-    if (state.isBranchRoot?.()) {
-      currentX = state.getRightMostItemCoordsUnderChildren()?.x || currentX;
+
+  private static getLeftX(state: IStateGroup) {
+    return state.getLeft?.() || 0;
+  }
+
+  private static getRightCoords(state: IStateGroup, passStateAsFullState: boolean = false): PointCoords {
+    const centerRightCoords = state.getCenterRightCoords?.() || { x: 0, y: 0 };
+    const tiePoint = state.getRightTiePoint?.();
+    const connectPoint = state.getConnectPoint?.();
+    if (connectPoint) {
+      return {
+        x: connectPoint.getLeft() || 0,
+        y: connectPoint.getTop() || 0,
+      } as PointCoords;
     }
-    return currentX;
+    if (tiePoint) {
+      return tiePoint.getCenterRightCoords();
+    }
+    if (passStateAsFullState && state.data?.Type === StateTypesEnum.Pass) {
+      return {
+        ...centerRightCoords,
+        x: centerRightCoords.x + (stateItemSize.width - passStateItemSize.width),
+      } as PointCoords;
+    }
+    return centerRightCoords;
   }
 
   private static getTopY(state: IStateGroup) {
-    let currentY = state.getCenterTopCoords?.()?.y || 0;
+    let currentY =  state.getCenterTopCoords?.()?.y || 0;
     if (state.isBranchRoot?.()) {
       currentY = state.getCenterTopCoordsAboveChildren()?.y || currentY;
     }

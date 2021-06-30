@@ -29,6 +29,7 @@ import { BranchConfiguration } from '../../interfaces/branch-configuration.inter
 import { DrawBranchOptions } from '../../interfaces/draw-branch-options.interface';
 import { defaultDrawOptions } from './default-draw-options';
 import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
+import { StateTypesEnum } from '../../configs/state-types.enum';
 
 export class DrawBranchService {
   protected position: PointCoords = { x: 0, y: 0 };
@@ -107,13 +108,14 @@ export class DrawBranchService {
     const isMainStart = workflowData?.isMainRoot() && isStart;
     const isEnd = stateData.Parameters?.stateId === this.workflowData.getEndStateId();
     const isMainEnd = workflowData?.isMainRoot() && isEnd;
+    const isSelectable = stateData.Type !== StateTypesEnum.Pass && this.isSelectable(isMainStart, isMainEnd);
     return new StateGroup(
       stateData,
       {
         left,
         top,
-        hoverCursor: this.getCursor(isMainStart, isMainEnd),
-        selectable: this.isSelectable(isMainStart, isMainEnd),
+        hoverCursor: this.getCursor(isSelectable),
+        selectable: isSelectable,
       },
       isStart,
       workflowData?.getParentStateId(),
@@ -125,8 +127,8 @@ export class DrawBranchService {
     return !(isMainStart || isMainEnd);
   }
 
-  protected getCursor(isMainStart: boolean = false, isMainEnd: boolean = false): string {
-    return isMainStart || isMainEnd ? 'default' : 'pointer';
+  protected getCursor(isSelectable: boolean): string {
+    return isSelectable ? 'pointer' : 'default';
   }
 
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
@@ -199,11 +201,11 @@ export class DrawBranchService {
     let branchesItemsGroup;
     const rootState = this.drawStateRoot(stateData, position, workflowData);
     if (stateData.BranchesData?.length) {
-      const branchesConfiguration: BranchConfiguration[] = stateData.BranchesData.map((data: WorkflowData) => {
+      const branchesConfiguration: BranchConfiguration[] = stateData.BranchesData.map((data: WorkflowData, i: number) => {
+        const dimensions = this.calculateBranchDimensions(data, i, stateData.BranchesData?.length || 0);
         return {
           data,
-          width: this.calculateBranchWidth(data),
-          height: this.calculateBranchHeight(data),
+          ...dimensions,
         };
       });
       const branchesItems: BranchItems[] = this.drawBranches(branchesConfiguration, position).filter(Boolean);
@@ -219,8 +221,8 @@ export class DrawBranchService {
 
   protected drawTiePoints(): void {}
 
-  protected calculateBranchWidth(branch: WorkflowData): number {
-    return stateItemSize.width;
+  protected calculateBranchDimensions(branch: WorkflowData, i: number, branchesLength: number): WorkflowDimensions {
+    return this.getBranchDimensions();
   }
 
   protected calculateBranchHeight(branch: WorkflowData): number {
@@ -277,6 +279,7 @@ export class DrawBranchService {
     );
     this.canvas.add(dropAreaGroup);
     dropAreaGroup.moveToCenter();
+    dropAreaGroup.cacheCoords();
     return dropAreaGroup;
   }
 

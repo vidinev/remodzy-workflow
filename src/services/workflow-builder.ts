@@ -15,12 +15,13 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Test with overflow container
- * Fix  drag and drop, and sorting between levels
+ * Fix horizontal draw glitches (4 parallel) https://i.imgur.com/YkJk7w4.png
+ * Fix vertical draw glitches (4 parallel and sort to right to left) https://i.imgur.com/u97SaxC.png
  * Implement zoom
 
  * Merge all js files into one
  * Test lib basic functionality
+ * es5 -> es modules
  *
  * Discuss using Pass state in workflow
  * Support using simple state (Non Pass type) for root of the branch ?

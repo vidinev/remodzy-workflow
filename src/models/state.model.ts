@@ -18,6 +18,7 @@ import { BranchItems } from './branch-items.model';
 import { CoordsService } from '../services/coords.service';
 import { passStateOffset } from '../configs/size.config';
 import { IConnectPoint } from './interfaces/connect-point.interface';
+import { UtilsService } from '../services/utils.service';
 
 export const StateGroup = fabric.util.createClass(fabric.Group, {
   type: ObjectTypes.state,
@@ -35,16 +36,14 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     options: IObjectOptions = {},
     isStart: boolean,
     parentStateId: string,
-    draft: boolean
+    draft: boolean,
   ) {
     const rectConfig = this._getConfig(stateData.Type, draft);
     const stateContainerObject = new fabric.Rect(rectConfig);
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
-    const items: any[] = [
-      stateContainerObject
-    ];
+    const items: any[] = [stateContainerObject];
     if (!draft) {
-      items.push(new fabric.Textbox(stateText, this._getTextConfig(stateData.Type)))
+      items.push(new fabric.Textbox(stateText, this._getTextConfig(stateData.Type)));
     }
 
     this.callSuper('initialize', items, {
@@ -61,62 +60,87 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         stateId: (stateData.Parameters && stateData.Parameters.stateId) || '',
       },
     });
-    this.set({
-      originLeft: options.left,
-      originTop: options.top,
-    });
   },
 
   getTop(): number {
-    return this.originTop || this.top || 0;
+    if (this.absoluteTop) {
+      return this.absoluteTop;
+    }
+    this.absoluteTop = UtilsService.getAbsolute(this, 'top');
+    return this.absoluteTop;
   },
 
   getLeft(): number {
-    return this.originLeft || this.left || 0;
+    if (this.absoluteLeft) {
+      return this.absoluteLeft;
+    }
+    this.absoluteLeft = UtilsService.getAbsolute(this, 'left');
+    return this.absoluteLeft;
   },
 
   getCenterBottomCoords(): PointCoords {
-    switch (this.data.Type) {
-      case StateTypesEnum.Pass:
-        return {
-          x: Math.ceil(this.getLeft() + passStateOffset + this.width / 2),
-          y: this.getTop() + this.height - 1,
-        };
-      default:
-        return {
-          x: Math.ceil(this.getLeft() + this.width / 2),
-          y: this.getTop() + this.height - 1,
-        };
+    if (this.centerBottomCoords) {
+      return this.centerBottomCoords;
     }
+    this.centerBottomCoords = {
+      x: Math.ceil(this.getLeft() + this.width / 2),
+      y: this.getTop() + this.height - 1,
+    };
+    return this.centerBottomCoords;
   },
 
   getCenterRightCoords(): PointCoords {
-    return {
+    if (this.centerRightCoords) {
+      return this.centerRightCoords;
+    }
+    this.centerRightCoords = {
       x: this.getLeft() + this.width,
       y: Math.ceil(this.getTop() + this.height / 2),
     };
+    return this.centerRightCoords;
   },
 
   getCenterLeftCoords(): PointCoords {
-    return {
+    if (this.centerLeftCoords) {
+      return this.centerLeftCoords;
+    }
+    this.centerLeftCoords = {
       x: this.getLeft(),
       y: Math.ceil(this.getTop() + this.height / 2),
     };
+    return this.centerLeftCoords;
   },
 
   getCenterTopCoords(): PointCoords {
-    switch (this.data.Type) {
-      case StateTypesEnum.Pass:
-        return {
-          x: Math.ceil(this.getLeft() + passStateOffset + this.width / 2),
-          y: this.getTop(),
-        };
-      default:
-        return {
-          x: Math.ceil(this.getLeft() + this.width / 2),
-          y: this.getTop(),
-        };
+    if (this.centerTopCoords) {
+      return this.centerTopCoords;
     }
+    this.centerTopCoords = {
+      x: Math.ceil(this.getLeft() + this.width / 2),
+      y: this.getTop(),
+    };
+    return this.centerTopCoords;
+  },
+
+  cacheCoords() {
+    this.absoluteTop = UtilsService.getAbsolute(this, 'top');
+    this.absoluteLeft = UtilsService.getAbsolute(this, 'left');
+    this.centerTopCoords = {
+      x: Math.ceil(this.getLeft() + this.width / 2),
+      y: this.getTop(),
+    };
+    this.centerLeftCoords = {
+      x: this.getLeft(),
+      y: Math.ceil(this.getTop() + this.height / 2),
+    };
+    this.centerBottomCoords = {
+      x: Math.ceil(this.getLeft() + this.width / 2),
+      y: this.getTop() + this.height - 1,
+    };
+    this.centerRightCoords = {
+      x: this.getLeft() + this.width,
+      y: Math.ceil(this.getTop() + this.height / 2),
+    };
   },
 
   getStateData(): WorkflowState {
@@ -194,16 +218,22 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getChildrenStates(): IStateGroup[] {
     let states: IStateGroup[] = [];
-    const branches = (this._childrenBranches || []) as BranchItems[];
-    branches.forEach((branch: BranchItems) => {
-      states = [...states, ...(branch.states || [])];
-    });
+    if (this.isBranchRoot()) {
+      const branches = (this._childrenBranches || []) as BranchItems[];
+      branches.forEach((branch: BranchItems) => {
+        states.push(...branch.states);
+        branch.states.forEach((state: IStateGroup) => {
+          states.push(...state.getChildrenStates());
+        });
+      });
+    }
     return states;
   },
 
   getRightMostItemCoordsUnderChildren(passStateAsFullState: boolean = false): PointCoords {
     const coordsService = new CoordsService();
-    return coordsService.getCenterRightCoords(this.getChildrenStates(), passStateAsFullState);
+    const connectPoint = this.getConnectPoint?.();
+    return coordsService.getCenterRightCoords(this.getChildrenStates(), passStateAsFullState, connectPoint);
   },
 
   getLeftMostItemCoordsUnderChildren(): PointCoords {
@@ -224,9 +254,14 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
   alignCenter() {
     switch (this.data.Type) {
       case StateTypesEnum.Pass:
-        const left = this.originLeft + passStateOffset;
+        const left = this.getLeft() + passStateOffset;
         this.set({ left });
     }
+  },
+
+  shouldHaveTiePoint(): boolean {
+    const isMainBranchEnd = this.isInMainBranch() && this.data.End;
+    return !isMainBranchEnd && this.data.Type !== StateTypesEnum.Pass;
   },
 
   _getConfig(type: string, draft: boolean) {

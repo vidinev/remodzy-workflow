@@ -40,8 +40,8 @@ export const curveRoundPartSize = 14;
 
 const margins = {
   verticalMargin: 76,
-  horizontalMargin: 80,
-  branchesMargin: 40,
+  horizontalMargin: 40,
+  branchesMargin: 0,
   stateToBranchMargin: tieLineSize.margin * 2 + tiePointSize.radius + curveRoundPartSize * 2,
 };
 

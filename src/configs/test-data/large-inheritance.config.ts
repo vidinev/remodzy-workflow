@@ -124,6 +124,19 @@ export const largeInheritance: WorkflowStateData = {
                             },
                           },
                         },
+                        // {
+                        //   StartAt: 'TestingSubLevel3',
+                        //   States: {
+                        //     TestingSubLevel3: {
+                        //       Type: 'Pass',
+                        //       End: true,
+                        //       Comment: 'Testing Sub Level3',
+                        //       Parameters: {
+                        //         taskType: 'pass',
+                        //       },
+                        //     }
+                        //   },
+                        // },
                       ],
                     },
                     TestingSubStateEnd: {

@@ -2,7 +2,14 @@ import { DrawBranchService } from './draw-branch.service';
 import { WorkflowData } from '../workflow-data.service';
 import { Canvas, Group } from 'fabric/fabric-impl';
 import { PointCoords } from '../../interfaces/point-coords.interface';
-import { marginSize, passStateItemSize, stateItemSize, strokeWidth, tieLineSize } from '../../configs/size.config';
+import {
+  marginSize,
+  passStateItemSize,
+  stateItemSize,
+  strokeWidth,
+  tieLineSize,
+  tiePointSize,
+} from '../../configs/size.config';
 import { IStateGroup } from '../../models/interfaces/state.interface';
 import { WorkflowState } from '../../interfaces/state-language.interface';
 import { StateTypesEnum } from '../../configs/state-types.enum';
@@ -21,10 +28,12 @@ import { defaultDrawOptions } from './default-draw-options';
 import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
 
 export class DrawBranchHorizontalService extends DrawBranchService {
-  constructor(protected workflowData: WorkflowData,
-              protected canvas: Canvas,
-              protected options: DrawBranchOptions = defaultDrawOptions,
-              protected startPosition?: PointCoords) {
+  constructor(
+    protected workflowData: WorkflowData,
+    protected canvas: Canvas,
+    protected options: DrawBranchOptions = defaultDrawOptions,
+    protected startPosition?: PointCoords,
+  ) {
     super(workflowData, canvas, options, startPosition);
 
     if (!startPosition) {
@@ -53,21 +62,27 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       top += Math.ceil((stateItemSize.height - passStateItemSize.height) / 2);
     }
     const stateGroup = this.getRootStateGroup(stateData, left, top, workflowData);
+    stateGroup.cacheCoords();
     this.canvas.add(stateGroup);
     return stateGroup;
   }
 
-  public getBranchDimensions(): WorkflowDimensions {
+  public getBranchDimensions(states: IStateGroup[] = this.states): WorkflowDimensions {
     let heightOfBranch = stateItemSize.height;
     const defaultCoords = { x: 0, y: 0 };
-    let topPoint = defaultCoords
-    let bottomPoint = defaultCoords
+    let topPoint = defaultCoords;
+    let bottomPoint = defaultCoords;
     let stateCenterLeft = defaultCoords;
-    this.states.forEach((state: IStateGroup) => {
+    states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
-        topPoint = state.getCenterTopCoordsAboveChildren();
-        bottomPoint = state.getCenterBottomCoordsUnderChildren(true);
-        heightOfBranch = bottomPoint.y - topPoint.y;
+        const rootStateTopPoint = state.getCenterTopCoordsAboveChildren();
+        const rootStateBottomPoint = state.getCenterBottomCoordsUnderChildren(true);
+        const rootStateBranchHeight = rootStateBottomPoint.y - rootStateTopPoint.y;
+        if (rootStateBranchHeight > heightOfBranch) {
+          heightOfBranch = rootStateBranchHeight;
+          topPoint = rootStateTopPoint;
+          bottomPoint = rootStateBottomPoint;
+        }
       }
       if (state.data.stateId === this.workflowData.getStartStateId()) {
         stateCenterLeft = state.getCenterLeftCoords();
@@ -78,7 +93,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       height: heightOfBranch + marginSize.verticalMargin * 2,
       leftSideWidth: stateCenterLeft.y - topPoint.y,
       rightSideWidth: bottomPoint.y - stateCenterLeft.y,
-      startPoint: stateCenterLeft
+      startPoint: stateCenterLeft,
     };
   }
 
@@ -95,9 +110,10 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       if (stateGroup.isBranchRoot()) {
         const { x: rightmostLeft } = stateGroup.getRightMostItemCoordsUnderChildren();
         const { y: rightmostTop } = stateGroup.getCenterRightCoords();
-        const left = rightmostLeft + marginSize.horizontalMargin + strokeWidth * 2;
+        const left = rightmostLeft + strokeWidth * 2;
         const connectPoint = new ConnectPoint(left, rightmostTop);
         stateGroup.setConnectPoint(connectPoint);
+        connectPoint.cacheCoords();
         this.canvas.add(connectPoint);
       }
     });
@@ -116,6 +132,13 @@ export class DrawBranchHorizontalService extends DrawBranchService {
           x: rightmostCoords.x,
           y: startCoords.y,
         };
+        const connectPoint = curveLineStructure.rootState?.getConnectPoint();
+        if (connectPoint) {
+          connectPoint.moveRight();
+          if (connectPoint.getLeft() > rightmostCoords.x) {
+            nextStateCoords.x = connectPoint.getLeft();
+          }
+        }
       }
       leftSide.forEach((sideState: SideState) => {
         this.drawStartCurveTieLine(sideState, startCoords);
@@ -143,19 +166,24 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       sideState,
       rightmostCoords,
     )?.getCenterRightCoords();
+
     if (branchRightMost && nextStateCoords?.x && nextStateCoords?.y) {
-      let rightmostX = nextStateCoords.x;
+      let curveTieLineLeftX = nextStateCoords.x;
+      let curveTieLineRightX = rightmostCoords.x;
       if (!curveLineStructure.nextState) {
-        const { left = 0 } = curveLineStructure.rootState.getConnectPoint();
-        rightmostX = left;
+        const connectPoint = curveLineStructure.rootState.getConnectPoint();
+        curveTieLineLeftX = connectPoint.getLeft();
+      }
+      if (branchRightMost?.x > rightmostCoords.x) {
+        curveTieLineRightX += marginSize.horizontalMargin;
       }
       const tieLine = new BezierCurveTieLine(
         {
-          x: rightmostX,
+          x: curveTieLineLeftX,
           y: nextStateCoords.y,
         },
         {
-          x: rightmostCoords.x,
+          x: curveTieLineRightX,
           y: branchRightMost?.y,
         },
         true,
@@ -218,7 +246,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       positionY += heightWithMargin / 2;
       const drawBranchService = new DrawBranchHorizontalService(branchWorkflowData, this.canvas, this.options, {
         y: positionY - stateItemSize.height / 2,
-        x: position.x + stateItemSize.width + marginSize.horizontalMargin,
+        x: position.x + stateItemSize.width + marginSize.horizontalMargin + tiePointSize.radius,
       });
       positionY += heightWithMargin / 2;
       const states = drawBranchService.drawBranch();
@@ -228,33 +256,27 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     return branchSubItems;
   }
 
-  protected calculateBranchHeight(branch: WorkflowData): number {
+  protected calculateBranchDimensions(branch: WorkflowData, i: number, branchesLength: number): WorkflowDimensions {
     const virtualCanvas = new fabric.Canvas(null);
-    const drawBranchService = new DrawBranchHorizontalService(branch, virtualCanvas, { draft: true }, {
-      y: 0,
-      x: 0,
-    });
+    const drawBranchService = new DrawBranchHorizontalService(
+      branch,
+      virtualCanvas,
+      { draft: true },
+      {
+        y: 0,
+        x: 0,
+      },
+    );
     const states = drawBranchService.drawBranch();
-    const height = this.getStatesHeight(states);
-    virtualCanvas.dispose();
-    return height;
-  }
 
-  protected getStatesHeight(states: IStateGroup[]) {
-    let heightOfBranch = stateItemSize.height;
-    states.forEach((state: IStateGroup) => {
-      if (state.isBranchRoot()) {
-        const topPoint = state.getCenterTopCoordsAboveChildren();
-        const bottomPoint = state.getCenterBottomCoordsUnderChildren(true);
-        heightOfBranch = bottomPoint.y - topPoint.y;
-      }
-    });
-    return heightOfBranch;
+    const dimensions = this.getBranchDimensions(states);
+    virtualCanvas.dispose();
+    return dimensions;
   }
 
   protected movePositionToNextState(rootState: IStateGroup, branchesItemsGroup?: Group) {
     const drawPositionRight = branchesItemsGroup
-      ? (branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0) + marginSize.horizontalMargin
+      ? (branchesItemsGroup.left || 0) + (branchesItemsGroup.width || 0) + marginSize.horizontalMargin * 2
       : rootState.getCenterRightCoords().x + marginSize.horizontalMargin;
     this.drawPosition.setRight(drawPositionRight);
   }
@@ -268,8 +290,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
         const rightTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterLeftCoords());
         stateGroup.setLeftTiePoint(rightTiePoint);
       }
-      const isMainBranchEnd = stateGroup.isInMainBranch() && stateGroup.data.End;
-      if (!isMainBranchEnd && stateGroup.data.Type) {
+      if (stateGroup.shouldHaveTiePoint()) {
         const rightTiePoint = this.drawTiePoint(stateGroup.data.stateId, stateGroup.getCenterRightCoords());
         stateGroup.setRightTiePoint(rightTiePoint);
       }
