@@ -21,10 +21,12 @@ import { defaultDrawOptions } from './default-draw-options';
 import { WorkflowDimensions } from '../../models/interfaces/workflow dimentions.interface';
 
 export class DrawBranchHorizontalService extends DrawBranchService {
-  constructor(protected workflowData: WorkflowData,
-              protected canvas: Canvas,
-              protected options: DrawBranchOptions = defaultDrawOptions,
-              protected startPosition?: PointCoords) {
+  constructor(
+    protected workflowData: WorkflowData,
+    protected canvas: Canvas,
+    protected options: DrawBranchOptions = defaultDrawOptions,
+    protected startPosition?: PointCoords,
+  ) {
     super(workflowData, canvas, options, startPosition);
 
     if (!startPosition) {
@@ -64,7 +66,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     let topPoint = defaultCoords;
     let bottomPoint = defaultCoords;
     let stateCenterLeft = defaultCoords;
-    this.states.forEach((state: IStateGroup) => {
+    states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot()) {
         const rootStateTopPoint = state.getCenterTopCoordsAboveChildren();
         const rootStateBottomPoint = state.getCenterBottomCoordsUnderChildren(true);
@@ -84,7 +86,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       height: heightOfBranch + marginSize.verticalMargin * 2,
       leftSideWidth: stateCenterLeft.y - topPoint.y,
       rightSideWidth: bottomPoint.y - stateCenterLeft.y,
-      startPoint: stateCenterLeft
+      startPoint: stateCenterLeft,
     };
   }
 
@@ -237,10 +239,15 @@ export class DrawBranchHorizontalService extends DrawBranchService {
 
   protected calculateBranchDimensions(branch: WorkflowData, i: number, branchesLength: number): WorkflowDimensions {
     const virtualCanvas = new fabric.Canvas(null);
-    const drawBranchService = new DrawBranchHorizontalService(branch, virtualCanvas, { draft: true }, {
-      y: 0,
-      x: 0,
-    });
+    const drawBranchService = new DrawBranchHorizontalService(
+      branch,
+      virtualCanvas,
+      { draft: true },
+      {
+        y: 0,
+        x: 0,
+      },
+    );
     const states = drawBranchService.drawBranch();
 
     const dimensions = this.getBranchDimensions(states);
