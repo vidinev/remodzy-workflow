@@ -15,7 +15,8 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Fix horizontal draw, probably use bottom
+ * Fix horizontal draw glitches (4 parallel) https://i.imgur.com/YkJk7w4.png
+ * Fix vertical draw glitches (4 parallel and sort to right to left) https://i.imgur.com/u97SaxC.png
  * Implement zoom
 
  * Merge all js files into one
@@ -69,7 +70,7 @@ export class RemodzyWorkflowBuilder {
       this.workflowData,
       this.canvas,
       { draft: false },
-      canvasDimensions
+      canvasDimensions,
     );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();
