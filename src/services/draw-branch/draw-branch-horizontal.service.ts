@@ -125,6 +125,14 @@ export class DrawBranchHorizontalService extends DrawBranchService {
           x: rightmostCoords.x,
           y: startCoords.y,
         };
+        const connectPoint = curveLineStructure.rootState?.getConnectPoint();
+        if (connectPoint) {
+          connectPoint.moveRight();
+          if (connectPoint.getLeft() > rightmostCoords.x) {
+            nextStateCoords.x = connectPoint.getLeft();
+            console.log(connectPoint.getLeft(), rightmostCoords.x);
+          }
+        }
       }
       leftSide.forEach((sideState: SideState) => {
         this.drawStartCurveTieLine(sideState, startCoords);
@@ -155,8 +163,8 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     if (branchRightMost && nextStateCoords?.x && nextStateCoords?.y) {
       let rightmostX = nextStateCoords.x;
       if (!curveLineStructure.nextState) {
-        const { left = 0 } = curveLineStructure.rootState.getConnectPoint();
-        rightmostX = left + marginSize.horizontalMargin;
+        const connectPoint = curveLineStructure.rootState.getConnectPoint();
+        rightmostX = connectPoint.getLeft();
       }
       const tieLine = new BezierCurveTieLine(
         {

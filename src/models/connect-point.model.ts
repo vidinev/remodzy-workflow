@@ -1,7 +1,7 @@
 import { IObjectOptions } from 'fabric/fabric-impl';
 import { ObjectTypes } from '../configs/object-types.enum';
 import { tieLineConfig } from './configs/tie-line-config';
-import { strokeWidth } from '../configs/size.config';
+import { marginSize, strokeWidth } from '../configs/size.config';
 import { UtilsService } from '../services/utils.service';
 
 export const ConnectPoint = fabric.util.createClass(fabric.Line, {
@@ -20,7 +20,6 @@ export const ConnectPoint = fabric.util.createClass(fabric.Line, {
     this.callSuper('_render', ctx);
   },
 
-
   getTop(): number {
     if (this.absoluteTop) {
       return this.absoluteTop;
@@ -37,9 +36,12 @@ export const ConnectPoint = fabric.util.createClass(fabric.Line, {
     return this.absoluteLeft;
   },
 
+  moveRight(amount: number = marginSize.horizontalMargin) {
+    this.absoluteLeft += amount;
+  },
+
   cacheCoords() {
     this.absoluteTop = UtilsService.getAbsolute(this, 'top');
     this.absoluteLeft = UtilsService.getAbsolute(this, 'left');
-  }
-
+  },
 });

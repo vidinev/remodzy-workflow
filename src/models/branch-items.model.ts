@@ -20,6 +20,15 @@ export class BranchItems {
   }
 
   getCenterRightCoords(): PointCoords {
+    if (this.connectPoints.length) {
+      let rightMostConnectPoint = this.connectPoints[0];
+      this.connectPoints.forEach((connectPoint: IConnectPoint) => {
+        if (connectPoint.getLeft() > rightMostConnectPoint.getLeft()) {
+          rightMostConnectPoint = connectPoint;
+        }
+      });
+      return this.coordsService.getCenterRightCoords(this.states, false, rightMostConnectPoint);
+    }
     return this.coordsService.getCenterRightCoords(this.states);
   }
 }
