@@ -36,16 +36,14 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     options: IObjectOptions = {},
     isStart: boolean,
     parentStateId: string,
-    draft: boolean
+    draft: boolean,
   ) {
     const rectConfig = this._getConfig(stateData.Type, draft);
     const stateContainerObject = new fabric.Rect(rectConfig);
     const stateText = stateData.Comment || stateData.Parameters?.taskType || '';
-    const items: any[] = [
-      stateContainerObject
-    ];
+    const items: any[] = [stateContainerObject];
     if (!draft) {
-      items.push(new fabric.Textbox(stateText, this._getTextConfig(stateData.Type)))
+      items.push(new fabric.Textbox(stateText, this._getTextConfig(stateData.Type)));
     }
 
     this.callSuper('initialize', items, {
@@ -84,7 +82,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     if (this.centerBottomCoords) {
       return this.centerBottomCoords;
     }
-    this.centerBottomCoords =  {
+    this.centerBottomCoords = {
       x: Math.ceil(this.getLeft() + this.width / 2),
       y: this.getTop() + this.height - 1,
     };
@@ -109,7 +107,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
     this.centerLeftCoords = {
       x: this.getLeft(),
       y: Math.ceil(this.getTop() + this.height / 2),
-    }
+    };
     return this.centerLeftCoords;
   },
 
@@ -135,7 +133,7 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
       x: this.getLeft(),
       y: Math.ceil(this.getTop() + this.height / 2),
     };
-    this.centerBottomCoords =  {
+    this.centerBottomCoords = {
       x: Math.ceil(this.getLeft() + this.width / 2),
       y: this.getTop() + this.height - 1,
     };
@@ -259,6 +257,11 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
         const left = this.getLeft() + passStateOffset;
         this.set({ left });
     }
+  },
+
+  shouldHaveTiePoint(): boolean {
+    const isMainBranchEnd = this.isInMainBranch() && this.data.End;
+    return !isMainBranchEnd && this.data.Type !== StateTypesEnum.Pass;
   },
 
   _getConfig(type: string, draft: boolean) {
