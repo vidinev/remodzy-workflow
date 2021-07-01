@@ -248,7 +248,7 @@ export class DrawBranchHorizontalService extends DrawBranchService {
       positionY += heightWithMargin / 2;
       const drawBranchService = new DrawBranchHorizontalService(branchWorkflowData, this.canvas, this.options, {
         y: positionY - stateItemSize.height / 2,
-        x: position.x + stateItemSize.width + marginSize.horizontalMargin + tiePointSize.radius,
+        x: position.x + stateItemSize.width + marginSize.horizontalMargin * 1.5,
       });
       positionY += heightWithMargin / 2;
       const states = drawBranchService.drawBranch();
