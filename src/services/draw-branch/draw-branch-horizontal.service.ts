@@ -216,13 +216,15 @@ export class DrawBranchHorizontalService extends DrawBranchService {
     if (rightmostCoords && branchRightMost?.x !== rightmostCoords.x) {
       let rightmostX = rightmostCoords?.x;
       this.drawConnectPointTieLine(curveLineStructure, rightmostCoords);
-      const bottomOfBranchTieLine = new TieLine([
-        branchRightMost?.x || 0,
-        branchRightMost?.y,
-        rightmostX,
-        branchRightMost?.y,
-      ]);
-      this.canvas.add(bottomOfBranchTieLine);
+      if ((branchRightMost?.x || 0) < rightmostX) {
+        const bottomOfBranchTieLine = new TieLine([
+          branchRightMost?.x || 0,
+          branchRightMost?.y,
+          rightmostX,
+          branchRightMost?.y,
+        ]);
+        this.canvas.add(bottomOfBranchTieLine);
+      }
     }
     return currentBranchItem;
   }
