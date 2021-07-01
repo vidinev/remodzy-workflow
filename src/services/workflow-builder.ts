@@ -15,8 +15,8 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Fix horizontal draw glitches (4 parallel) https://i.imgur.com/YkJk7w4.png
- * Fix vertical draw glitches (4 parallel and sort to right to left) https://i.imgur.com/u97SaxC.png
+ * Test 4 parallel case, with couple sub branches
+ * Test sorting cases with horizontal
  * Implement zoom
 
  * Merge all js files into one

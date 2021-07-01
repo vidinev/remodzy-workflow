@@ -105,10 +105,24 @@ export class DrawBranchVerticalService extends DrawBranchService {
   protected drawBranches(branchesConfiguration: BranchConfiguration[], position: PointCoords): BranchItems[] {
     let branchSubItems: BranchItems[] = [];
     let positionX = this.getBranchDrawStartPosition(branchesConfiguration, position.x, 'width');
+    const middleX = position.x + stateItemSize.width / 2;
+    const middleBranchIndex = Math.ceil(branchesConfiguration.length / 2);
+    const isEvenBranches = branchesConfiguration.length % 2 === 0;
     for (let i = 0; i < branchesConfiguration.length; i++) {
+      const indexNumber = i + 1;
       const branchWorkflowData = branchesConfiguration[i].data;
       const widthWithMargin = branchesConfiguration[i].width + marginSize.branchesMargin;
       positionX += widthWithMargin / 2;
+      if (indexNumber > middleBranchIndex) {
+        if (positionX < middleX) {
+          positionX += middleX - positionX + stateItemSize.width / 2;
+        }
+      }
+      if (isEvenBranches ? indexNumber <= middleBranchIndex : indexNumber < middleBranchIndex) {
+        if (positionX > middleX) {
+          positionX += middleX - positionX - stateItemSize.width / 2;
+        }
+      }
       const drawBranchService = new DrawBranchVerticalService(branchWorkflowData, this.canvas, this.options, {
         y: position.y + stateItemSize.height + marginSize.stateToBranchMargin,
         x: positionX - stateItemSize.width / 2,
