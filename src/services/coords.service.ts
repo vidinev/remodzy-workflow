@@ -98,9 +98,8 @@ export class CoordsService {
     states.forEach((state: IStateGroup) => {
       if (state.isBranchRoot?.()) {
         allStates.push(...state.getChildrenStates());
-      } else {
-        allStates.push(state);
       }
+      allStates.push(state);
     });
     return allStates;
   }
