@@ -15,7 +15,7 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Test sorting cases with horizontal
+ * Fix "large one side" for horizontal
  * Implement zoom
  * Scroll canvas by drag method (when space is hold)
 
@@ -78,6 +78,12 @@ export class RemodzyWorkflowBuilder {
       const dropAreas = this.drawBranchService.getDropAreas();
       this.canvasEvents.initialize(dropAreas);
     });
+
+    document.body.onkeyup = (e: KeyboardEvent) => {
+      if (e.code === 'Enter') {
+        console.log(JSON.stringify(this.workflowData.getJSONData()));
+      }
+    }
   }
 
   public async initialize() {
