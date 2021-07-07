@@ -17,6 +17,7 @@ import { tick } from './tick.service';
 /*
  * Test sorting cases with horizontal
  * Implement zoom
+ * Scroll canvas by drag method (when space is hold)
 
  * Merge all js files into one
  * Test lib basic functionality
