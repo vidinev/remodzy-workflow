@@ -15,7 +15,6 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Test 4 parallel case, with couple sub branches
  * Test sorting cases with horizontal
  * Implement zoom
 
