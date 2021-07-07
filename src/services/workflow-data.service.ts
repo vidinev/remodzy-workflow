@@ -112,6 +112,47 @@ export class WorkflowData {
     this.data = result.data;
   }
 
+  getJSONData(): WorkflowStateData {
+    return {
+      StartAt: this.data.StartAt,
+      States: this.cleanUpStates(this.data.States)
+    }
+  }
+
+  cleanUpStates(states: { [key: string]: WorkflowState }): { [key: string]: WorkflowState } {
+    const cleanStates: { [key: string]: WorkflowState } = { };
+    for (let key in states) {
+      if (states.hasOwnProperty(key)) {
+        const cleanState: Partial<WorkflowState> = {
+          Comment: states[key].Comment,
+          Type: states[key].Type,
+          Parameters: {
+            taskIcon: states[key].Parameters.taskIcon,
+            taskType: states[key].Parameters.taskType
+          }
+        };
+
+        if (states[key].Next) {
+          cleanState.Next = states[key].Next;
+        }
+        if (states[key].End) {
+          cleanState.End = states[key].End;
+        }
+
+        if (states[key].Branches?.length) {
+          cleanState.Branches = (states[key].Branches || []).map((branch: WorkflowStateData) => {
+            return {
+              StartAt: branch.StartAt,
+              States: this.cleanUpStates(branch.States)
+            };
+          })
+        }
+        cleanStates[key] = cleanState as WorkflowState;
+      }
+    }
+    return cleanStates;
+  }
+
   private insertStateAfterState(state: WorkflowState, activeState: WorkflowState) {
     const stateBranch = state.Parameters.stateId ? this.findStateBranch(state.Parameters.stateId) : null;
     if (stateBranch && activeState.Parameters.stateId) {
