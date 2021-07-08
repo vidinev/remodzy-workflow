@@ -15,7 +15,6 @@ import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.int
 import { tick } from './tick.service';
 
 /*
- * Fix "large one side" for horizontal
  * Implement zoom
  * Scroll canvas by drag method (when space is hold)
 
@@ -23,9 +22,6 @@ import { tick } from './tick.service';
  * Test lib basic functionality
  * es5 -> es modules
  *
- * Discuss using Pass state in workflow
- * Support using simple state (Non Pass type) for root of the branch ?
- * http://jsfiddle.net/maCmB/1/
  */
 
 export class RemodzyWorkflowBuilder {
