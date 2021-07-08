@@ -3,31 +3,31 @@ import { PointCoords } from '../interfaces/point-coords.interface';
 import { StateTypesEnum } from '../configs/state-types.enum';
 import { passStateItemSize, stateItemSize } from '../configs/size.config';
 import { IConnectPoint } from '../models/interfaces/connect-point.interface';
+import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 
 export class CoordsService {
-  getCenterBottomCoords(states: IStateGroup[], passStateAsFullState: boolean = false) {
+  getCenterBottomCoords(states: IStateGroup[],
+                        passStateAsFullState: boolean = false,
+                        dropArea: IDropAreaGroup | null = null) {
     let lowerItem: IStateGroup = {} as IStateGroup;
+    let lowerCoords = { x: 0, y: 0 };
     lowerItem = states[0];
-    states.forEach((state: IStateGroup) => {
-      if (CoordsService.getBottomY(state) > (CoordsService.getBottomY(lowerItem) || 0)) {
+    CoordsService.getAllStates(states).forEach((state: IStateGroup) => {
+      const currentStateLowerCoords = CoordsService.getBottomCoords(state, passStateAsFullState);
+      const lowerStateLowerCoords = CoordsService.getBottomCoords(lowerItem, passStateAsFullState);
+      if (currentStateLowerCoords.y >= lowerStateLowerCoords.y) {
         lowerItem = state;
+
+        lowerCoords = currentStateLowerCoords;
       }
     });
-    const dropArea = lowerItem.getDropArea?.();
-    const centerBottomCoords = lowerItem.getCenterBottomCoords();
-    if (dropArea) {
-      return {
-        ...centerBottomCoords,
-        y: dropArea.getTop() + (dropArea.height || 0),
+    if (dropArea && dropArea.getCenterBottomCoords().y > lowerCoords.y) {
+      lowerCoords = {
+        x: dropArea.getLeft(),
+        y: dropArea.getTop() + (dropArea.height || 0)
       };
     }
-    if (passStateAsFullState && lowerItem.data.Type === StateTypesEnum.Pass) {
-      return {
-        ...centerBottomCoords,
-        y: centerBottomCoords.y + (stateItemSize.height - passStateItemSize.height) / 2,
-      };
-    }
-    return centerBottomCoords;
+    return lowerCoords;
   }
 
   getCenterTopCoords(states: IStateGroup[]) {
@@ -104,7 +104,6 @@ export class CoordsService {
     return allStates;
   }
 
-
   private static getLeftX(state: IStateGroup) {
     return state.getLeft?.() || 0;
   }
@@ -131,18 +130,35 @@ export class CoordsService {
     return centerRightCoords;
   }
 
+  private static getBottomCoords(state: IStateGroup, passStateAsFullState: boolean = false) {
+    let centerBottomCoords = state.getCenterBottomCoords?.() || { x: 0, y: 0 };
+    const tiePoint = state.getBottomTiePoint?.();
+    const dropArea = state.getDropArea?.();
+    if (dropArea) {
+      return {
+        x: centerBottomCoords.x,
+        y: dropArea.getTop() + (dropArea.height || 0)
+      }
+    }
+    if (tiePoint) {
+      return {
+        x: centerBottomCoords.x,
+        y: tiePoint.getCenterBottomCoords().y
+      };
+    }
+    if (passStateAsFullState && state.data?.Type === StateTypesEnum.Pass) {
+      return {
+        ...centerBottomCoords,
+        y: centerBottomCoords.y + (stateItemSize.height - passStateItemSize.height) / 2,
+      };
+    }
+    return centerBottomCoords;
+  }
+
   private static getTopY(state: IStateGroup) {
     let currentY =  state.getCenterTopCoords?.()?.y || 0;
     if (state.isBranchRoot?.()) {
       currentY = state.getCenterTopCoordsAboveChildren()?.y || currentY;
-    }
-    return currentY;
-  }
-
-  private static getBottomY(state: IStateGroup) {
-    let currentY = state.getCenterBottomCoords?.()?.y || 0;
-    if (state.isBranchRoot?.()) {
-      currentY = state.getCenterBottomCoordsUnderChildren()?.y || currentY;
     }
     return currentY;
   }

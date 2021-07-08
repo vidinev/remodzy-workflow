@@ -243,7 +243,8 @@ export const StateGroup = fabric.util.createClass(fabric.Group, {
 
   getCenterBottomCoordsUnderChildren(passStateAsFullState: boolean = false): PointCoords {
     const coordsService = new CoordsService();
-    return coordsService.getCenterBottomCoords(this.getChildrenStates(), passStateAsFullState);
+    const dropArea = this.getDropArea?.();
+    return coordsService.getCenterBottomCoords(this.getChildrenStates(), passStateAsFullState, dropArea);
   },
 
   getCenterTopCoordsAboveChildren(): PointCoords {
