@@ -88,13 +88,8 @@ export class RemodzyWorkflowBuilder {
 
   public async initialize() {
     await this.manropeFont.load();
-    const states = this.drawBranchService.drawBranch();
+    this.drawBranchService.drawBranch();
     this.canvas.requestRenderAll();
-
-    const a = states[2].getCenterBottomCoordsUnderChildren();
-    const red = new fabric.Rect({
-      top: a.y, left: a.x, width: 80, height: 50, fill: 'red' });
-    this.canvas.add(red);
   }
 
   private getCanvasDimensions(): WorkflowDimensions {
