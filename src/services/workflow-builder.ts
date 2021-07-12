@@ -13,6 +13,7 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.interface';
 import { tick } from './tick.service';
+import { ObjectTypes } from '../configs/object-types.enum';
 
 /*
  * Implement zoom
@@ -23,6 +24,8 @@ import { tick } from './tick.service';
  * es5 -> es modules
  *
  */
+
+const padding = 5;
 
 export class RemodzyWorkflowBuilder {
   public isDragging: boolean = false;
@@ -61,9 +64,11 @@ export class RemodzyWorkflowBuilder {
 
     const canvasDimensions = this.getCanvasDimensions();
     this.canvas.setDimensions({
-      width: canvasDimensions.width,
-      height: canvasDimensions.height,
+      width: 1000,
+      height: 800,
     });
+
+    this.scrollBars();
 
     const drawBranchFactory = new DrawBranchFactoryService(
       this.workflowData,
@@ -77,10 +82,6 @@ export class RemodzyWorkflowBuilder {
       const dropAreas = this.drawBranchService.getDropAreas();
       this.canvasEvents.initialize(dropAreas);
     });
-
-    let timer: any;
-
-    // scrollZoom(document.getElementById('canvas-wrapper') as HTMLDivElement, this.canvas);
 
     this.canvas.on('mouse:down', (opt) => {
       const evt = opt.e as MouseEvent;
@@ -105,8 +106,6 @@ export class RemodzyWorkflowBuilder {
     });
 
     this.canvas.on('mouse:up', (opt) => {
-      // on mouse up we want to recalculate new interaction
-      // for all objects, so we call setViewportTransform
       this.canvas.setViewportTransform(this.canvas.viewportTransform!);
       this.isDragging = false;
       this.canvas.selection = true;
@@ -126,6 +125,7 @@ export class RemodzyWorkflowBuilder {
       this.canvas.renderAll();
       opt.e.preventDefault();
       opt.e.stopPropagation();
+      console.log(this.canvas.viewportTransform);
     });
   }
 
@@ -133,6 +133,22 @@ export class RemodzyWorkflowBuilder {
     await this.manropeFont.load();
     this.drawBranchService.drawBranch();
     this.canvas.requestRenderAll();
+  }
+
+  private scrollBars() {
+    const verticalBar = new fabric.Rect({
+      width: 10,
+      height: 100,
+      fill: 'grey',
+      opacity: 0.8,
+      hasControls: false,
+      hasBorders: false,
+      objectCaching: false,
+      left: this.canvas.getWidth() - padding - 10,
+      top: padding,
+      type: ObjectTypes.scrollBar
+    });
+    this.canvas.add(verticalBar);
   }
 
   private getCanvasDimensions(): WorkflowDimensions {
