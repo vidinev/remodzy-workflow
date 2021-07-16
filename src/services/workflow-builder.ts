@@ -13,9 +13,15 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.interface';
 import { tick } from './tick.service';
-import { ObjectTypes } from '../configs/object-types.enum';
 
 /*
+ * remove object type scrollbar
+ * Fix delta, should be in range 0 - 1 (scroll percent)
+ * optimize calculations
+ * Refactor, move functions to services
+ * fix TODO get values from config
+ * horizontal scroll
+
  * Implement zoom
  * Scroll canvas by drag method (when space is hold)
 
@@ -24,8 +30,6 @@ import { ObjectTypes } from '../configs/object-types.enum';
  * es5 -> es modules
  *
  */
-
-const padding = 5;
 
 export class RemodzyWorkflowBuilder {
   public isDragging: boolean = false;
@@ -46,6 +50,7 @@ export class RemodzyWorkflowBuilder {
   private animate: AnimateService;
   private tieLines: TieLinesService;
   private drawBranchService: DrawBranchService;
+  private readonly canvasDimensions: WorkflowDimensions;
   private readonly workflowData: WorkflowData;
   private readonly manropeFont: FontFaceObserver = new FontFaceObserver('Manrope');
 
@@ -62,7 +67,7 @@ export class RemodzyWorkflowBuilder {
       ...workflowSettings,
     };
 
-    const canvasDimensions = this.getCanvasDimensions();
+    this.canvasDimensions = this.getCanvasDimensions();
     this.canvas.setDimensions({
       width: 1000,
       height: 800,
@@ -74,7 +79,7 @@ export class RemodzyWorkflowBuilder {
       this.workflowData,
       this.canvas,
       { draft: false },
-      canvasDimensions,
+      this.canvasDimensions,
     );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();
@@ -105,7 +110,7 @@ export class RemodzyWorkflowBuilder {
       }
     });
 
-    this.canvas.on('mouse:up', (opt) => {
+    this.canvas.on('mouse:up', () => {
       this.canvas.setViewportTransform(this.canvas.viewportTransform!);
       this.isDragging = false;
       this.canvas.selection = true;
@@ -122,10 +127,9 @@ export class RemodzyWorkflowBuilder {
         zoom = 0.01;
       }
       this.canvas.zoomToPoint({ x: event.offsetX, y: event.offsetY } as Point, zoom);
-      this.canvas.renderAll();
+      this.canvas.requestRenderAll();
       opt.e.preventDefault();
       opt.e.stopPropagation();
-      console.log(this.canvas.viewportTransform);
     });
   }
 
@@ -136,19 +140,13 @@ export class RemodzyWorkflowBuilder {
   }
 
   private scrollBars() {
-    const verticalBar = new fabric.Rect({
-      width: 10,
-      height: 100,
-      fill: 'grey',
-      opacity: 0.8,
-      hasControls: false,
-      hasBorders: false,
-      objectCaching: false,
-      left: this.canvas.getWidth() - padding - 10,
-      top: padding,
-      type: ObjectTypes.scrollBar
-    });
-    this.canvas.add(verticalBar);
+    const canvasWrapper = this.canvas.getElement().parentElement;
+    const horizontalScrollBar = document.createElement('div');
+    horizontalScrollBar.className = 'horizontal-scroll-bar';
+    if (canvasWrapper) {
+      canvasWrapper.appendChild(horizontalScrollBar);
+      this.dragElement(horizontalScrollBar, canvasWrapper, this.canvas);
+    }
   }
 
   private getCanvasDimensions(): WorkflowDimensions {
@@ -210,82 +208,52 @@ export class RemodzyWorkflowBuilder {
       this.canvasEvents.initialize(dropAreas);
     });
   }
-}
 
-function scrollZoom(container: HTMLDivElement, canvas: Canvas) {
-  const maxScale = 10;
-  const factor = 0.25;
-  const target = container.firstElementChild as HTMLDivElement;
-  const computedStyle = getComputedStyle(target as HTMLDivElement, null);
-  const size = { w: Number(computedStyle.width), h: Number(computedStyle.height) };
-  const pos = { x: 0, y: 0 };
-  const zoomTarget = { x: 0, y: 0 };
-  const zoomPoint = { x: 0, y: 0 };
-  let scale = 1;
-
-  target.addEventListener('wheel', scrolled);
-  target.style.transformOrigin = '0 0';
-
-  function scrolled(event: WheelEvent) {
-    console.log('scrolled');
-    const offset = getOffset(container);
-
-    zoomPoint.x = event.pageX - offset.left;
-    zoomPoint.y = event.pageY - offset.top;
-
-    event.preventDefault();
-    let delta = event.deltaY * -1;
-    if (delta === undefined) {
-      delta = event.detail;
+  private dragElement(element: HTMLElement, canvasWrapper: HTMLElement, canvas: Canvas) {
+    let deltaDirection = 0;
+    let clientY = 0;
+    element.addEventListener('mousedown', dragMouseDown);
+    let self = this;
+    function dragMouseDown(event: MouseEvent) {
+      event.preventDefault();
+      clientY = event.clientY;
+      document.addEventListener('mouseup', closeDragElement);
+      document.addEventListener('mousemove', elementDrag);
     }
-    delta = Math.max(-1, Math.min(1, delta));
 
-    // determine the point on where the slide is zoomed in
-    zoomTarget.x = (zoomPoint.x - pos.x) / scale;
-    zoomTarget.y = (zoomPoint.y - pos.y) / scale;
+    function elementDrag(event: MouseEvent) {
+      event.preventDefault();
+      // calculate the new cursor position:
+      deltaDirection = clientY - event.clientY;
+      clientY = event.clientY;
+      const currentTopMath = (element.style.transform || '').match(/translate\(\d+px,\s?(\d+)px\)/);
+      let currentTop = Number(currentTopMath && currentTopMath[1] || 0);
+      if (currentTop - deltaDirection + element.offsetHeight + 10 > canvasWrapper.offsetHeight) {
+        currentTop = canvasWrapper.offsetHeight - element.offsetHeight - 10 + deltaDirection;
+      }
+      if (currentTop < 0) {
+        currentTop = 0;
+      }
+      element.style.transform = `translate(0, ${currentTop - deltaDirection}px)`;
 
-    // apply zoom
-    scale += delta * factor * scale;
-    scale = Math.max(1, Math.min(maxScale, scale));
+      // TODO get values from config
+      const padding = 5;
 
-    // calculate x and y based on zoom
-    pos.x = -zoomTarget.x * scale + zoomPoint.x;
-    pos.y = -zoomTarget.y * scale + zoomPoint.y;
+      const availableHeight = canvas.getHeight() - padding * 2 - (element.offsetHeight || 0);
 
-    // Make sure the slide stays in its container area when zooming out
-    if (pos.x > 0) {
-      pos.x = 0;
+      const delta = (currentTop - padding) / availableHeight;
+      console.log(self.canvasDimensions);
+
+      let vpt = canvas.viewportTransform!;
+      vpt[5] = -(self.canvasDimensions.height - canvas.getHeight()) * delta;
+      canvas.requestRenderAll();
+
     }
-    if (pos.x + size.w * scale < size.w) {
-      pos.x = -size.w * (scale - 1);
-    }
-    if (pos.y > 0) {
-      pos.y = 0;
-    }
-    if (pos.y + size.h * scale < size.h) {
-      pos.y = -size.h * (scale - 1);
-    }
-    update();
-  }
 
-  function update() {
-    target.style.transform = `translate(${pos.x}, ${pos.x}) scale(1, 1)`;
-    target.style.transform = 'translate(' + pos.x + 'px,' + pos.y + 'px) scale(' + scale + ',' + scale + ')';
+    function closeDragElement() {
+      document.removeEventListener('mouseup', closeDragElement);
+      document.removeEventListener('mousemove', elementDrag);
+    }
   }
 }
 
-function getOffset(element: HTMLDivElement) {
-  if (!element.getClientRects().length) {
-    return { top: 0, left: 0 };
-  }
-
-  let rect = element.getBoundingClientRect();
-  let win = element.ownerDocument.defaultView;
-  if (!win) {
-    return { top: 0, left: 0 };
-  }
-  return {
-    top: rect.top + win.pageYOffset,
-    left: rect.left + win.pageXOffset,
-  };
-}

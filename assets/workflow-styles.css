@@ -1,0 +1,8 @@
+.horizontal-scroll-bar {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  height: 100px;
+  background: #999;
+  width: 10px;
+}

@@ -176,29 +176,6 @@ export class CanvasEventsService {
 
   private setupDragOverflowEvents() {
     this.canvas.on('object:moving', (event: IEvent) => {
-      if (event.target?.type === ObjectTypes.scrollBar) {
-        console.log('event', event.target?.type);
-
-        // TODO get values from config
-        const padding = 5;
-
-        event.target.left = this.canvas.getWidth() - padding - 10;
-        event.target.top = Math.max(
-          Math.min(event.target.top || 0, this.canvas.getHeight() - (event.target.height || 0) - padding),
-          padding
-        );
-
-
-        const availableHeight = this.canvas.getHeight() - padding * 2 - (event.target.height || 0);
-        const delta = ((event.target.top || 0) - padding) / availableHeight;
-        console.log(delta, -(800 - this.canvas.getHeight()));
-
-        let vpt = this.canvas.viewportTransform!;
-        vpt[5] += -(850 - this.canvas.getHeight()) * delta;
-
-
-        // layer.y();
-      }
       if (event.target && this.currentDragTop && CanvasEventsService.isDragEventAllowed(event.target)) {
         const left = (event.target.left || 0) + this.dragLeftDelta;
         const top = (event.target.top || 0) + this.dragTopDelta;
