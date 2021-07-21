@@ -8,5 +8,4 @@ export enum ObjectTypes {
   curveTieLine = 'curveTieLine',
   bezierCurveTieLine = 'bezierCurveTieLine',
   curveTieLineCorner = 'curveTieLineCorner',
-  scrollBar = 'scrollBar'
 }

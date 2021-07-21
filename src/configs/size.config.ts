@@ -52,6 +52,8 @@ export const marginSize: MarginSize = {
   marginForCustomDropArea,
 };
 
+export const scrollBarPadding = 5;
+
 export const topAngleOffset = (stateItemSize.width * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;
 export const leftAngleOffset = (stateItemSize.height * MathService.getTanDeg(stateItemSize.dragDropAngle)) / 2;
 

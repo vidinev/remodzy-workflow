@@ -1,4 +1,13 @@
-.horizontal-scroll-bar {
+.wf-horizontal-scroll-bar {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  width: 100px;
+  background: #999;
+  height: 10px;
+}
+
+.wf-vertical-scroll-bar {
   position: absolute;
   right: 5px;
   top: 5px;

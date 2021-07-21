@@ -2,7 +2,7 @@ import { Canvas, ICanvasOptions, IEvent, Point } from 'fabric/fabric-impl';
 import { RemodzyWfDirection, RemodzyWFSettings } from '../interfaces/workflow-settings.interface';
 import { CanvasEventsService } from './canvas-events.service';
 import { AnimateService } from './animate.service';
-import { canvasSize } from '../configs/size.config';
+import { canvasSize, scrollBarPadding } from '../configs/size.config';
 import { IDropAreaGroup } from '../models/interfaces/drop-area.interface';
 import { WorkflowData } from './workflow-data.service';
 import { TieLinesService } from './tie-lines/tie-lines.service';
@@ -13,16 +13,18 @@ import { DrawBranchFactoryService } from './draw-branch/draw-branch-factory.serv
 import { TieLinesFactoryService } from './tie-lines/tie-lines-factory.service';
 import { WorkflowDimensions } from '../models/interfaces/workflow dimentions.interface';
 import { tick } from './tick.service';
+import {
+  horizontalScrollBarClass,
+  verticalScrollBarClass,
+} from '../configs/scroll-bar.config';
 
 /*
- * remove object type scrollbar
- * Fix delta, should be in range 0 - 1 (scroll percent)
- * optimize calculations
+ * Fix drag drop, sorting
+ * Disable canvas selection
  * Refactor, move functions to services
- * fix TODO get values from config
+ * Correct size for bars, depending on canvas size
  * horizontal scroll
 
- * Implement zoom
  * Scroll canvas by drag method (when space is hold)
 
  * Merge all js files into one
@@ -142,10 +144,14 @@ export class RemodzyWorkflowBuilder {
   private scrollBars() {
     const canvasWrapper = this.canvas.getElement().parentElement;
     const horizontalScrollBar = document.createElement('div');
-    horizontalScrollBar.className = 'horizontal-scroll-bar';
+    const verticalScrollBar = document.createElement('div');
+    horizontalScrollBar.className = horizontalScrollBarClass;
+    verticalScrollBar.className = verticalScrollBarClass;
     if (canvasWrapper) {
       canvasWrapper.appendChild(horizontalScrollBar);
-      this.dragElement(horizontalScrollBar, canvasWrapper, this.canvas);
+      canvasWrapper.appendChild(verticalScrollBar);
+      this.dragElement(canvasWrapper, this.canvas, false);
+      this.dragElement(canvasWrapper, this.canvas, true);
     }
   }
 
@@ -209,45 +215,75 @@ export class RemodzyWorkflowBuilder {
     });
   }
 
-  private dragElement(element: HTMLElement, canvasWrapper: HTMLElement, canvas: Canvas) {
-    let deltaDirection = 0;
+  private dragElement(canvasWrapper: HTMLElement,
+                      canvas: Canvas,
+                      vertical: boolean) {
+    let deltaDirectionY = 0;
+    let deltaDirectionX = 0;
     let clientY = 0;
-    element.addEventListener('mousedown', dragMouseDown);
+    let clientX = 0;
+    const canvasHeight = canvas.getHeight();
+    const canvasWidth = canvas.getWidth();
+    const selector = vertical ? `.${verticalScrollBarClass}` : `.${horizontalScrollBarClass}`;
+    const element = canvasWrapper.querySelector<HTMLElement>(selector)!;
+    if (!element) {
+      return;
+    }
+    element?.addEventListener('mousedown', dragMouseDown);
     let self = this;
     function dragMouseDown(event: MouseEvent) {
       event.preventDefault();
       clientY = event.clientY;
+      clientX = event.clientX;
       document.addEventListener('mouseup', closeDragElement);
       document.addEventListener('mousemove', elementDrag);
     }
 
     function elementDrag(event: MouseEvent) {
       event.preventDefault();
-      // calculate the new cursor position:
-      deltaDirection = clientY - event.clientY;
+
+      deltaDirectionY = vertical ? clientY - event.clientY : 0;
+      deltaDirectionX = vertical ? 0 : clientX - event.clientX;
       clientY = event.clientY;
-      const currentTopMath = (element.style.transform || '').match(/translate\(\d+px,\s?(\d+)px\)/);
-      let currentTop = Number(currentTopMath && currentTopMath[1] || 0);
-      if (currentTop - deltaDirection + element.offsetHeight + 10 > canvasWrapper.offsetHeight) {
-        currentTop = canvasWrapper.offsetHeight - element.offsetHeight - 10 + deltaDirection;
+      clientX = event.clientX;
+
+      const transformString = (element.style.transform || '');
+      const transformStringLength = (element.style.transform || '').length;
+      let [transformX, transformY]  = transformString.substr(10, transformStringLength - 13).split('px, ');
+
+
+      let currentTop = Number(transformY || 0);
+      let currentLeft = Number(transformX || 0);
+      if (currentTop - deltaDirectionY + element.offsetHeight + 10 > canvasWrapper.offsetHeight) {
+        currentTop = canvasWrapper.offsetHeight - element.offsetHeight - 10 + deltaDirectionY;
       }
-      if (currentTop < 0) {
-        currentTop = 0;
+      if (currentLeft - deltaDirectionX + element.offsetWidth + 10 > canvasWrapper.offsetWidth) {
+        currentLeft = canvasWrapper.offsetWidth - element.offsetWidth - 10 + deltaDirectionX;
       }
-      element.style.transform = `translate(0, ${currentTop - deltaDirection}px)`;
 
-      // TODO get values from config
-      const padding = 5;
+      let newTransformY = currentTop - deltaDirectionY;
+      if (newTransformY < 0) {
+        newTransformY = 0;
+      }
+      let newTransformX = currentLeft - deltaDirectionX;
+      if (newTransformX < 0) {
+        newTransformX = 0;
+      }
+      element.style.transform = `translate(${newTransformX}px, ${newTransformY}px)`;
 
-      const availableHeight = canvas.getHeight() - padding * 2 - (element.offsetHeight || 0);
+      const availableHeight = canvasHeight - scrollBarPadding * 2 - (element.offsetHeight || 0);
+      const availableWidth = canvasWidth - scrollBarPadding * 2 - (element.offsetWidth || 0);
 
-      const delta = (currentTop - padding) / availableHeight;
-      console.log(self.canvasDimensions);
+      let deltaY = (currentTop - scrollBarPadding) / availableHeight;
+      let deltaX = (currentLeft - scrollBarPadding) / availableWidth;
 
       let vpt = canvas.viewportTransform!;
-      vpt[5] = -(self.canvasDimensions.height - canvas.getHeight()) * delta;
+      if (vertical) {
+        vpt[5] = -(self.canvasDimensions.height - canvasHeight) * deltaY;
+      } else {
+        vpt[4] = -(self.canvasDimensions.width - canvasWidth) * deltaX;
+      }
       canvas.requestRenderAll();
-
     }
 
     function closeDragElement() {
