@@ -19,13 +19,12 @@ import {
 } from '../configs/scroll-bar.config';
 
 /*
+ * Fix single responsibility (vertical !vertical)
+ * Refactor scrollbars, move logic to service
+ * Don't move states, when Alt + move
+ * Change scrollbar positions on 'Alt + move'
  * Fix drag drop, sorting
- * Disable canvas selection
- * Refactor, move functions to services
- * Correct size for bars, depending on canvas size
- * horizontal scroll
-
- * Scroll canvas by drag method (when space is hold)
+ * Alt -> any button, move to options
 
  * Merge all js files into one
  * Test lib basic functionality
@@ -150,6 +149,10 @@ export class RemodzyWorkflowBuilder {
     if (canvasWrapper) {
       canvasWrapper.appendChild(horizontalScrollBar);
       canvasWrapper.appendChild(verticalScrollBar);
+      const viewHeightPercent = canvasWrapper.offsetHeight / this.canvasDimensions.height;
+      verticalScrollBar.style.height = `${viewHeightPercent * canvasWrapper.offsetHeight}px`;
+      const viewWidthPercent = canvasWrapper.offsetWidth / this.canvasDimensions.width;
+      horizontalScrollBar.style.width = `${viewWidthPercent * canvasWrapper.offsetWidth}px`;
       this.dragElement(canvasWrapper, this.canvas, false);
       this.dragElement(canvasWrapper, this.canvas, true);
     }
@@ -222,6 +225,8 @@ export class RemodzyWorkflowBuilder {
     let deltaDirectionX = 0;
     let clientY = 0;
     let clientX = 0;
+    let prevTransformY = 0;
+    let prevTransformX = 0;
     const canvasHeight = canvas.getHeight();
     const canvasWidth = canvas.getWidth();
     const selector = vertical ? `.${verticalScrollBarClass}` : `.${horizontalScrollBarClass}`;
@@ -247,10 +252,17 @@ export class RemodzyWorkflowBuilder {
       clientY = event.clientY;
       clientX = event.clientX;
 
+      if (vertical && deltaDirectionY === 0) {
+        return;
+      }
+
+      if (!vertical && deltaDirectionX === 0) {
+        return;
+      }
+
       const transformString = (element.style.transform || '');
       const transformStringLength = (element.style.transform || '').length;
       let [transformX, transformY]  = transformString.substr(10, transformStringLength - 13).split('px, ');
-
 
       let currentTop = Number(transformY || 0);
       let currentLeft = Number(transformX || 0);
@@ -269,6 +281,14 @@ export class RemodzyWorkflowBuilder {
       if (newTransformX < 0) {
         newTransformX = 0;
       }
+      if (!vertical && (prevTransformX === newTransformX)) {
+        return;
+      }
+      if (vertical && (prevTransformY === newTransformY)) {
+        return;
+      }
+      prevTransformX = newTransformX;
+      prevTransformY = newTransformY;
       element.style.transform = `translate(${newTransformX}px, ${newTransformY}px)`;
 
       const availableHeight = canvasHeight - scrollBarPadding * 2 - (element.offsetHeight || 0);
