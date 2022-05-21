@@ -17,6 +17,7 @@ export class CanvasEventsService {
   private canvas: Canvas;
   private activeDropArea: IDropAreaGroup | null = null;
   private dropAreasAndPolygons: { area: IDropAreaGroup; polygon: Polygon }[] = [];
+  private readonly updateCheckDebounceTime = 100;
 
   static isDragEventAllowed(target?: Object) {
     return target && target.type === ObjectTypes.state && target.selectable;
@@ -89,7 +90,7 @@ export class CanvasEventsService {
             }
           }
         });
-      }, 100),
+      }, this.updateCheckDebounceTime),
     );
     this.canvas.on('object:moved', (event: IEvent) => {
       this.currentDragTop = 0;
@@ -179,17 +180,29 @@ export class CanvasEventsService {
       if (event.target && this.currentDragTop && CanvasEventsService.isDragEventAllowed(event.target)) {
         const left = (event.target.left || 0) + this.dragLeftDelta;
         const top = (event.target.top || 0) + this.dragTopDelta;
-        if (left + stateItemSize.width + leftAngleOffset >= this.canvas.width!) {
-          event.target.left = this.canvas.width! - stateItemSize.width - leftAngleOffset - this.dragLeftDelta;
+        const leftViewportOffset = this.canvas.viewportTransform?.[4] || 0;
+        const topViewportOffset = this.canvas.viewportTransform?.[5] || 0;
+        const leftBorder = leftAngleOffset - leftViewportOffset;
+        const topBorder = 0 - topViewportOffset;
+        if (left + stateItemSize.width + leftAngleOffset >= this.canvas.width! - leftViewportOffset) {
+          event.target.left = this.canvas.width!
+            - stateItemSize.width
+            - leftAngleOffset
+            - this.dragLeftDelta
+            - leftViewportOffset;
         }
-        if (left <= leftAngleOffset) {
-          event.target.left = leftAngleOffset - this.dragLeftDelta;
+        if (left <= leftBorder) {
+          event.target.left = leftBorder - this.dragLeftDelta;
         }
-        if (top <= topAngleOffset) {
-          event.target.top = 0 - this.dragTopDelta;
+        if (top <= topBorder) {
+          event.target.top = topBorder - this.dragTopDelta;
         }
-        if (top + stateItemSize.height + topAngleOffset >= this.canvas.height!) {
-          event.target.top = this.canvas.height! - stateItemSize.height - topAngleOffset * 2 - this.dragTopDelta;
+        if (top + stateItemSize.height + topAngleOffset >= this.canvas.height! - topViewportOffset) {
+          event.target.top = this.canvas.height!
+            - stateItemSize.height
+            - topAngleOffset * 2
+            - this.dragTopDelta
+            - topViewportOffset;
         }
       }
     });

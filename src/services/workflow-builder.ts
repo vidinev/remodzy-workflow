@@ -69,6 +69,7 @@ export class RemodzyWorkflowBuilder {
     };
 
     this.canvasDimensions = this.getCanvasDimensions();
+    // TODO remove mock dimensions
     this.canvas.setDimensions({
       width: 1000,
       height: 800,
@@ -84,6 +85,7 @@ export class RemodzyWorkflowBuilder {
     );
     this.drawBranchService = drawBranchFactory.getDrawBranchService(this.workflowSettings.direction);
     this.setupCanvasEvents();
+
     this.initialize().then(() => {
       const dropAreas = this.drawBranchService.getDropAreas();
       this.canvasEvents.initialize(dropAreas);
@@ -140,6 +142,7 @@ export class RemodzyWorkflowBuilder {
     this.canvas.requestRenderAll();
   }
 
+  // TODO rename move to service
   private scrollBars() {
     const canvasWrapper = this.canvas.getElement().parentElement;
     const horizontalScrollBar = document.createElement('div');
@@ -181,6 +184,21 @@ export class RemodzyWorkflowBuilder {
         }
       },
     });
+
+    this.canvas.on('mouse:over', (event: IEvent) => {
+      if (CanvasEventsService.isDragEventAllowed(event.target)) {
+        const state = event.target as IStateGroup;
+        this.canvas.remove(state);
+        const stateGroup = this.drawBranchService.drawStateRoot(state.getStateData(), {
+          y: state.getTop(),
+          x: state.getLeft(),
+        });
+        stateGroup.selectable = false;
+        stateGroup.sendToBack();
+        this.canvas.requestRenderAll();
+        setTimeout(() => stateGroup.selectable = true);
+      }
+    });
   }
 
   private drawStateCloneUnderMovingObject(movingState: IStateGroup) {
@@ -197,9 +215,10 @@ export class RemodzyWorkflowBuilder {
     this.tieLines = tieLinesFactory.getTieLinesService(this.workflowSettings.direction);
     await tick();
     const canvasDimensions = this.getCanvasDimensions();
+    // TODO remove mock
     this.canvas.setDimensions({
-      width: canvasDimensions.width,
-      height: canvasDimensions.height,
+      width: 1000,
+      height: 800,
     });
     const drawBranchFactory = new DrawBranchFactoryService(
       this.workflowData,
