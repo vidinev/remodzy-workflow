@@ -17,6 +17,7 @@ import {
   horizontalScrollBarClass,
   verticalScrollBarClass,
 } from '../configs/scroll-bar.config';
+import { ObjectTypes } from '../configs/object-types.enum';
 
 /*
  * Fix single responsibility (vertical !vertical)
@@ -185,6 +186,14 @@ export class RemodzyWorkflowBuilder {
       },
     });
 
+    // TODO move to method
+    this.canvas.on('selection:created', (event: IEvent) => {
+      if (event.target?.type === ObjectTypes.activeSelection) {
+        this.canvas.discardActiveObject();
+      }
+    });
+
+    // TODO move to method
     this.canvas.on('mouse:over', (event: IEvent) => {
       if (CanvasEventsService.isDragEventAllowed(event.target)) {
         const state = event.target as IStateGroup;

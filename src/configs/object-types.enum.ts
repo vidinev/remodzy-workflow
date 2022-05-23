@@ -8,4 +8,5 @@ export enum ObjectTypes {
   curveTieLine = 'curveTieLine',
   bezierCurveTieLine = 'bezierCurveTieLine',
   curveTieLineCorner = 'curveTieLineCorner',
+  activeSelection = 'activeSelection',
 }
